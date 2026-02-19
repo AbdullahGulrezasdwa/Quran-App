@@ -1,83 +1,323 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Al-Quran Al-Kareem | Interactive Experience</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script> </head>
+    <title>Al-Quran Al-Kareem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #065f46;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --glass: rgba(255, 255, 255, 0.8);
+            --card: #ffffff;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --text: #f1f5f9;
+            --glass: rgba(30, 41, 59, 0.8);
+            --card: #1e293b;
+            --primary: #34d399;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.2s ease; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 120px;
+        }
+
+        /* Navbar Styling */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 1rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); cursor: pointer; }
+
+        .search-bar {
+            background: var(--bg);
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            display: flex; align-items: center;
+            width: 100%; max-width: 400px;
+        }
+
+        .search-bar input {
+            border: none; background: transparent; outline: none;
+            color: var(--text); width: 100%; margin-left: 10px;
+        }
+
+        /* Hero Section */
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 5%; }
+        
+        .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .hero p { opacity: 0.7; margin-bottom: 2rem; }
+
+        /* Surah Grid */
+        .surah-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .surah-card {
+            background: var(--card);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .surah-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .surah-info h3 { font-size: 1.1rem; }
+        .surah-info p { font-size: 0.85rem; opacity: 0.6; }
+
+        .surah-arabic {
+            font-family: 'Amiri', serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        /* Reader View */
+        .hidden { display: none; }
+        .reader-view { animation: fadeIn 0.4s ease; }
+        
+        .ayah-card {
+            background: var(--card);
+            margin-bottom: 1rem;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: right;
+        }
+
+        .ayah-arabic {
+            font-family: 'Amiri', serif;
+            font-size: 2.2rem;
+            line-height: 2.5;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .ayah-translation {
+            text-align: left;
+            font-size: 1.05rem;
+            opacity: 0.8;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-top: 1rem;
+        }
+
+        .active-ayah { border-left: 5px solid var(--primary); background: rgba(16, 185, 129, 0.05); }
+
+        /* Modern Audio Player Bar */
+        .audio-player {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            width: 90%; max-width: 600px;
+            background: var(--text);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 100px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .player-btn {
+            background: var(--primary);
+            border: none; width: 45px; height: 45px;
+            border-radius: 50%; color: white;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        .back-btn {
+            background: none; border: 1px solid var(--primary);
+            color: var(--primary); padding: 0.5rem 1.5rem;
+            border-radius: 50px; cursor: pointer; margin-bottom: 2rem;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 600px) {
+            .search-bar { display: none; }
+            .hero h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
 <body>
 
-    <div class="bg-glow"></div>
-
-    <nav class="glass-nav">
-        <div class="nav-content">
-            <div class="brand" onclick="showHome()">
-                <span class="logo-icon">📖</span>
-                <h1>Al-Quran</h1>
-            </div>
-            
-            <div class="nav-actions">
-                <div class="search-pill">
-                    <i data-lucide="search"></i>
-                    <input type="text" id="mainSearch" placeholder="Jump to Surah..." onkeyup="filterSurahs()">
-                </div>
-                <button class="icon-btn" id="themeToggle"><i data-lucide="moon"></i></button>
-                <button class="icon-btn" onclick="toggleSettings()"><i data-lucide="settings"></i></button>
-            </div>
+    <nav>
+        <div class="logo" onclick="location.reload()">Al-Quran</div>
+        <div class="search-bar">
+            <i data-lucide="search" size="18"></i>
+            <input type="text" id="searchInput" placeholder="Search Surah..." onkeyup="filterSurahs()">
         </div>
+        <button id="themeToggle" style="background:none; border:none; cursor:pointer; color:var(--text)">
+            <i data-lucide="moon"></i>
+        </button>
     </nav>
 
-    <main class="main-layout">
-        <div id="homeView" class="view">
+    <div class="container">
+        <div id="homeView">
             <div class="hero">
-                <h2 id="greeting">Assalamu Alaikum</h2>
-                <div id="lastReadCard" class="last-read-card hidden" onclick="resumeReading()">
-                    <div class="card-info">
-                        <span>CONTINUE READING</span>
-                        <h3 id="lastReadName">Surah Al-Baqarah</h3>
-                        <p id="lastReadAyah">Ayah 255</p>
-                    </div>
-                    <i data-lucide="play-circle"></i>
+                <h1>Assalamu Alaikum</h1>
+                <p>Explore, read, and listen to the Holy Quran with a modern experience.</p>
+            </div>
+            <div id="surahGrid" class="surah-grid">
                 </div>
-            </div>
-            <div id="surahGrid" class="surah-grid"></div>
         </div>
 
-        <div id="readerView" class="view hidden">
-            <div class="reader-header">
-                <button class="back-pill" onclick="showHome()"><i data-lucide="chevron-left"></i> Back</button>
-                <div id="surahMeta"></div>
-            </div>
-            <div id="bismillah" class="bismillah hidden">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-            <div id="ayahList" class="ayah-list"></div>
+        <div id="readerView" class="hidden reader-view">
+            <button class="back-btn" onclick="showHome()">← Back to List</button>
+            <div id="surahTitle" style="text-align: center; margin-bottom: 3rem;"></div>
+            <div id="ayahList"></div>
         </div>
-    </main>
+    </div>
 
-    <footer id="audioPlayer" class="audio-bar hidden">
-        <div class="player-content">
-            <div class="track-info">
-                <p id="playingSurah">-</p>
-                <span id="playingAyah">Ayah -</span>
-            </div>
-            <div class="player-controls">
-                <audio id="mainAudio" src=""></audio>
-                <button class="p-btn" onclick="prevAyah()"><i data-lucide="skip-back"></i></button>
-                <button class="p-btn play-main" onclick="toggleAudio()"><i data-lucide="play" id="playIcon"></i></button>
-                <button class="p-btn" onclick="nextAyah()"><i data-lucide="skip-forward"></i></button>
-            </div>
-            <div class="reciter-select">
-                <select id="reciterId" onchange="changeReciter()">
-                    <option value="ar.alafasy">Alafasy</option>
-                    <option value="ar.abdulsamad">Abdul Basit</option>
-                    <option value="ar.minshawi">Al-Minshawi</option>
-                </select>
-            </div>
+    <div id="playerBar" class="audio-player hidden">
+        <div class="playing-info">
+            <small style="opacity: 0.6; display: block;">Now Playing</small>
+            <span id="nowPlayingTitle" style="font-weight: 600;">Surah Name</span>
         </div>
-    </footer>
+        <audio id="mainAudio"></audio>
+        <button class="player-btn" onclick="togglePlay()">
+            <i data-lucide="play" id="playIcon"></i>
+        </button>
+    </div>
 
-    <script src="script.js"></script>
-    <script>lucide.createIcons();</script>
+    <script>
+        let allSurahs = [];
+        let currentAyahs = [];
+        const audio = document.getElementById('mainAudio');
+
+        // Fetch initial list
+        async function init() {
+            try {
+                const res = await fetch('https://api.alquran.cloud/v1/surah');
+                const data = await res.json();
+                allSurahs = data.data;
+                renderSurahs(allSurahs);
+                lucide.createIcons();
+            } catch (e) { console.error("API Error", e); }
+        }
+
+        function renderSurahs(list) {
+            const grid = document.getElementById('surahGrid');
+            grid.innerHTML = list.map(s => `
+                <div class="surah-card" onclick="openSurah(${s.number})">
+                    <div class="surah-info">
+                        <p>#${s.number}</p>
+                        <h3>${s.englishName}</h3>
+                        <p>${s.englishNameTranslation} • ${s.numberOfAyahs} Ayahs</p>
+                    </div>
+                    <div class="surah-arabic">${s.name}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterSurahs() {
+            const val = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allSurahs.filter(s => 
+                s.englishName.toLowerCase().includes(val) || 
+                s.number.toString() === val
+            );
+            renderSurahs(filtered);
+        }
+
+        async function openSurah(num) {
+            window.scrollTo(0,0);
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('readerView').classList.remove('hidden');
+            document.getElementById('ayahList').innerHTML = "Loading verses...";
+
+            const [arRes, enRes, auRes] = await Promise.all([
+                fetch(`https://api.alquran.cloud/v1/surah/${num}/quran-uthmani`).then(r => r.json()),
+                fetch(`https://api.alquran.cloud/v1/surah/${num}/en.asad`).then(r => r.json()),
+                fetch(`https://api.alquran.cloud/v1/surah/${num}/ar.alafasy`).then(r => r.json())
+            ]);
+
+            document.getElementById('surahTitle').innerHTML = `
+                <h1 style="font-family: 'Amiri'; font-size: 3rem; color: var(--primary);">${arRes.data.name}</h1>
+                <p>${arRes.data.englishName} • ${arRes.data.revelationType}</p>
+            `;
+
+            const ayahs = arRes.data.ayahs.map((a, i) => ({
+                arabic: a.text,
+                english: enRes.data.ayahs[i].text,
+                audio: auRes.data.ayahs[i].audio
+            }));
+
+            document.getElementById('ayahList').innerHTML = ayahs.map((a, i) => `
+                <div class="ayah-card" id="ayah-${i}" onclick="playAyah('${a.audio}', ${i})">
+                    <span class="ayah-arabic">${a.arabic} <small style="color:var(--primary)">(${i+1})</small></span>
+                    <p class="ayah-translation">${a.english}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('nowPlayingTitle').innerText = arRes.data.englishName;
+            currentAyahs = ayahs;
+        }
+
+        function playAyah(url, index) {
+            audio.src = url;
+            audio.play();
+            document.getElementById('playerBar').classList.remove('hidden');
+            document.getElementById('playIcon').setAttribute('data-lucide', 'pause');
+            
+            // Highlight active Ayah
+            document.querySelectorAll('.ayah-card').forEach(el => el.classList.remove('active-ayah'));
+            const active = document.getElementById(`ayah-${index}`);
+            active.classList.add('active-ayah');
+            active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            lucide.createIcons();
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                document.getElementById('playIcon').setAttribute('data-lucide', 'pause');
+            } else {
+                audio.pause();
+                document.getElementById('playIcon').setAttribute('data-lucide', 'play');
+            }
+            lucide.createIcons();
+        }
+
+        function showHome() {
+            document.getElementById('homeView').classList.remove('hidden');
+            document.getElementById('readerView').classList.add('hidden');
+            document.getElementById('playerBar').classList.add('hidden');
+            audio.pause();
+        }
+
+        // Theme Toggle
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        });
+
+        init();
+    </script>
 </body>
 </html>
