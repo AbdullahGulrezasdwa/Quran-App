@@ -3,117 +3,79 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sovereign Omega</title>
+<title>Sovereign Omega | Fixed</title>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
 :root {
-    /* Dynamic Theme System */
     --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc; --sub: #94a3b8;
     --border: #1e293b; --ar-size: 2.8rem; --en-size: 1.1rem; --line: 2.5;
 }
 
-/* Feature 1: High-Contrast Sepia Fix */
 [data-theme="sepia"] { --bg: #f4f1ea; --surf: #e8e4d9; --text: #2d241e; --sub: #5d534a; --border: #d1cdc0; }
 [data-theme="obsidian"] { --bg: #000; --surf: #0a0a0a; --text: #fff; --sub: #666; --border: #1a1a1a; }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { 
-    font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); 
-    display: flex; height: 100vh; overflow: hidden; transition: 0.3s;
-}
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
-/* Sidebar & Navigation */
-nav { width: 85px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 2rem 0; z-index: 1000; }
+/* Sidebar */
+nav { width: 85px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 2rem 0; z-index: 100; }
 .nav-btn { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.2rem; cursor: pointer; color: var(--sub); transition: 0.3s; }
 .nav-btn:hover, .nav-btn.active { color: var(--p); background: rgba(16, 185, 129, 0.1); }
 
-/* Feature 2: Scroll-Lock Header */
-header { 
-    position: sticky; top: 0; background: var(--bg); backdrop-filter: blur(20px); 
-    padding: 1.5rem 3rem; border-bottom: 1px solid var(--border); display: flex; 
-    justify-content: space-between; align-items: center; z-index: 500;
-}
+/* Main Reader */
+main { flex: 1; overflow-y: auto; scroll-behavior: smooth; position: relative; }
+header { position: sticky; top: 0; background: var(--bg); padding: 1.5rem 3rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; }
+.search-in { background: var(--surf); border: 1px solid var(--border); border-radius: 12px; padding: 10px 15px; color: var(--text); width: 280px; outline: none; }
 
-/* Feature 3: Smart Search with clear button */
-.search-wrap { position: relative; }
-.search-in { background: var(--surf); border: 1px solid var(--border); border-radius: 12px; padding: 10px 40px 10px 15px; color: var(--text); width: 300px; outline: none; }
-
-/* Reader & Verse Styling */
-main { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
 .reader { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
-.ayah { padding: 3rem 0; border-bottom: 1px solid var(--border); opacity: 0; transform: translateY(15px); transition: 0.5s; cursor: pointer; position: relative; }
-.ayah.visible { opacity: 1; transform: translateY(0); }
-.ayah.playing { border-left: 4px solid var(--p); padding-left: 20px; background: rgba(16, 185, 129, 0.03); }
-
-/* Feature 4: Interactive Word Glow */
+.ayah { padding: 3rem 0; border-bottom: 1px solid var(--border); transition: 0.5s; cursor: pointer; }
+.ayah.playing { border-left: 4px solid var(--p); padding-left: 20px; background: rgba(16, 185, 129, 0.05); }
 .ar { font-family: 'Amiri', serif; font-size: var(--ar-size); direction: rtl; text-align: right; line-height: var(--line); margin-bottom: 1rem; color: var(--text); }
 .en { font-size: var(--en-size); color: var(--sub); line-height: 1.8; }
 
-/* Settings Drawer */
+/* FIXED SETTINGS DRAWER */
 #drawer { 
-    position: fixed; right: -400px; top: 0; width: 400px; height: 100%; 
-    background: var(--surf); border-left: 1px solid var(--border); z-index: 2000; 
-    padding: 2rem; transition: 0.4s ease; overflow-y: auto;
+    position: fixed; right: -450px; top: 0; width: 400px; height: 100%; 
+    background: var(--surf); border-left: 2px solid var(--p); z-index: 9999; 
+    padding: 2.5rem; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -10px 0 30px rgba(0,0,0,0.5);
 }
 #drawer.open { right: 0; }
 .s-item { margin-bottom: 1.5rem; }
 .s-item label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--p); margin-bottom: 8px; text-transform: uppercase; }
-select, input { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 8px; border-radius: 8px; }
+select, input { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 10px; border-radius: 8px; }
 
-/* Player Bar */
-#player { 
-    position: fixed; bottom: 20px; left: 105px; right: 20px; background: var(--surf); 
-    border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; 
-    display: flex; align-items: center; gap: 1.5rem; transform: translateY(150px); transition: 0.5s; z-index: 1000;
-}
+/* Player */
+#player { position: fixed; bottom: 20px; left: 105px; right: 20px; background: var(--surf); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; display: flex; align-items: center; gap: 1.5rem; transform: translateY(150px); transition: 0.5s; z-index: 100; }
 #player.active { transform: translateY(0); }
 .p-btn { background: var(--p); border: none; width: 45px; height: 45px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-/* Feature 5: Progress Bar Scrubber */
-#prog-wrap { flex: 1; }
-progress { width: 100%; height: 6px; border-radius: 10px; accent-color: var(--p); background: var(--bg); border: none; }
+progress { flex: 1; height: 6px; border-radius: 10px; accent-color: var(--p); background: var(--bg); border: none; }
 </style>
 </head>
 <body data-theme="midnight">
 
 <nav>
-    <div class="nav-btn active" id="nav-book"><i data-lucide="book-open"></i></div>
-    <div class="nav-btn" id="nav-hifz" title="Feature 6: Hifz Mode"><i data-lucide="eye-off"></i></div>
+    <div class="nav-btn active"><i data-lucide="book-open"></i></div>
     <div class="nav-btn" id="nav-set"><i data-lucide="settings"></i></div>
     <div style="flex:1"></div>
-    <div class="nav-btn" id="nav-top" title="Feature 7: Back to Top"><i data-lucide="chevrons-up"></i></div>
+    <div class="nav-btn" onclick="location.reload()"><i data-lucide="refresh-cw"></i></div>
 </nav>
 
 <div id="drawer">
-    <div style="display:flex; justify-content:space-between; margin-bottom:2rem;">
-        <h2 style="font-weight:900;">Settings</h2>
-        <i data-lucide="x" id="close-drawer" style="cursor:pointer"></i>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+        <h2 style="font-weight:900;">PREFERENCES</h2>
+        <button id="close-drawer" style="background:var(--p); border:none; color:white; padding:5px 10px; border-radius:5px; cursor:pointer; font-weight:bold;">CLOSE X</button>
     </div>
-    <div class="s-item"><label>Feature 8: Reciter Selection</label>
-        <select id="rec-sel">
-            <option value="7">Mishary Rashid Alafasy</option>
-            <option value="1">AbdulBaset AbdulSamad</option>
-            <option value="6">Khalil al-Husary</option>
-        </select>
-    </div>
-    <div class="s-item"><label>Feature 9: Theme Engine</label>
+    <div class="s-item"><label>Theme</label>
         <select id="theme-sel">
             <option value="midnight">Midnight</option>
             <option value="sepia">Sepia (Fixed Reading)</option>
             <option value="obsidian">Pure Dark</option>
         </select>
     </div>
-    <div class="s-item"><label>Feature 10: Playback Speed</label>
-        <select id="speed-sel">
-            <option value="0.75">0.75x</option>
-            <option value="1" selected>Normal</option>
-            <option value="1.5">1.5x</option>
-        </select>
-    </div>
-    <div class="s-item"><label>Feature 11: Font Size</label><input type="range" id="f-size" min="1.5" max="5" value="2.8" step="0.1"></div>
-</div>
+    <div class="s-item"><label>Arabic Size</label><input type="range" id="f-size" min="1.5" max="5" value="2.8" step="0.1"></div>
+</head>
 
 <main id="scroller">
     <header>
@@ -121,144 +83,75 @@ progress { width: 100%; height: 6px; border-radius: 10px; accent-color: var(--p)
             <h1 id="s-name" style="font-weight:900;">Sovereign</h1>
             <p id="s-meta" style="font-size:0.7rem; opacity:0.6; font-weight:700;"></p>
         </div>
-        <div class="search-wrap">
-            <input class="search-in" id="search" placeholder="Enter Surah (e.g. 18 or Kahf)"/>
-        </div>
+        <input class="search-in" id="search" placeholder="Enter Surah Number (1-114)"/>
     </header>
     <div class="reader" id="view"></div>
-    <div id="sentinel" style="height:100px;"></div>
 </main>
 
 <div id="player">
     <button class="p-btn" id="play-btn"><i data-lucide="play"></i></button>
-    <div id="prog-wrap">
-        <div id="p-label" style="font-weight:800; color:var(--p); font-size:0.8rem; margin-bottom:4px;"></div>
-        <progress id="v-prog" value="0" max="1"></progress>
-    </div>
-    <div id="loop-btn" style="cursor:pointer; color:var(--sub)"><i data-lucide="repeat-1"></i></div>
+    <progress id="v-prog" value="0" max="1"></progress>
     <audio id="audio"></audio>
 </div>
 
 <script>
 const App = {
-    state: { verses: [], rendered: 0, chunk: 15, reciter: 7, loop: false },
+    state: { verses: [], reciter: 7 },
 
-    async loadSurah(query) {
+    async loadSurah(id) {
         const view = document.getElementById('view');
-        view.innerHTML = '<div style="text-align:center; padding:100px; opacity:0.3;">Feature 12: Secure Loading...</div>';
-        
+        view.innerHTML = '<div style="text-align:center; padding:100px;">Loading...</div>';
         try {
-            // Feature 13: Fuzzy Search for Surah Names
-            let id = query;
-            if (isNaN(query)) {
-                const list = await fetch('https://api.quran.com/api/v4/chapters').then(r => r.json());
-                const match = list.chapters.find(c => c.name_simple.toLowerCase().includes(query.toLowerCase()));
-                id = match ? match.id : 1;
-            }
-
+            // UPDATED: Using a more stable translation endpoint (ID 131)
             const [m, v] = await Promise.all([
                 fetch(`https://api.quran.com/api/v4/chapters/${id}`),
-                // Feature 14: Translation Redundancy (Fetching multiple sources)
-                fetch(`https://api.quran.com/api/v4/verses/by_chapter/${id}?language=en&translations=131&fields=text_uthmani`)
-            ]);
+                fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${id}`),
+                fetch(`https://api.quran.com/api/v4/quran/translations/131?chapter_number=${id}`)
+            ]).then(responses => Promise.all(responses.map(r => r.json())));
 
-            const meta = await m.json();
-            const data = await v.json();
+            const arData = v.verses;
+            const enData = (await fetch(`https://api.quran.com/api/v4/quran/translations/131?chapter_number=${id}`).then(r => r.json())).translations;
 
-            this.state.verses = data.verses.map(v => ({
-                key: v.verse_key,
-                ar: v.text_uthmani,
-                // Feature 15: Translation Sync Error Patch (Fallback logic)
-                en: v.translations?.[0]?.text.replace(/<\/?[^>]+(>|$)/g, "") || "Translation Sync Error: Retrying..."
-            }));
+            document.getElementById('s-name').innerText = m.chapter.name_simple;
+            document.getElementById('s-meta').innerText = `${m.chapter.verses_count} VERSES`;
 
-            document.getElementById('s-name').innerText = meta.chapter.name_simple;
-            document.getElementById('s-meta').innerText = `${meta.chapter.revelation_place.toUpperCase()} • ${meta.chapter.verses_count} VERSES`;
-            
-            view.innerHTML = '';
-            this.state.rendered = 0;
-            this.render();
-            localStorage.setItem('last_id', id);
-        } catch (e) { view.innerHTML = 'Error. Please check connection.'; }
-    },
+            view.innerHTML = arData.map((v, i) => `
+                <div class="ayah" id="v-${v.verse_key}" onclick="App.play('${v.verse_key}')">
+                    <div class="ar">${v.text_uthmani}</div>
+                    <div class="en">${enData[i].text.replace(/<\/?[^>]+(>|$)/g, "")}</div>
+                </div>
+            `).join('');
 
-    render() {
-        const target = document.getElementById('view');
-        const batch = this.state.verses.slice(this.state.rendered, this.state.rendered + this.state.chunk);
-        
-        batch.forEach(v => {
-            const div = document.createElement('div');
-            div.className = 'ayah';
-            div.id = `v-${v.key}`;
-            div.innerHTML = `<div class="ar">${v.ar}</div><div class="en">${v.en}</div>`;
-            div.onclick = () => this.play(v.key);
-            target.appendChild(div);
-            this.obs.observe(div);
-        });
-        this.state.rendered += batch.length;
-        lucide.createIcons();
+            lucide.createIcons();
+        } catch (e) { view.innerHTML = 'Error loading content.'; }
     },
 
     async play(key) {
         const audio = document.getElementById('audio');
         document.getElementById('player').classList.add('active');
-        document.getElementById('p-label').innerText = `VERSE ${key}`;
-        
-        document.querySelectorAll('.ayah').forEach(a => a.classList.remove('playing'));
-        document.getElementById(`v-${key}`).classList.add('playing');
-
-        const r = await fetch(`https://api.quran.com/api/v4/recitations/${this.state.reciter}/by_ayah/${key}`);
-        const res = await r.json();
+        const res = await fetch(`https://api.quran.com/api/v4/recitations/${this.state.reciter}/by_ayah/${key}`).then(r => r.json());
         if (res.audio_files?.[0]?.url) {
             audio.src = `https://verses.quran.com/${res.audio_files[0].url}`;
-            audio.playbackRate = document.getElementById('speed-sel').value;
             audio.play();
         }
     },
 
     boot() {
         lucide.createIcons();
-        this.obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible') }), {threshold: 0.1});
         
-        // Feature 16: Infinite Scrolling
-        new IntersectionObserver(e => {
-            if(e[0].isIntersecting && this.state.verses.length > this.state.rendered) this.render();
-        }).observe(document.getElementById('sentinel'));
+        // SETTINGS TOGGLE FIX
+        const drawer = document.getElementById('drawer');
+        document.getElementById('nav-set').onclick = () => drawer.classList.add('open');
+        document.getElementById('close-drawer').onclick = () => drawer.classList.remove('open');
 
-        // Feature 17: Theme Persistence
-        document.getElementById('theme-sel').onchange = (e) => {
-            document.body.setAttribute('data-theme', e.target.value);
-            localStorage.setItem('theme', e.target.value);
-        };
-
-        // Feature 18: Auto-Next Verse
-        const audio = document.getElementById('audio');
-        audio.onended = () => {
-            if(this.state.loop) audio.play();
-            else {
-                const next = document.querySelector('.ayah.playing')?.nextElementSibling;
-                if(next) this.play(next.id.replace('v-', ''));
-            }
-        };
-
-        // UI Controls
-        document.getElementById('nav-set').onclick = () => document.getElementById('drawer').classList.add('open');
-        document.getElementById('close-drawer').onclick = () => document.getElementById('drawer').classList.remove('open');
-        document.getElementById('search').onkeydown = (e) => { if(e.key === 'Enter') this.loadSurah(e.target.value) };
+        document.getElementById('theme-sel').onchange = (e) => document.body.setAttribute('data-theme', e.target.value);
         document.getElementById('f-size').oninput = (e) => document.documentElement.style.setProperty('--ar-size', e.target.value + 'rem');
-        document.getElementById('play-btn').onclick = () => audio.paused ? audio.play() : audio.pause();
+        document.getElementById('search').onkeydown = (e) => { if(e.key === 'Enter') this.loadSurah(e.target.value) };
         
-        // Feature 19: One-Click Scroll to Top
-        document.getElementById('nav-top').onclick = () => document.getElementById('scroller').scrollTo({top: 0, behavior: 'smooth'});
-
-        // Feature 20: Persistent Reciter
-        document.getElementById('rec-sel').onchange = (e) => this.state.reciter = e.target.value;
-
-        this.loadSurah(localStorage.getItem('last_id') || 1);
+        this.loadSurah(1);
     }
 };
-
-window.onload = () => App.boot();
+App.boot();
 </script>
 </body>
 </html>
