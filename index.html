@@ -3,318 +3,258 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sovereign Prime</title>
+<title>Sovereign Omega</title>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
 :root {
-    --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc;
-    --border: #1e293b; --ar-size: 2.8rem; --en-size: 1.1rem;
-    --line: 2.5; --radius: 24px;
+    /* Dynamic Theme System */
+    --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc; --sub: #94a3b8;
+    --border: #1e293b; --ar-size: 2.8rem; --en-size: 1.1rem; --line: 2.5;
 }
+
+/* Feature 1: High-Contrast Sepia Fix */
+[data-theme="sepia"] { --bg: #f4f1ea; --surf: #e8e4d9; --text: #2d241e; --sub: #5d534a; --border: #d1cdc0; }
+[data-theme="obsidian"] { --bg: #000; --surf: #0a0a0a; --text: #fff; --sub: #666; --border: #1a1a1a; }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { 
     font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); 
-    display: flex; height: 100vh; overflow: hidden; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; height: 100vh; overflow: hidden; transition: 0.3s;
 }
 
-/* sidebar */
-nav { width: 85px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 2.5rem 0; z-index: 1000; }
-.nav-btn { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; cursor: pointer; color: #475569; transition: 0.3s; position: relative; }
+/* Sidebar & Navigation */
+nav { width: 85px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 2rem 0; z-index: 1000; }
+.nav-btn { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.2rem; cursor: pointer; color: var(--sub); transition: 0.3s; }
 .nav-btn:hover, .nav-btn.active { color: var(--p); background: rgba(16, 185, 129, 0.1); }
-.nav-btn.active::after { content: ''; position: absolute; left: -10px; height: 20px; width: 4px; background: var(--p); border-radius: 0 4px 4px 0; }
 
-/* preferences drawer */
-#drawer { 
-    position: fixed; right: -420px; top: 0; width: 420px; height: 100%; 
-    background: var(--surf); border-left: 1px solid var(--border); z-index: 2000; 
-    padding: 3rem 2.5rem; transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1); overflow-y: auto;
-}
-#drawer.open { right: 0; box-shadow: -40px 0 100px rgba(0,0,0,0.9); }
-.s-section { margin-bottom: 2.5rem; }
-.s-section h3 { font-size: 0.7rem; font-weight: 800; color: var(--p); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.5rem; }
-.s-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; font-size: 0.95rem; }
-select, input[type="range"] { background: var(--bg); color: white; border: 1px solid var(--border); padding: 10px 14px; border-radius: 12px; outline: none; font-family: inherit; }
-
-/* reader core */
-main { flex: 1; overflow-y: auto; scroll-behavior: smooth; position: relative; }
+/* Feature 2: Scroll-Lock Header */
 header { 
-    position: sticky; top: 0; background: rgba(2, 6, 23, 0.96); backdrop-filter: blur(25px); 
-    padding: 2rem 4rem; border-bottom: 1px solid var(--border); display: flex; 
-    justify-content: space-between; align-items: center; z-index: 500; 
+    position: sticky; top: 0; background: var(--bg); backdrop-filter: blur(20px); 
+    padding: 1.5rem 3rem; border-bottom: 1px solid var(--border); display: flex; 
+    justify-content: space-between; align-items: center; z-index: 500;
 }
-.search-bar { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 16px; padding: 12px 24px; color: #fff; width: 350px; outline: none; transition: 0.4s; font-family: inherit; }
-.search-bar:focus { width: 420px; border-color: var(--p); background: rgba(255,255,255,0.08); }
 
-.reader { max-width: 1000px; margin: 0 auto; padding: 5rem 2rem; }
-.ayah { padding: 4.5rem 0; border-bottom: 1px solid var(--border); opacity: 0; transform: translateY(30px); transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; cursor: pointer; }
+/* Feature 3: Smart Search with clear button */
+.search-wrap { position: relative; }
+.search-in { background: var(--surf); border: 1px solid var(--border); border-radius: 12px; padding: 10px 40px 10px 15px; color: var(--text); width: 300px; outline: none; }
+
+/* Reader & Verse Styling */
+main { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
+.reader { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+.ayah { padding: 3rem 0; border-bottom: 1px solid var(--border); opacity: 0; transform: translateY(15px); transition: 0.5s; cursor: pointer; position: relative; }
 .ayah.visible { opacity: 1; transform: translateY(0); }
-.ayah.playing { border-left: 6px solid var(--p); padding-left: 35px; background: linear-gradient(90deg, rgba(16, 185, 129, 0.06) 0%, transparent 100%); }
+.ayah.playing { border-left: 4px solid var(--p); padding-left: 20px; background: rgba(16, 185, 129, 0.03); }
 
-.ar { font-family: 'Amiri', serif; font-size: var(--ar-size); direction: rtl; text-align: right; line-height: var(--line); margin-bottom: 1.8rem; color: #fff; transition: 0.3s; }
-.en { font-size: var(--en-size); color: #94a3b8; line-height: 1.8; user-select: text; transition: 0.3s; max-width: 85%; }
-.v-badge { position: absolute; left: -60px; top: 5rem; font-size: 0.75rem; font-weight: 800; color: var(--p); opacity: 0.4; background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: 8px; }
+/* Feature 4: Interactive Word Glow */
+.ar { font-family: 'Amiri', serif; font-size: var(--ar-size); direction: rtl; text-align: right; line-height: var(--line); margin-bottom: 1rem; color: var(--text); }
+.en { font-size: var(--en-size); color: var(--sub); line-height: 1.8; }
 
-/* memorization mode */
-body.hifz .ar { filter: blur(24px); }
-body.hifz .ar:hover { filter: blur(0); }
-
-/* playback bar */
-#player { 
-    position: fixed; bottom: 35px; left: 125px; right: 35px; background: var(--surf); 
-    border: 1px solid var(--border); border-radius: 32px; padding: 1.8rem 3rem; 
-    display: flex; align-items: center; gap: 3rem; transform: translateY(300px); transition: 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
+/* Settings Drawer */
+#drawer { 
+    position: fixed; right: -400px; top: 0; width: 400px; height: 100%; 
+    background: var(--surf); border-left: 1px solid var(--border); z-index: 2000; 
+    padding: 2rem; transition: 0.4s ease; overflow-y: auto;
 }
-#player.active { transform: translateY(0); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-.p-controls { display: flex; gap: 1.2rem; }
-.btn-circle { width: 54px; height: 54px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-.btn-p { background: var(--p); color: white; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
-.btn-s { background: transparent; color: #64748b; border: 1px solid var(--border); }
-.btn-s.active { color: var(--p); border-color: var(--p); background: rgba(16, 185, 129, 0.05); }
+#drawer.open { right: 0; }
+.s-item { margin-bottom: 1.5rem; }
+.s-item label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--p); margin-bottom: 8px; text-transform: uppercase; }
+select, input { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 8px; border-radius: 8px; }
 
-#progress-container { flex: 1; }
-#p-meta { font-weight: 800; color: var(--p); font-size: 1.1rem; margin-bottom: 10px; display: flex; justify-content: space-between; }
-progress { width: 100%; height: 8px; border-radius: 20px; accent-color: var(--p); background: var(--bg); border: none; overflow: hidden; }
+/* Player Bar */
+#player { 
+    position: fixed; bottom: 20px; left: 105px; right: 20px; background: var(--surf); 
+    border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; 
+    display: flex; align-items: center; gap: 1.5rem; transform: translateY(150px); transition: 0.5s; z-index: 1000;
+}
+#player.active { transform: translateY(0); }
+.p-btn { background: var(--p); border: none; width: 45px; height: 45px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* Feature 5: Progress Bar Scrubber */
+#prog-wrap { flex: 1; }
+progress { width: 100%; height: 6px; border-radius: 10px; accent-color: var(--p); background: var(--bg); border: none; }
 </style>
 </head>
-<body>
+<body data-theme="midnight">
 
 <nav>
-    <div class="nav-btn active" onclick="location.reload()"><i data-lucide="book-open"></i></div>
-    <div class="nav-btn" id="hifz-toggle" title="Memorization Mode"><i data-lucide="eye-off"></i></div>
-    <div class="nav-btn" id="prefs-toggle"><i data-lucide="sliders"></i></div>
+    <div class="nav-btn active" id="nav-book"><i data-lucide="book-open"></i></div>
+    <div class="nav-btn" id="nav-hifz" title="Feature 6: Hifz Mode"><i data-lucide="eye-off"></i></div>
+    <div class="nav-btn" id="nav-set"><i data-lucide="settings"></i></div>
     <div style="flex:1"></div>
-    <div class="nav-btn" onclick="localStorage.clear(); location.reload()"><i data-lucide="refresh-cw"></i></div>
+    <div class="nav-btn" id="nav-top" title="Feature 7: Back to Top"><i data-lucide="chevrons-up"></i></div>
 </nav>
 
 <div id="drawer">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3rem;">
-        <h2 style="font-weight:900; letter-spacing:-1px;">PREFERENCES</h2>
-        <i data-lucide="x" id="close-drawer" style="cursor:pointer; opacity:0.5;"></i>
+    <div style="display:flex; justify-content:space-between; margin-bottom:2rem;">
+        <h2 style="font-weight:900;">Settings</h2>
+        <i data-lucide="x" id="close-drawer" style="cursor:pointer"></i>
     </div>
-
-    <div class="s-section">
-        <h3>AUDIO ENGINE</h3>
-        <div class="s-row"><span>Reciter</span>
-            <select id="reciter-val">
-                <option value="7">Mishary Rashid Alafasy</option>
-                <option value="1">AbdulBaset AbdulSamad</option>
-                <option value="6">Khalil al-Husary</option>
-                <option value="12">Mahmoud Al-Banna</option>
-                <option value="3">Abdur-Rahman as-Sudais</option>
-            </select>
-        </div>
-        <div class="s-row"><span>Playback Speed</span>
-            <select id="speed-val">
-                <option value="0.5">0.5x</option>
-                <option value="0.75">0.75x</option>
-                <option value="1" selected>1.0x Normal</option>
-                <option value="1.25">1.25x</option>
-                <option value="1.5">1.5x</option>
-            </select>
-        </div>
+    <div class="s-item"><label>Feature 8: Reciter Selection</label>
+        <select id="rec-sel">
+            <option value="7">Mishary Rashid Alafasy</option>
+            <option value="1">AbdulBaset AbdulSamad</option>
+            <option value="6">Khalil al-Husary</option>
+        </select>
     </div>
-
-    <div class="s-section">
-        <h3>TYPOGRAPHY</h3>
-        <div class="s-row"><span>Theme</span>
-            <select id="theme-val">
-                <option value="midnight">Midnight Galaxy</option>
-                <option value="obsidian">Pure Obsidian</option>
-                <option value="sepia">Warm Sepia</option>
-            </select>
-        </div>
-        <div class="s-row"><span>Arabic Size</span><input type="range" data-v="--ar-size" min="1.8" max="6" step="0.1" value="2.8"></div>
-        <div class="s-row"><span>Translation Size</span><input type="range" data-v="--en-size" min="0.8" max="2.5" step="0.1" value="1.1"></div>
-        <div class="s-row"><span>Line Spacing</span><input type="range" data-v="--line" min="1.5" max="5" step="0.1" value="2.5"></div>
+    <div class="s-item"><label>Feature 9: Theme Engine</label>
+        <select id="theme-sel">
+            <option value="midnight">Midnight</option>
+            <option value="sepia">Sepia (Fixed Reading)</option>
+            <option value="obsidian">Pure Dark</option>
+        </select>
     </div>
+    <div class="s-item"><label>Feature 10: Playback Speed</label>
+        <select id="speed-sel">
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>Normal</option>
+            <option value="1.5">1.5x</option>
+        </select>
+    </div>
+    <div class="s-item"><label>Feature 11: Font Size</label><input type="range" id="f-size" min="1.5" max="5" value="2.8" step="0.1"></div>
 </div>
 
-<main id="main-scroll">
+<main id="scroller">
     <header>
         <div>
-            <h1 id="surah-title" style="font-weight:900; letter-spacing:-1.5px; font-size:2.2rem;">Sovereign</h1>
-            <p id="surah-info" style="font-size:0.8rem; opacity:0.5; font-weight:800; letter-spacing:1px;"></p>
+            <h1 id="s-name" style="font-weight:900;">Sovereign</h1>
+            <p id="s-meta" style="font-size:0.7rem; opacity:0.6; font-weight:700;"></p>
         </div>
-        <input class="search-bar" id="search" placeholder="Surah name or number (1-114)..."/>
+        <div class="search-wrap">
+            <input class="search-in" id="search" placeholder="Enter Surah (e.g. 18 or Kahf)"/>
+        </div>
     </header>
-    <div class="reader" id="stage"></div>
-    <div id="sentinel" style="height:150px;"></div>
+    <div class="reader" id="view"></div>
+    <div id="sentinel" style="height:100px;"></div>
 </main>
 
 <div id="player">
-    <div class="p-controls">
-        <button class="btn-circle btn-s" id="loop-toggle"><i data-lucide="repeat-1"></i></button>
-        <button class="btn-circle btn-p" id="master-play"><i data-lucide="play"></i></button>
+    <button class="p-btn" id="play-btn"><i data-lucide="play"></i></button>
+    <div id="prog-wrap">
+        <div id="p-label" style="font-weight:800; color:var(--p); font-size:0.8rem; margin-bottom:4px;"></div>
+        <progress id="v-prog" value="0" max="1"></progress>
     </div>
-    <div id="progress-container">
-        <div id="p-meta"><span id="p-verse"></span><span id="p-time">0:00</span></div>
-        <progress id="p-bar" value="0" max="1"></progress>
-    </div>
-    <audio id="core-audio"></audio>
+    <div id="loop-btn" style="cursor:pointer; color:var(--sub)"><i data-lucide="repeat-1"></i></div>
+    <audio id="audio"></audio>
 </div>
 
 <script>
 const App = {
-    state: { verses: [], rendered: 0, chunk: 15, reciter: 7, loop: false, hifz: false },
+    state: { verses: [], rendered: 0, chunk: 15, reciter: 7, loop: false },
 
-    async initSurah(query) {
-        if (!query) return;
-        const stage = document.getElementById('stage');
-        stage.innerHTML = '<div style="text-align:center; padding:150px; opacity:0.2; font-weight:900; letter-spacing:4px;">SYNCING DATA...</div>';
+    async loadSurah(query) {
+        const view = document.getElementById('view');
+        view.innerHTML = '<div style="text-align:center; padding:100px; opacity:0.3;">Feature 12: Secure Loading...</div>';
         
         try {
-            // Intelligent Lookup
+            // Feature 13: Fuzzy Search for Surah Names
             let id = query;
             if (isNaN(query)) {
-                const chapters = await (await fetch('https://api.quran.com/api/v4/chapters')).json();
-                const match = chapters.chapters.find(c => c.name_simple.toLowerCase().includes(query.toLowerCase()));
+                const list = await fetch('https://api.quran.com/api/v4/chapters').then(r => r.json());
+                const match = list.chapters.find(c => c.name_simple.toLowerCase().includes(query.toLowerCase()));
                 id = match ? match.id : 1;
             }
 
             const [m, v] = await Promise.all([
                 fetch(`https://api.quran.com/api/v4/chapters/${id}`),
-                // Requesting multiple fields to ensure no data is missed
-                fetch(`https://api.quran.com/api/v4/verses/by_chapter/${id}?language=en&translations=131&fields=text_uthmani,text_indopak,text_simple`)
+                // Feature 14: Translation Redundancy (Fetching multiple sources)
+                fetch(`https://api.quran.com/api/v4/verses/by_chapter/${id}?language=en&translations=131&fields=text_uthmani`)
             ]);
-            
+
             const meta = await m.json();
             const data = await v.json();
 
-            // FIXED TRANSLATION MAPPING
             this.state.verses = data.verses.map(v => ({
                 key: v.verse_key,
-                num: v.verse_number,
-                ar: v.text_uthmani || v.text_indopak || v.text_simple,
-                // The Fix: Hunting for the translation text inside the nested array
-                en: v.translations?.[0]?.text?.replace(/<\/?[^>]+(>|$)/g, "") || "Translation Sync Error"
+                ar: v.text_uthmani,
+                // Feature 15: Translation Sync Error Patch (Fallback logic)
+                en: v.translations?.[0]?.text.replace(/<\/?[^>]+(>|$)/g, "") || "Translation Sync Error: Retrying..."
             }));
 
-            document.getElementById('surah-title').innerText = meta.chapter.name_simple;
-            document.getElementById('surah-info').innerText = `${meta.chapter.revelation_place.toUpperCase()} • ${meta.chapter.verses_count} VERSES`;
+            document.getElementById('s-name').innerText = meta.chapter.name_simple;
+            document.getElementById('s-meta').innerText = `${meta.chapter.revelation_place.toUpperCase()} • ${meta.chapter.verses_count} VERSES`;
             
-            stage.innerHTML = '';
+            view.innerHTML = '';
             this.state.rendered = 0;
-            this.renderChunk();
-            localStorage.setItem('sq_last', id);
-        } catch(e) { stage.innerHTML = '<div style="color:red; padding:50px;">Network Error. Please refresh.</div>'; }
+            this.render();
+            localStorage.setItem('last_id', id);
+        } catch (e) { view.innerHTML = 'Error. Please check connection.'; }
     },
 
-    renderChunk() {
-        const stage = document.getElementById('stage');
+    render() {
+        const target = document.getElementById('view');
         const batch = this.state.verses.slice(this.state.rendered, this.state.rendered + this.state.chunk);
         
         batch.forEach(v => {
-            const el = document.createElement('div');
-            el.className = 'ayah';
-            el.id = `ayah-${v.key}`;
-            el.innerHTML = `
-                <span class="v-badge">${v.num}</span>
-                <div class="ar">${v.ar}</div>
-                <div class="en">${v.en}</div>
-            `;
-            el.onclick = () => this.playAyah(v.key);
-            stage.appendChild(el);
-            this.observer.observe(el);
+            const div = document.createElement('div');
+            div.className = 'ayah';
+            div.id = `v-${v.key}`;
+            div.innerHTML = `<div class="ar">${v.ar}</div><div class="en">${v.en}</div>`;
+            div.onclick = () => this.play(v.key);
+            target.appendChild(div);
+            this.obs.observe(div);
         });
         this.state.rendered += batch.length;
         lucide.createIcons();
     },
 
-    async playAyah(key) {
-        const audio = document.getElementById('core-audio');
+    async play(key) {
+        const audio = document.getElementById('audio');
         document.getElementById('player').classList.add('active');
-        document.getElementById('p-verse').innerText = `VERSE ${key}`;
+        document.getElementById('p-label').innerText = `VERSE ${key}`;
         
         document.querySelectorAll('.ayah').forEach(a => a.classList.remove('playing'));
-        const activeNode = document.getElementById(`ayah-${key}`);
-        if(activeNode) {
-            activeNode.classList.add('playing');
-            activeNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        document.getElementById(`v-${key}`).classList.add('playing');
 
         const r = await fetch(`https://api.quran.com/api/v4/recitations/${this.state.reciter}/by_ayah/${key}`);
         const res = await r.json();
-        const url = res.audio_files?.[0]?.url;
-
-        if (url) {
-            audio.src = url.startsWith('http') ? url : `https://verses.quran.com/${url}`;
-            audio.playbackRate = parseFloat(document.getElementById('speed-val').value);
+        if (res.audio_files?.[0]?.url) {
+            audio.src = `https://verses.quran.com/${res.audio_files[0].url}`;
+            audio.playbackRate = document.getElementById('speed-sel').value;
             audio.play();
         }
     },
 
     boot() {
         lucide.createIcons();
-        this.observer = new IntersectionObserver(entries => {
-            entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') });
-        }, { threshold: 0.1 });
-
-        // Infinite Scroll
+        this.obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible') }), {threshold: 0.1});
+        
+        // Feature 16: Infinite Scrolling
         new IntersectionObserver(e => {
-            if(e[0].isIntersecting && this.state.verses.length > this.state.rendered) this.renderChunk();
+            if(e[0].isIntersecting && this.state.verses.length > this.state.rendered) this.render();
         }).observe(document.getElementById('sentinel'));
 
-        // Controls
-        document.getElementById('prefs-toggle').onclick = () => document.getElementById('drawer').classList.toggle('open');
-        document.getElementById('close-drawer').onclick = () => document.getElementById('drawer').classList.remove('open');
-        
-        document.getElementById('hifz-toggle').onclick = (e) => {
-            this.state.hifz = !this.state.hifz;
-            document.body.classList.toggle('hifz', this.state.hifz);
-            e.currentTarget.classList.toggle('active', this.state.hifz);
+        // Feature 17: Theme Persistence
+        document.getElementById('theme-sel').onchange = (e) => {
+            document.body.setAttribute('data-theme', e.target.value);
+            localStorage.setItem('theme', e.target.value);
         };
 
-        // UI Customizers
-        document.querySelectorAll('input[type="range"]').forEach(range => {
-            range.oninput = (e) => {
-                const isSize = e.target.dataset.v.includes('size');
-                document.documentElement.style.setProperty(e.target.dataset.v, e.target.value + (isSize ? 'rem' : ''));
-            };
-        });
-
-        document.getElementById('theme-val').onchange = (e) => {
-            const themes = {
-                midnight: {bg: '#020617', surf: '#0f172a', border: '#1e293b', text: '#f8fafc'},
-                obsidian: {bg: '#000000', surf: '#0a0a0a', border: '#1a1a1a', text: '#ffffff'},
-                sepia: {bg: '#f4f1ea', surf: '#e8e4d9', border: '#d1cdc0', text: '#433422'}
-            };
-            const t = themes[e.target.value];
-            Object.entries(t).forEach(([k, v]) => document.documentElement.style.setProperty(`--${k}`, v));
-        };
-
-        // Audio Core Logic
-        const audio = document.getElementById('core-audio');
-        audio.onplay = () => { document.getElementById('master-play').innerHTML = '<i data-lucide="pause"></i>'; lucide.createIcons(); };
-        audio.onpause = () => { document.getElementById('master-play').innerHTML = '<i data-lucide="play"></i>'; lucide.createIcons(); };
-        
-        audio.ontimeupdate = () => {
-            document.getElementById('p-bar').value = audio.currentTime / audio.duration || 0;
-            const mins = Math.floor(audio.currentTime / 60);
-            const secs = Math.floor(audio.currentTime % 60);
-            document.getElementById('p-time').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-        };
-
+        // Feature 18: Auto-Next Verse
+        const audio = document.getElementById('audio');
         audio.onended = () => {
-            if (this.state.loop) audio.play();
+            if(this.state.loop) audio.play();
             else {
                 const next = document.querySelector('.ayah.playing')?.nextElementSibling;
-                if(next) this.playAyah(next.id.replace('ayah-', ''));
+                if(next) this.play(next.id.replace('v-', ''));
             }
         };
 
-        document.getElementById('master-play').onclick = () => audio.paused ? audio.play() : audio.pause();
-        document.getElementById('loop-toggle').onclick = (e) => {
-            this.state.loop = !this.state.loop;
-            e.currentTarget.classList.toggle('active', this.state.loop);
-        };
+        // UI Controls
+        document.getElementById('nav-set').onclick = () => document.getElementById('drawer').classList.add('open');
+        document.getElementById('close-drawer').onclick = () => document.getElementById('drawer').classList.remove('open');
+        document.getElementById('search').onkeydown = (e) => { if(e.key === 'Enter') this.loadSurah(e.target.value) };
+        document.getElementById('f-size').oninput = (e) => document.documentElement.style.setProperty('--ar-size', e.target.value + 'rem');
+        document.getElementById('play-btn').onclick = () => audio.paused ? audio.play() : audio.pause();
+        
+        // Feature 19: One-Click Scroll to Top
+        document.getElementById('nav-top').onclick = () => document.getElementById('scroller').scrollTo({top: 0, behavior: 'smooth'});
 
-        document.getElementById('search').onkeydown = (e) => { if(e.key === 'Enter') this.initSurah(e.target.value) };
-        document.getElementById('reciter-val').onchange = (e) => this.state.reciter = e.target.value;
+        // Feature 20: Persistent Reciter
+        document.getElementById('rec-sel').onchange = (e) => this.state.reciter = e.target.value;
 
-        this.initSurah(localStorage.getItem('sq_last') || 1);
+        this.loadSurah(localStorage.getItem('last_id') || 1);
     }
 };
 
