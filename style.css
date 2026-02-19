@@ -1,0 +1,113 @@
+:root {
+    --primary: #1b4332; /* Deep Islamic Green */
+    --accent: #d4af37;  /* Gold */
+    --bg: #f8f9fa;
+    --text: #2d3436;
+    --card-bg: #ffffff;
+    --border: #e0e0e0;
+}
+
+[data-theme="dark"] {
+    --bg: #0b1c15;
+    --text: #f8f9fa;
+    --card-bg: #142d22;
+    --border: #2d4f3f;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s ease; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+/* Navbar */
+.navbar {
+    background: var(--primary);
+    color: white;
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.navbar .container { display: flex; justify-content: space-between; align-items: center; }
+
+.search-container input {
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: none;
+    width: 300px;
+}
+
+/* Surah Cards */
+.surah-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.surah-card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.surah-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.surah-card .arabic-name {
+    font-family: 'Amiri', serif;
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+/* Reading View */
+.hidden { display: none; }
+
+.reading-container { background: var(--card-bg); padding: 40px; border-radius: 15px; }
+
+.ayah-box {
+    padding: 25px 0;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+}
+
+.quran-text {
+    font-family: 'Amiri', serif;
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+    display: block;
+    line-height: 2.5;
+}
+
+.translation-text {
+    font-size: 1.1rem;
+    text-align: left;
+    color: #636e72;
+}
+
+.ayah-number {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    text-align: center;
+    font-size: 0.8rem;
+    margin-left: 10px;
+}
