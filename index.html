@@ -3,280 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign | Ultimate Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Lateef:wght@400;700&display=swap" rel="stylesheet">
+    <title>Sovereign | Unified Quran Engine</title>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    
     <style>
-        :root {
-            --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc; --sub: #94a3b8;
-            --border: #1e293b; --ar-size: 3rem; --en-size: 1.1rem; --line: 2.5; --glass: rgba(15, 23, 42, 0.8);
-        }
+        :root { --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc; --sub: #94a3b8; --border: #1e293b; }
+        [data-theme="sepia"] { --bg: #f4f1ea; --surf: #e8e4d9; --text: #2d241e; --sub: #5d534a; --border: #d1cdc0; --p: #8b5e3c; }
+        [data-theme="light"] { --bg: #ffffff; --surf: #f1f5f9; --text: #0f172a; --sub: #475569; --border: #e2e8f0; --p: #2563eb; }
 
-        /* THEME ENGINE (Feature 1-10) */
-        [data-theme="sepia"] { 
-            --bg: #f4f1ea; --surf: #e8e4d9; --text: #2d241e; --sub: #5d534a; --border: #d1cdc0; --glass: rgba(232, 228, 217, 0.9);
-        }
-        [data-theme="obsidian"] { 
-            --bg: #000; --surf: #0a0a0a; --text: #fff; --sub: #666; --border: #1a1a1a; --glass: rgba(0, 0, 0, 0.9);
-        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
+        
+        /* Sidebar Navigation */
+        nav { width: 70px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 30px; z-index: 100; }
+        .nav-btn { color: var(--sub); cursor: pointer; transition: 0.2s; padding: 12px; border-radius: 14px; }
+        .nav-btn:hover, .nav-btn.active { color: var(--p); background: rgba(16,185,129,0.1); }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; transition: 0.3s; }
-
-        /* SIDEBAR (Feature 16-25) */
-        nav { width: 80px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 2rem 0; z-index: 1000; }
-        .nav-btn { width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; cursor: pointer; color: var(--sub); transition: 0.2s; position: relative; }
-        .nav-btn:hover, .nav-btn.active { color: var(--p); background: rgba(16, 185, 129, 0.1); }
-        .nav-btn.active::after { content: ''; position: absolute; left: -10px; width: 4px; height: 20px; background: var(--p); border-radius: 0 4px 4px 0; }
-
-        /* MAIN CONTENT */
+        /* Main Content Area */
         main { flex: 1; overflow-y: auto; scroll-behavior: smooth; position: relative; }
-        header { position: sticky; top: 0; background: var(--glass); backdrop-filter: blur(15px); padding: 1.5rem 3rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 500; }
-        .search-in { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; color: var(--text); width: 300px; outline: none; font-weight: 600; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
 
-        .reader { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
-        .ayah { padding: 4rem 0; border-bottom: 1px solid var(--border); transition: 0.3s; cursor: pointer; position: relative; }
-        .ayah.playing { border-left: 5px solid var(--p); padding-left: 30px; background: linear-gradient(90deg, rgba(16, 185, 129, 0.05), transparent); }
+        /* Header */
+        header { position: sticky; top: 0; background: var(--bg); padding: 20px 0; border-bottom: 1px solid var(--border); z-index: 50; display: flex; justify-content: space-between; align-items: center; }
+        .search-group { display: flex; background: var(--surf); border: 1px solid var(--border); border-radius: 30px; padding: 5px 15px; align-items: center; }
+        #search-input { background: none; border: none; color: var(--text); padding: 8px; outline: none; width: 200px; }
 
-        /* ARABIC SCRIPTS (Feature 36-45) */
-        .ar { font-size: var(--ar-size); direction: rtl; text-align: right; line-height: var(--line); margin-bottom: 1.5rem; color: var(--text); }
-        .ar.uthmani { font-family: 'Amiri', serif; }
-        .ar.indopak { font-family: 'Lateef', serif; font-size: calc(var(--ar-size) * 1.25); }
+        /* Ayah Cards */
+        .ayah-card { padding: 50px 0; border-bottom: 1px solid var(--border); position: relative; transition: 0.3s; cursor: pointer; }
+        .ayah-card:hover { background: rgba(16,185,129,0.02); }
+        .ar { font-family: 'Amiri', serif; font-size: 2.8rem; text-align: right; direction: rtl; line-height: 2.5; margin-bottom: 25px; color: var(--p); }
+        .en { font-size: 1.2rem; color: var(--sub); line-height: 1.8; font-weight: 300; }
+        .meta-tag { font-size: 0.8rem; color: var(--p); margin-bottom: 10px; opacity: 0.6; font-weight: bold; }
 
-        .en { font-size: var(--en-size); color: var(--sub); line-height: 1.8; max-width: 90%; }
-        .notes-area { margin-top: 1.5rem; padding: 1rem; background: rgba(16, 185, 129, 0.05); border-radius: 10px; border: 1px dashed var(--p); font-size: 0.9rem; color: var(--text); }
+        /* Audio Player Mini */
+        .audio-trigger { position: absolute; left: -50px; top: 55px; opacity: 0; transition: 0.3s; }
+        .ayah-card:hover .audio-trigger { opacity: 1; left: -40px; }
 
-        /* HIFZ TOOLS (Feature 46-55) */
-        body.hifz-blur .ar { filter: blur(20px); transition: 0.3s; }
-        body.hifz-blur .ar:hover { filter: blur(0); }
-        body.hide-en .en { display: none; }
+        /* Hifz Mode Overlay */
+        body.hifz .ar { filter: blur(12px); transition: 0.3s; }
+        body.hifz .ar:hover { filter: blur(0); }
 
-        /* SETTINGS DRAWER */
-        #drawer { position: fixed; right: -450px; top: 0; width: 400px; height: 100%; background: var(--surf); border-left: 2px solid var(--p); z-index: 2000; padding: 2.5rem; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
-        #drawer.open { right: 0; box-shadow: -20px 0 60px rgba(0,0,0,0.5); }
-        .s-item { margin-bottom: 2rem; }
-        .s-item label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--p); margin-bottom: 10px; text-transform: uppercase; }
-        select, input[type="range"] { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 12px; border-radius: 10px; outline: none; }
-
-        /* PLAYER */
-        #player { position: fixed; bottom: 25px; left: 105px; right: 25px; background: var(--surf); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; display: flex; align-items: center; gap: 2rem; transform: translateY(200px); transition: 0.5s; z-index: 1000; }
-        #player.active { transform: translateY(0); }
-        .p-btn { background: var(--p); border: none; width: 50px; height: 50px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        progress { flex: 1; height: 8px; border-radius: 10px; accent-color: var(--p); }
-
-        .spin { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* Loading State */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--p); transform: scaleX(0); transform-origin: left; transition: 0.4s; z-index: 1000; }
     </style>
 </head>
 <body data-theme="midnight">
 
-<nav>
-    <div class="nav-btn active" onclick="location.reload()"><i data-lucide="book-open"></i></div>
-    <div class="nav-btn" id="btn-hifz" title="Toggle Hifz Blur"><i data-lucide="brain"></i></div>
-    <div class="nav-btn" id="btn-settings"><i data-lucide="settings"></i></div>
-</nav>
+    <div id="loader"></div>
 
-<div id="drawer">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3rem;">
-        <h2 style="font-weight:900;">PREFERENCES</h2>
-        <i data-lucide="x" id="close-drawer" style="cursor:pointer"></i>
-    </div>
-    <div class="s-item">
-        <label>Theme</label>
-        <select id="sel-theme">
-            <option value="midnight">Midnight Galaxy</option>
-            <option value="sepia">High-Contrast Sepia</option>
-            <option value="obsidian">Pure Obsidian</option>
-        </select>
-    </div>
-    <div class="s-item">
-        <label>Arabic Script</label>
-        <select id="sel-script">
-            <option value="uthmani">Uthmani (Madinah)</option>
-            <option value="indopak">Indo-Pak Script</option>
-        </select>
-    </div>
-    <div class="s-item">
-        <label>Arabic Size</label>
-        <input type="range" id="range-ar" min="1.5" max="5" step="0.1" value="3">
-    </div>
-</nav>
+    <nav>
+        <div class="nav-btn" onclick="Engine.load(1)" title="Home"><i data-lucide="home"></i></div>
+        <div class="nav-btn" onclick="Engine.toggleHifz()" id="hifz-toggle" title="Hifz Mode"><i data-lucide="brain"></i></div>
+        <div class="nav-btn" onclick="Engine.cycleTheme()" title="Change Theme"><i data-lucide="palette"></i></div>
+    </nav>
 
-<main id="scroller">
-    <header>
-        <div>
-            <h1 id="surah-title" style="font-weight:900; font-size:2rem;">Sovereign</h1>
-            <p id="surah-info" style="font-size:0.7rem; opacity:0.6; font-weight:800; letter-spacing:1px;"></p>
+    <main id="main-scroll">
+        <div class="container">
+            <header>
+                <div>
+                    <h1 id="surah-name" style="margin:0; font-size: 1.5rem;">Sovereign</h1>
+                    <span id="surah-desc" style="font-size: 0.8rem; color: var(--sub);">Select a chapter to begin</span>
+                </div>
+                <div class="search-group">
+                    <i data-lucide="search" size="18" style="color:var(--sub)"></i>
+                    <input type="text" id="search-input" placeholder="Surah name or number..." onkeypress="if(event.key==='Enter') Engine.search(this.value)">
+                </div>
+            </header>
+
+            <div id="reader-stage">
+                </div>
         </div>
-        <input class="search-in" id="search-input" placeholder="Type Surah Name or Number..."/>
-    </header>
-    <div class="reader" id="view-port"></div>
-</main>
+    </main>
 
-<div id="player">
-    <button class="p-btn" id="play-pause"><i data-lucide="play"></i></button>
-    <div style="flex:1">
-        <div id="now-playing" style="font-weight:800; color:var(--p); margin-bottom:5px; font-size:0.8rem;"></div>
-        <progress id="p-bar" value="0" max="1"></progress>
-    </div>
-    <i data-lucide="repeat" id="loop-toggle" style="cursor:pointer; color:var(--sub)"></i>
-    <audio id="audio-core"></audio>
-</div>
+    <script>
+        const Engine = {
+            state: { surah: 1, theme: 'midnight', hifz: false },
+            themes: ['midnight', 'sepia', 'light'],
 
-<script>
-const Sovereign = {
-    state: {
-        id: localStorage.getItem('sov_id') || 1,
-        script: localStorage.getItem('sov_script') || 'uthmani',
-        theme: localStorage.getItem('sov_theme') || 'midnight',
-        notes: JSON.parse(localStorage.getItem('sov_notes') || '{}'),
-        isLooping: false
-    },
-
-    async load(query) {
-        const port = document.getElementById('view-port');
-        port.innerHTML = `<div style="text-align:center; padding:100px; opacity:0.5;"><i data-lucide="loader-2" class="spin"></i></div>`;
-        lucide.createIcons();
-
-        try {
-            // Smart Search
-            let surahId = query;
-            if (isNaN(query)) {
-                const chapters = await fetch('https://api.quran.com/api/v4/chapters').then(r => r.json());
-                const match = chapters.chapters.find(c => c.name_simple.toLowerCase().includes(query.toLowerCase()));
-                surahId = match ? match.id : 1;
-            }
-
-            // High-Speed Data Fetch
-            const [meta, arData, enData] = await Promise.all([
-                fetch(`https://api.quran.com/api/v4/chapters/${surahId}`).then(r => r.json()),
-                fetch(`https://api.quran.com/api/v4/quran/verses/${this.state.script}?chapter_number=${surahId}`).then(r => r.json()),
-                fetch(`https://api.quran.com/api/v4/quran/translations/131?chapter_number=${surahId}`).then(r => r.json())
-            ]);
-
-            document.getElementById('surah-title').innerText = meta.chapter.name_simple;
-            document.getElementById('surah-info').innerText = `${meta.chapter.revelation_place.toUpperCase()} • ${meta.chapter.verses_count} VERSES`;
-
-            // Fix for "undefined" - dynamically find the correct key
-            const scriptKey = `text_${this.state.script}`;
-            
-            port.innerHTML = arData.verses.map((v, i) => {
-                const translation = enData.translations[i] ? enData.translations[i].text.replace(/<\/?[^>]+(>|$)/g, "") : "Translation unavailable";
-                const userNote = this.state.notes[v.verse_key] || "";
+            async load(id) {
+                const loader = document.getElementById('loader');
+                const stage = document.getElementById('reader-stage');
+                loader.style.transform = 'scaleX(0.4)';
                 
-                return `
-                <div class="ayah" id="v-${v.verse_key}">
-                    <div style="display:flex; justify-content:space-between; align-items:start;">
-                        <div class="ar ${this.state.script}" onclick="Sovereign.play('${v.verse_key}')">${v[scriptKey] || "Text unavailable"}</div>
-                        <i data-lucide="edit-3" onclick="Sovereign.addNote('${v.verse_key}')" style="cursor:pointer; opacity:0.4"></i>
-                    </div>
-                    <div class="en" onclick="Sovereign.play('${v.verse_key}')">${translation}</div>
-                    ${userNote ? `<div class="notes-area"><b>Reflection:</b> ${userNote}</div>` : ''}
-                </div>`;
-            }).join('');
+                try {
+                    // Pulling from Unified Quran.cloud for stability
+                    const [arRes, enRes] = await Promise.all([
+                        fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${id}`).then(r => r.json()),
+                        fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
+                    ]);
 
-            lucide.createIcons();
-            this.state.id = surahId;
-            localStorage.setItem('sov_id', surahId);
+                    loader.style.transform = 'scaleX(0.8)';
+                    document.getElementById('surah-name').innerText = enRes.data.englishName;
+                    document.getElementById('surah-desc').innerText = `${enRes.data.englishNameTranslation} • ${enRes.data.numberOfAyahs} Verses`;
 
-        } catch (err) {
-            port.innerHTML = `<div style="color:red; text-align:center; padding:50px;">Connection Error. Check your internet.</div>`;
-        }
-    },
+                    stage.innerHTML = arRes.verses.map((v, i) => `
+                        <div class="ayah-card" onclick="Engine.playAudio('${id}', '${i+1}', this)">
+                            <div class="meta-tag">VERSE ${i+1}</div>
+                            <div class="audio-trigger"><i data-lucide="play-circle"></i></div>
+                            <div class="ar">${v.text_uthmani}</div>
+                            <div class="en">${enRes.data.ayahs[i].text}</div>
+                        </div>
+                    `).join('');
 
-    async play(key) {
-        const audio = document.getElementById('audio-core');
-        const player = document.getElementById('player');
-        player.classList.add('active');
-        document.getElementById('now-playing').innerText = `VERSE ${key}`;
+                    lucide.createIcons();
+                    loader.style.transform = 'scaleX(1)';
+                    setTimeout(() => loader.style.transform = 'scaleX(0)', 400);
+                    document.getElementById('main-scroll').scrollTop = 0;
 
-        document.querySelectorAll('.ayah').forEach(el => el.classList.remove('playing'));
-        const active = document.getElementById(`v-${key}`);
-        if (active) {
-            active.classList.add('playing');
-            active.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        const res = await fetch(`https://api.quran.com/api/v4/recitations/7/by_ayah/${key}`).then(r => r.json());
-        if (res.audio_files?.[0]?.url) {
-            audio.src = `https://verses.quran.com/${res.audio_files[0].url}`;
-            audio.play();
-            document.getElementById('play-pause').innerHTML = '<i data-lucide="pause"></i>';
-            lucide.createIcons();
-        }
-    },
-
-    addNote(key) {
-        const note = prompt(`Enter reflection for verse ${key}:`, this.state.notes[key] || "");
-        if (note !== null) {
-            this.state.notes[key] = note;
-            localStorage.setItem('sov_notes', JSON.stringify(this.state.notes));
-            this.load(this.state.id);
-        }
-    },
-
-    init() {
-        // Theme & UI Listeners
-        document.getElementById('btn-settings').onclick = () => document.getElementById('drawer').classList.add('open');
-        document.getElementById('close-drawer').onclick = () => document.getElementById('drawer').classList.remove('open');
-        
-        document.getElementById('sel-theme').onchange = (e) => {
-            document.body.setAttribute('data-theme', e.target.value);
-            localStorage.setItem('sov_theme', e.target.value);
-        };
-
-        document.getElementById('sel-script').onchange = (e) => {
-            this.state.script = e.target.value;
-            localStorage.setItem('sov_script', e.target.value);
-            this.load(this.state.id);
-        };
-
-        document.getElementById('range-ar').oninput = (e) => {
-            document.documentElement.style.setProperty('--ar-size', e.target.value + 'rem');
-        };
-
-        document.getElementById('btn-hifz').onclick = (e) => {
-            document.body.classList.toggle('hifz-blur');
-            e.currentTarget.classList.toggle('active');
-        };
-
-        document.getElementById('search-input').onkeydown = (e) => {
-            if (e.key === 'Enter') this.load(e.target.value);
-        };
-
-        // Audio Logic
-        const audio = document.getElementById('audio-core');
-        document.getElementById('play-pause').onclick = () => audio.paused ? audio.play() : audio.pause();
-        
-        audio.ontimeupdate = () => {
-            document.getElementById('p-bar').value = audio.currentTime / audio.duration || 0;
-        };
-
-        audio.onended = () => {
-            if (this.state.isLooping) {
-                audio.play();
-            } else {
-                const current = document.querySelector('.ayah.playing');
-                if (current && current.nextElementSibling) {
-                    this.play(current.nextElementSibling.id.replace('v-', ''));
+                } catch (err) {
+                    stage.innerHTML = `<h2 style="color:red; text-align:center;">Engine Error: Check Connection</h2>`;
                 }
+            },
+
+            playAudio(surah, ayah, element) {
+                // Pad numbers for the audio API (e.g. 1 -> 001)
+                const s = surah.toString().padStart(3, '0');
+                const a = ayah.toString().padStart(3, '0');
+                const audio = new Audio(`https://everyayah.com/data/Alafasy_128kbps/${s}${a}.mp3`);
+                
+                // Visual feedback
+                const cards = document.querySelectorAll('.ayah-card');
+                cards.forEach(c => c.style.borderLeft = 'none');
+                element.style.borderLeft = '4px solid var(--p)';
+                
+                audio.play();
+            },
+
+            search(val) {
+                if(!val) return;
+                this.load(val); // In a perfect build, we'd map names here too
+            },
+
+            cycleTheme() {
+                const next = this.themes[(this.themes.indexOf(this.state.theme) + 1) % this.themes.length];
+                this.state.theme = next;
+                document.body.setAttribute('data-theme', next);
+            },
+
+            toggleHifz() {
+                this.state.hifz = !this.state.hifz;
+                document.body.classList.toggle('hifz');
+                document.getElementById('hifz-toggle').classList.toggle('active');
             }
         };
 
-        document.getElementById('loop-toggle').onclick = (e) => {
-            this.state.isLooping = !this.state.isLooping;
-            e.currentTarget.style.color = this.state.isLooping ? 'var(--p)' : 'var(--sub)';
+        window.onload = () => {
+            lucide.createIcons();
+            Engine.load(1);
         };
-
-        // Set initial theme and load
-        document.body.setAttribute('data-theme', this.state.theme);
-        document.getElementById('sel-theme').value = this.state.theme;
-        document.getElementById('sel-script').value = this.state.script;
-        this.load(this.state.id);
-    }
-};
-
-window.onload = () => Sovereign.init();
-</script>
+    </script>
 </body>
 </html>
