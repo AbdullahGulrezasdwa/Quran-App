@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Quran Digital | Noble Reading Experience</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo" onclick="window.location.reload()">Al-Quran</h1>
+            <div class="search-container">
+                <input type="text" id="surahSearch" placeholder="Search Surah (e.g. Al-Fatiha)..." onkeyup="filterSurahs()">
+            </div>
+            <button id="themeToggle"><i class="fas fa-moon"></i></button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section id="surahList" class="surah-grid">
+            <div class="loader">Loading the Holy Quran...</div>
+        </section>
+
+        <section id="readingView" class="reading-container hidden">
+            <button class="back-btn" onclick="closeReadingView()">← Back to List</button>
+            <div id="surahHeader"></div>
+            <div id="ayahContainer"></div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Built with ❤️ and Devotion. Powered by Al-Quran Cloud API.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
