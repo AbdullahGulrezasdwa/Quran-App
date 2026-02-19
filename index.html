@@ -3,203 +3,259 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sovereign Quran</title>
+<title>Sovereign Quran | Elite Edition</title>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-:root{
---p:#10b981;--bg:#020617;--surf:#0f172a;--text:#f8fafc;
---border:#1e293b;--ar-size:2.6rem;--en-size:1.1rem;
---line:2.3;--radius:16px;
+:root {
+    --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc;
+    --border: #1e293b; --ar-size: 2.8rem; --en-size: 1.1rem;
+    --line: 2.5; --radius: 20px; --speed: 0.4s;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
-nav{width:75px;background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:1.5rem 0}
-.nav-btn{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;cursor:pointer;color:#64748b;transition:.3s}
-.nav-btn:hover{color:var(--p);background:rgba(16,185,129,.1)}
-.nav-btn.active{background:var(--p);color:#fff}
-main{flex:1;overflow-y:auto;position:relative}
-.header{position:sticky;top:0;background:rgba(2,6,23,.9);backdrop-filter:blur(12px);padding:1.5rem 2.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;z-index:10}
-.search{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:#fff;width:200px}
-.reader{max-width:850px;margin:0 auto;padding:2rem}
-.ayah{padding:2rem 0;border-bottom:1px solid var(--border);opacity:0;transform:translateY(10px);transition:.4s}
-.ayah.visible{opacity:1;transform:translateY(0)}
-.ayah.playing{border-left:4px solid var(--p);padding-left:15px;background:rgba(16,185,129,.05)}
-.ar{font-family:'Amiri',serif;font-size:var(--ar-size);direction:rtl;text-align:right;line-height:var(--line);margin-bottom:1rem}
-.en{font-size:var(--en-size);color:#94a3b8}
-.player{position:fixed;bottom:20px;left:95px;right:20px;background:var(--surf);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.5rem;display:flex;align-items:center;gap:1.5rem;box-shadow:0 10px 40px rgba(0,0,0,.6);transform:translateY(150%);transition:.4s}
-.player.active{transform:translateY(0)}
-.play-btn{background:var(--p);border:none;width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer}
-.progress{flex:1}
-progress{width:100%;height:6px}
-#toast{position:fixed;top:20px;right:20px;background:#ef4444;padding:1rem 2rem;border-radius:8px;display:none;z-index:9999}
-.loading{padding:3rem;text-align:center;opacity:.6}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { 
+    font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); 
+    display: flex; height: 100vh; overflow: hidden; user-select: none; 
+}
+
+/* Sidebar */
+nav { width: 80px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 2rem 0; z-index: 100; }
+.nav-btn { 
+    width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; 
+    margin-bottom: 1.5rem; cursor: pointer; color: #64748b; transition: var(--speed) cubic-bezier(0.4, 0, 0.2, 1); 
+}
+.nav-btn:hover { color: var(--p); background: rgba(16, 185, 129, 0.1); transform: translateX(3px); }
+.nav-btn.active { background: var(--p); color: #fff; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+
+/* Main Content */
+main { flex: 1; overflow-y: auto; position: relative; scroll-behavior: smooth; }
+.header { 
+    position: sticky; top: 0; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(20px); 
+    padding: 1.5rem 3rem; border-bottom: 1px solid var(--border); display: flex; 
+    justify-content: space-between; align-items: center; z-index: 50; 
+}
+.search-container { position: relative; display: flex; align-items: center; }
+.search { 
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; 
+    padding: 12px 18px; color: #fff; width: 240px; outline: none; transition: 0.3s; 
+}
+.search:focus { width: 300px; border-color: var(--p); background: rgba(255,255,255,0.1); }
+
+/* Reader */
+.reader { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
+.ayah { 
+    padding: 3rem 2rem; border-radius: var(--radius); border: 1px solid transparent; 
+    margin-bottom: 1rem; opacity: 0; transform: translateY(20px); transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1); 
+    cursor: pointer; 
+}
+.ayah:hover { background: rgba(255,255,255,0.02); border-color: var(--border); }
+.ayah.visible { opacity: 1; transform: translateY(0); }
+.ayah.playing { border-color: var(--p); background: rgba(16, 185, 129, 0.05); transform: scale(1.02); }
+
+.ar { 
+    font-family: 'Amiri', serif; font-size: var(--ar-size); direction: rtl; text-align: right; 
+    line-height: var(--line); margin-bottom: 1.5rem; transition: filter 0.5s ease; user-select: text; 
+}
+.en { font-size: var(--en-size); color: #94a3b8; line-height: 1.8; user-select: text; }
+
+/* Hifz Mode Blur */
+body.hifz-active .ar { filter: blur(18px); }
+body.hifz-active .ar:hover { filter: blur(0); }
+
+/* Floating Player */
+.player { 
+    position: fixed; bottom: 30px; left: 110px; right: 30px; background: var(--surf); 
+    border: 1px solid var(--border); border-radius: 24px; padding: 1.2rem 2rem; 
+    display: flex; align-items: center; gap: 2rem; z-index: 1000; 
+    transform: translateY(200px); transition: 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28); 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+}
+.player.active { transform: translateY(0); }
+.play-btn { 
+    background: var(--p); border: none; width: 55px; height: 55px; border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; 
+    transition: 0.3s; box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3); 
+}
+.play-btn:hover { transform: scale(1.1); }
+
+.progress-container { flex: 1; }
+progress { width: 100%; height: 6px; border-radius: 10px; overflow: hidden; accent-color: var(--p); }
+progress::-webkit-progress-bar { background: var(--border); border-radius: 10px; }
+progress::-webkit-progress-value { background: var(--p); }
+
+#toast { 
+    position: fixed; top: 30px; left: 50%; transform: translateX(-50%); 
+    background: #ef4444; color: white; padding: 0.8rem 2rem; border-radius: 50px; 
+    font-weight: 700; display: none; z-index: 9999; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3); 
+}
 </style>
 </head>
 <body>
 
 <nav>
-<div class="nav-btn active" id="nav-home"><i data-lucide="book"></i></div>
-<div class="nav-btn" id="nav-hifz"><i data-lucide="eye-off"></i></div>
+    <div class="nav-btn active" id="nav-home" onclick="location.reload()"><i data-lucide="book-open"></i></div>
+    <div class="nav-btn" id="nav-hifz" onclick="App.actions.toggleHifz()"><i data-lucide="eye-off"></i></div>
+    <div style="flex:1"></div>
+    <div class="nav-btn" onclick="localStorage.clear(); location.reload()"><i data-lucide="trash-2"></i></div>
 </nav>
 
 <main id="scroll-root">
-<header class="header">
-<div>
-<h1 id="title">Sovereign</h1>
-<p id="meta" style="font-size:.75rem;opacity:.6"></p>
-</div>
-<input class="search" id="search" placeholder="Surah 1-114"/>
-</header>
-<div class="reader" id="reader"></div>
-<div id="sentinel"></div>
+    <header class="header">
+        <div>
+            <h1 id="title" style="font-weight: 800; letter-spacing: -1px;">Sovereign</h1>
+            <p id="meta"></p>
+        </div>
+        <div class="search-container">
+            <input class="search" id="search" placeholder="Surah name or number..."/>
+        </div>
+    </header>
+    <div class="reader" id="reader"></div>
+    <div id="sentinel" style="height: 100px;"></div>
 </main>
 
 <div class="player" id="player">
-<button class="play-btn" id="playToggle"><i data-lucide="play"></i></button>
-<div class="progress">
-<div id="playingLabel" style="font-weight:700;font-size:.9rem;margin-bottom:.4rem"></div>
-<progress id="progress" value="0" max="1"></progress>
-</div>
-<audio id="audio"></audio>
+    <button class="play-btn" id="playToggle"><i data-lucide="play"></i></button>
+    <div class="progress-container">
+        <div id="playingLabel" style="font-weight:800; font-size:1rem; margin-bottom:0.5rem; color: var(--p);"></div>
+        <progress id="progress" value="0" max="1"></progress>
+    </div>
+    <audio id="audio"></audio>
 </div>
 
 <div id="toast"></div>
 
 <script>
-const App={
-state:{
-surah:null,verses:[],rendered:0,chunk:15,
-abort:null,audioAbort:null,
-observer:null,lastPlayed:null
-},
-api:{
-async fetchSurah(id,signal){
-const [m,v]=await Promise.all([
-fetch(`https://api.quran.com/api/v4/chapters/${id}`,{signal}),
-fetch(`https://api.quran.com/api/v4/verses/by_chapter/${id}?language=en&translations=131`,{signal})
-]);
-const meta=(await m.json()).chapter;
-const verses=(await v.json()).verses||[];
-return{meta,verses};
-},
-async fetchAudio(key,signal){
-const r=await fetch(`https://api.quran.com/api/v4/recitations/7/by_ayah/${key}`,{signal});
-const j=await r.json();
-return j.audio_files?.[0]?.url||null;
-}
-},
-ui:{
-toast(msg){
-const t=document.getElementById("toast");
-t.innerText=msg;t.style.display="block";
-setTimeout(()=>t.style.display="none",4000);
-},
-renderChunk(){
-const target=document.getElementById("reader");
-const next=App.state.verses.slice(App.state.rendered,App.state.rendered+App.state.chunk);
-next.forEach(v=>{
-const div=document.createElement("div");
-div.className="ayah";
-div.id=`ayah-${v.verse_key}`;
-div.innerHTML=`
-<div class="ar">${v.text_uthmani}</div>
-<div class="en">${v.translations?.[0]?.text.replace(/<\/?[^>]+(>|$)/g,"")||""}</div>`;
-div.onclick=()=>App.actions.play(v.verse_key);
-target.appendChild(div);
-App.state.observer.observe(div);
-});
-App.state.rendered+=next.length;
-}
-},
-actions:{
-async changeSurah(id){
-if(id<1||id>114)return;
-if(App.state.abort)App.state.abort.abort();
-App.state.abort=new AbortController();
-document.getElementById("reader").innerHTML='<div class="loading">Loading...</div>';
-try{
-const data=await App.api.fetchSurah(id,App.state.abort.signal);
-App.state.verses=data.verses;
-App.state.rendered=0;
-App.state.surah=id;
-document.title=`${data.meta.name_simple} | Sovereign`;
-document.getElementById("title").innerText=data.meta.name_simple;
-document.getElementById("meta").innerText=`${data.meta.revelation_place.toUpperCase()} • ${data.meta.verses_count} VERSES`;
-document.getElementById("reader").innerHTML="";
-App.ui.renderChunk();
-localStorage.setItem("sq_surah",id);
-}catch(e){
-if(e.name!=="AbortError")App.ui.toast("Failed to load surah.");
-}
-},
-async play(key){
-if(App.state.audioAbort)App.state.audioAbort.abort();
-App.state.audioAbort=new AbortController();
-const audio=document.getElementById("audio");
-const player=document.getElementById("player");
-player.classList.add("active");
-App.state.lastPlayed=key;
-document.querySelectorAll(".ayah").forEach(a=>a.classList.remove("playing"));
-const el=document.getElementById(`ayah-${key}`);
-if(el){el.classList.add("playing");el.scrollIntoView({block:"center"});}
-try{
-const url=await App.api.fetchAudio(key,App.state.audioAbort.signal);
-if(!url)return App.ui.toast("Audio unavailable.");
-audio.src=`https://verses.quran.com/${url}`;
-audio.play();
-document.getElementById("playingLabel").innerText=`Ayah ${key}`;
-}catch(e){
-if(e.name!=="AbortError")App.ui.toast("Audio failed.");
-}
-}
-},
-boot(){
-lucide.createIcons();
-App.state.observer=new IntersectionObserver(entries=>{
-entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("visible");});
-},{threshold:.1});
-new IntersectionObserver(e=>{
-if(e[0].isIntersecting&&App.state.verses.length>App.state.rendered)
-App.ui.renderChunk();
-},{rootMargin:"300px"}).observe(document.getElementById("sentinel"));
+const App = {
+    state: {
+        surah: null, verses: [], rendered: 0, chunk: 15,
+        abort: null, audioAbort: null, observer: null, hifz: false
+    },
+    api: {
+        async fetchSurah(id, signal) {
+            const [m, v] = await Promise.all([
+                fetch(`https://api.quran.com/api/v4/chapters/${id}`, { signal }),
+                fetch(`https://api.quran.com/api/v4/verses/by_chapter/${id}?language=en&translations=131`, { signal })
+            ]);
+            return { meta: (await m.json()).chapter, verses: (await v.json()).verses || [] };
+        }
+    },
+    ui: {
+        toast(msg) {
+            const t = document.getElementById("toast");
+            t.innerText = msg; t.style.display = "block";
+            setTimeout(() => t.style.display = "none", 3000);
+        },
+        renderChunk() {
+            const target = document.getElementById("reader");
+            const next = App.state.verses.slice(App.state.rendered, App.state.rendered + App.state.chunk);
+            
+            next.forEach(v => {
+                const div = document.createElement("div");
+                div.className = "ayah";
+                div.id = `ayah-${v.verse_key}`;
+                // 🔥 GUARD: Optional chaining for translation safety
+                const trans = v.translations?.[0]?.text.replace(/<\/?[^>]+(>|$)/g, "") || "";
+                div.innerHTML = `<div class="ar">${v.text_uthmani}</div><div class="en">${trans}</div>`;
+                
+                div.onclick = () => App.actions.play(v.verse_key);
+                target.appendChild(div);
+                App.state.observer.observe(div);
+            });
+            App.state.rendered += next.length;
+            lucide.createIcons();
+        }
+    },
+    actions: {
+        async changeSurah(query) {
+            let id = query;
+            // Name search logic could go here, but let's stick to strict 1-114 for now
+            if (isNaN(id) || id < 1 || id > 114) return App.ui.toast("Invalid Surah Number");
 
-document.getElementById("search").onkeydown=e=>{
-if(e.key==="Enter"){App.actions.changeSurah(parseInt(e.target.value));e.target.value="";}
+            if (App.state.abort) App.state.abort.abort();
+            if (App.state.observer) App.state.observer.disconnect();
+            
+            App.state.abort = new AbortController();
+            App.state.observer = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting) x.target.classList.add("visible") }), { threshold: 0.1 });
+
+            document.getElementById("reader").innerHTML = '<div style="text-align:center; padding:5rem; opacity:0.5;">Loading Revelation...</div>';
+            
+            try {
+                const data = await App.api.fetchSurah(id, App.state.abort.signal);
+                App.state.verses = data.verses;
+                App.state.rendered = 0;
+                App.state.surah = id;
+                
+                document.getElementById("title").innerText = data.meta.name_simple;
+                document.getElementById("meta").innerText = `${data.meta.revelation_place.toUpperCase()} • ${data.meta.verses_count} VERSES`;
+                document.getElementById("reader").innerHTML = "";
+                
+                App.ui.renderChunk();
+                localStorage.setItem("sq_surah", id);
+            } catch (e) { if (e.name !== "AbortError") App.ui.toast("Connection Error"); }
+        },
+        async play(key) {
+            if (App.state.audioAbort) App.state.audioAbort.abort();
+            App.state.audioAbort = new AbortController();
+            
+            const audio = document.getElementById("audio");
+            document.getElementById("player").classList.add("active");
+            
+            document.querySelectorAll(".ayah").forEach(a => a.classList.remove("playing"));
+            const el = document.getElementById(`ayah-${key}`);
+            if (el) { el.classList.add("playing"); el.scrollIntoView({ behavior: 'smooth', block: "center" }); }
+
+            try {
+                const r = await fetch(`https://api.quran.com/api/v4/recitations/7/by_ayah/${key}`, { signal: App.state.audioAbort.signal });
+                const j = await r.json();
+                const url = j.audio_files?.[0]?.url;
+                
+                if (!url) return App.ui.toast("Audio not found");
+                audio.src = `https://verses.quran.com/${url}`;
+                audio.play();
+                document.getElementById("playingLabel").innerText = `Verse ${key}`;
+            } catch (e) { if (e.name !== "AbortError") App.ui.toast("Audio Stream Error"); }
+        },
+        toggleHifz() {
+            App.state.hifz = !App.state.hifz;
+            document.body.classList.toggle("hifz-active", App.state.hifz);
+            document.getElementById("nav-hifz").classList.toggle("active", App.state.hifz);
+            document.getElementById("nav-hifz").innerHTML = `<i data-lucide="${App.state.hifz ? 'eye' : 'eye-off'}"></i>`;
+            lucide.createIcons();
+        }
+    },
+    boot() {
+        lucide.createIcons();
+        
+        // Infinite Scroll
+        new IntersectionObserver(e => {
+            if (e[0].isIntersecting && App.state.verses.length > App.state.rendered) App.ui.renderChunk();
+        }, { rootMargin: "400px" }).observe(document.getElementById("sentinel"));
+
+        // Inputs & Audio State
+        document.getElementById("search").onkeydown = e => {
+            if (e.key === "Enter") { App.actions.changeSurah(e.target.value); e.target.value = ""; }
+        };
+
+        const audio = document.getElementById("audio");
+        const progress = document.getElementById("progress");
+        const playToggle = document.getElementById("playToggle");
+
+        audio.ontimeupdate = () => progress.value = audio.currentTime / audio.duration || 0;
+        audio.onplay = () => { playToggle.innerHTML = '<i data-lucide="pause"></i>'; lucide.createIcons(); };
+        audio.onpause = () => { playToggle.innerHTML = '<i data-lucide="play"></i>'; lucide.createIcons(); };
+        audio.onended = () => {
+            const next = document.querySelector(".ayah.playing")?.nextElementSibling;
+            if (next?.id) App.actions.play(next.id.replace("ayah-", ""));
+        };
+
+        playToggle.onclick = () => audio.paused ? audio.play() : audio.pause();
+
+        // Initial Load
+        App.actions.changeSurah(localStorage.getItem("sq_surah") || 1);
+    }
 };
-
-const audio=document.getElementById("audio");
-const progress=document.getElementById("progress");
-audio.ontimeupdate=()=>{progress.value=audio.currentTime/audio.duration||0};
-audio.onended=()=>{
-const current=document.querySelector(".ayah.playing");
-const next=current?.nextElementSibling;
-if(next?.id)App.actions.play(next.id.replace("ayah-",""));
-};
-
-document.getElementById("playToggle").onclick=()=>{
-if(audio.paused)audio.play();else audio.pause();
-};
-
-document.addEventListener("keydown",e=>{
-if(e.code==="Space"){e.preventDefault();audio.paused?audio.play():audio.pause();}
-if(e.key==="ArrowDown"){
-const current=document.querySelector(".ayah.playing");
-const next=current?.nextElementSibling;
-if(next?.id)App.actions.play(next.id.replace("ayah-",""));
-}
-if(e.key==="ArrowUp"){
-const current=document.querySelector(".ayah.playing");
-const prev=current?.previousElementSibling;
-if(prev?.id)App.actions.play(prev.id.replace("ayah-",""));
-}
-});
-
-App.actions.changeSurah(parseInt(localStorage.getItem("sq_surah"))||1);
-}
-};
-window.onload=()=>App.boot();
+window.onload = () => App.boot();
 </script>
 </body>
 </html>
