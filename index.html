@@ -1,41 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Al-Quran Digital | Noble Reading Experience</title>
+    <title>Al-Quran Al-Kareem | Interactive Experience</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
-</head>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script> </head>
 <body>
 
-    <nav class="navbar">
-        <div class="container">
-            <h1 class="logo" onclick="window.location.reload()">Al-Quran</h1>
-            <div class="search-container">
-                <input type="text" id="surahSearch" placeholder="Search Surah (e.g. Al-Fatiha)..." onkeyup="filterSurahs()">
+    <div class="bg-glow"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-content">
+            <div class="brand" onclick="showHome()">
+                <span class="logo-icon">📖</span>
+                <h1>Al-Quran</h1>
             </div>
-            <button id="themeToggle"><i class="fas fa-moon"></i></button>
+            
+            <div class="nav-actions">
+                <div class="search-pill">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="mainSearch" placeholder="Jump to Surah..." onkeyup="filterSurahs()">
+                </div>
+                <button class="icon-btn" id="themeToggle"><i data-lucide="moon"></i></button>
+                <button class="icon-btn" onclick="toggleSettings()"><i data-lucide="settings"></i></button>
+            </div>
         </div>
     </nav>
 
-    <main class="container">
-        <section id="surahList" class="surah-grid">
-            <div class="loader">Loading the Holy Quran...</div>
-        </section>
+    <main class="main-layout">
+        <div id="homeView" class="view">
+            <div class="hero">
+                <h2 id="greeting">Assalamu Alaikum</h2>
+                <div id="lastReadCard" class="last-read-card hidden" onclick="resumeReading()">
+                    <div class="card-info">
+                        <span>CONTINUE READING</span>
+                        <h3 id="lastReadName">Surah Al-Baqarah</h3>
+                        <p id="lastReadAyah">Ayah 255</p>
+                    </div>
+                    <i data-lucide="play-circle"></i>
+                </div>
+            </div>
+            <div id="surahGrid" class="surah-grid"></div>
+        </div>
 
-        <section id="readingView" class="reading-container hidden">
-            <button class="back-btn" onclick="closeReadingView()">← Back to List</button>
-            <div id="surahHeader"></div>
-            <div id="ayahContainer"></div>
-        </section>
+        <div id="readerView" class="view hidden">
+            <div class="reader-header">
+                <button class="back-pill" onclick="showHome()"><i data-lucide="chevron-left"></i> Back</button>
+                <div id="surahMeta"></div>
+            </div>
+            <div id="bismillah" class="bismillah hidden">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+            <div id="ayahList" class="ayah-list"></div>
+        </div>
     </main>
 
-    <footer class="footer">
-        <p>Built with ❤️ and Devotion. Powered by Al-Quran Cloud API.</p>
+    <footer id="audioPlayer" class="audio-bar hidden">
+        <div class="player-content">
+            <div class="track-info">
+                <p id="playingSurah">-</p>
+                <span id="playingAyah">Ayah -</span>
+            </div>
+            <div class="player-controls">
+                <audio id="mainAudio" src=""></audio>
+                <button class="p-btn" onclick="prevAyah()"><i data-lucide="skip-back"></i></button>
+                <button class="p-btn play-main" onclick="toggleAudio()"><i data-lucide="play" id="playIcon"></i></button>
+                <button class="p-btn" onclick="nextAyah()"><i data-lucide="skip-forward"></i></button>
+            </div>
+            <div class="reciter-select">
+                <select id="reciterId" onchange="changeReciter()">
+                    <option value="ar.alafasy">Alafasy</option>
+                    <option value="ar.abdulsamad">Abdul Basit</option>
+                    <option value="ar.minshawi">Al-Minshawi</option>
+                </select>
+            </div>
+        </div>
     </footer>
 
     <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
