@@ -3,26 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign | Solid State</title>
+    <title>Sovereign | Elite Quran Engine</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc; --sub: #94a3b8; --border: #1e293b; --font-ar: 2.8rem; }
         [data-theme="sepia"] { --bg: #f5f2e9; --surf: #e8e4d9; --text: #2d241e; --sub: #5d534a; --border: #d1cdc0; --p: #8b5e3c; }
         [data-theme="light"] { --bg: #ffffff; --surf: #f1f5f9; --text: #0f172a; --sub: #475569; --border: #e2e8f0; --p: #2563eb; }
+        
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; transition: 0.3s; overflow: hidden; }
-        nav { width: 75px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 25px; z-index: 100; }
-        .nav-item { color: var(--sub); cursor: pointer; padding: 12px; border-radius: 12px; transition: 0.2s; }
-        .nav-item:hover, .nav-item.active { color: var(--p); background: rgba(16,185,129,0.1); }
-        main { flex: 1; overflow-y: auto; scroll-behavior: smooth; position: relative; }
+        
+        /* Sidebar Controls */
+        nav { width: 80px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 20px; z-index: 100; }
+        .nav-item { color: var(--sub); cursor: pointer; padding: 12px; border-radius: 12px; transition: 0.2s; position: relative; }
+        .nav-item:hover { color: var(--p); background: rgba(16,185,129,0.1); }
+        select { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; top: 0; left: 0; }
+
+        main { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
         .content { max-width: 850px; margin: 0 auto; padding: 40px 20px; }
+        
         header { position: sticky; top: 0; background: var(--bg); padding: 20px 0; border-bottom: 1px solid var(--border); z-index: 50; display: flex; justify-content: space-between; align-items: center; }
+        
         .ayah { padding: 40px 0; border-bottom: 1px solid var(--border); transition: 0.4s; border-left: 0 solid var(--p); cursor: pointer; }
         .ayah.playing { border-left: 5px solid var(--p); background: rgba(16, 185, 129, 0.08); padding-left: 25px; }
+        
         .ar { font-family: 'Amiri', serif; font-size: var(--font-ar); text-align: right; direction: rtl; line-height: 2.3; color: var(--p); margin-bottom: 15px; }
-        .en { font-size: 1.15rem; color: var(--sub); line-height: 1.8; }
+        .en { font-size: 1.15rem; color: var(--sub); line-height: 1.8; font-weight: 300; }
+        
+        .meta-badge { font-size: 0.7rem; background: var(--p); color: white; padding: 3px 10px; border-radius: 20px; margin-left: 10px; vertical-align: middle; font-weight: 600; }
         #loader { position: fixed; top: 0; left: 0; height: 3px; background: var(--p); width: 0%; z-index: 1000; transition: 0.3s; }
-        .meta-badge { font-size: 0.75rem; background: var(--p); color: white; padding: 2px 8px; border-radius: 4px; margin-left: 10px; vertical-align: middle; }
+        
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body data-theme="midnight">
@@ -30,10 +41,27 @@
     <div id="loader"></div>
 
     <nav>
-        <div class="nav-item" onclick="Sovereign.load(Sovereign.state.currentSurah - 1)"><i data-lucide="chevron-left"></i></div>
-        <div class="nav-item" onclick="Sovereign.load(1)"><i data-lucide="home"></i></div>
-        <div class="nav-item" onclick="Sovereign.cycleTheme()"><i data-lucide="palette"></i></div>
-        <div class="nav-item" onclick="Sovereign.load(Sovereign.state.currentSurah + 1)"><i data-lucide="chevron-right"></i></div>
+        <div class="nav-item" title="Previous Surah" onclick="Sovereign.navSurah(-1)"><i data-lucide="arrow-up"></i></div>
+        <div class="nav-item" title="Next Surah" onclick="Sovereign.navSurah(1)"><i data-lucide="arrow-down"></i></div>
+        <div class="nav-item" title="Change Reciter">
+            <i data-lucide="mic"></i>
+            <select onchange="Sovereign.setReciter(this.value)">
+                <option value="Alafasy_128kbps">Mishary Al-Afasy</option>
+                <option value="Abdul_Basit_Murattal_192kbps">Abdul Basit</option>
+                <option value="Husary_128kbps">Mahmoud Al-Husary</option>
+                <option value="Minshawi_Murattal_128kbps">Siddiq Al-Minshawi</option>
+            </select>
+        </div>
+        <div class="nav-item" title="Change Translation">
+            <i data-lucide="languages"></i>
+            <select onchange="Sovereign.setTranslation(this.value)">
+                <option value="131">Sahih International</option>
+                <option value="20">Saheeh International (Alt)</option>
+                <option value="167">Clear Quran</option>
+                <option value="171">The Study Quran</option>
+            </select>
+        </div>
+        <div class="nav-item" title="Appearance" onclick="Sovereign.cycleTheme()"><i data-lucide="palette"></i></div>
     </nav>
 
     <main id="scroller">
@@ -41,10 +69,10 @@
             <header>
                 <div>
                     <h1 id="s-title" style="margin:0">Sovereign</h1>
-                    <small id="s-subtitle" style="color:var(--sub)">Initializing Engine...</small>
+                    <small id="s-subtitle" style="color:var(--sub)">Connecting to Revelation...</small>
                 </div>
-                <input type="number" id="search" placeholder="Surah #" 
-                       style="background:var(--surf); border:1px solid var(--border); color:white; padding:10px 15px; border-radius:20px; outline:none; width: 100px;"
+                <input type="number" id="search" placeholder="Surah 1-114" 
+                       style="background:var(--surf); border:1px solid var(--border); color:white; padding:12px 18px; border-radius:25px; outline:none; width: 110px; text-align:center;"
                        onkeypress="if(event.key==='Enter') Sovereign.load(this.value)">
             </header>
             <div id="view"></div>
@@ -54,33 +82,52 @@
     <script>
         const Sovereign = {
             currentAudio: null,
-            state: { currentSurah: 1, theme: 'midnight' },
-            themes: ['midnight', 'sepia', 'light'],
+            state: { 
+                currentSurah: 1, 
+                reciter: 'Alafasy_128kbps', 
+                transId: 131,
+                theme: 'midnight' 
+            },
+
+            // 1. Memory Management (Load last read)
+            init() {
+                const last = localStorage.getItem('sov_last_surah');
+                const lastTrans = localStorage.getItem('sov_last_trans');
+                const lastRec = localStorage.getItem('sov_last_rec');
+                
+                if(last) this.state.currentSurah = parseInt(last);
+                if(lastTrans) this.state.transId = lastTrans;
+                if(lastRec) this.state.reciter = lastRec;
+
+                this.load(this.state.currentSurah);
+            },
 
             async load(id) {
                 const sId = parseInt(id) || 1;
                 if (sId < 1 || sId > 114) return;
+                
                 this.state.currentSurah = sId;
+                localStorage.setItem('sov_last_surah', sId); // Save progress
 
                 const view = document.getElementById('view');
                 const loader = document.getElementById('loader');
-                loader.style.width = '40%';
+                loader.style.width = '30%';
                 this.stopAudio();
 
                 try {
-                    // Fetching data from the unified v4 endpoint
-                    const res = await fetch(`https://api.quran.com/api/v4/verses/by_chapter/${sId}?language=en&translations=131&fields=text_uthmani`);
-                    const data = await res.json();
+                    const [vRes, mRes] = await Promise.all([
+                        fetch(`https://api.quran.com/api/v4/verses/by_chapter/${sId}?language=en&translations=${this.state.transId}&fields=text_uthmani`),
+                        fetch(`https://api.quran.com/api/v4/chapters/${sId}?language=en`)
+                    ]);
 
-                    // Fetching Meta separately for cleaner error handling
-                    const metaRes = await fetch(`https://api.quran.com/api/v4/chapters/${sId}?language=en`);
-                    const metaData = await metaRes.json();
+                    const vData = await vRes.json();
+                    const mData = await mRes.json();
+                    const chapter = mData.chapter;
 
-                    const chapter = metaData.chapter;
                     document.getElementById('s-title').innerHTML = `${chapter.name_simple} <span class="meta-badge">${chapter.revelation_place}</span>`;
                     document.getElementById('s-subtitle').innerText = `${chapter.translated_name.name} • ${chapter.verses_count} Verses`;
 
-                    view.innerHTML = data.verses.map((v, i) => `
+                    view.innerHTML = vData.verses.map((v, i) => `
                         <div class="ayah" id="v-${i+1}" onclick="Sovereign.playAudio(${sId}, ${i+1})">
                             <div class="ar">${v.text_uthmani}</div>
                             <div class="en">${v.translations[0].text.replace(/<[^>]*>/g, '')}</div>
@@ -93,16 +140,34 @@
                     document.getElementById('scroller').scrollTop = 0;
 
                 } catch (e) {
-                    console.error(e);
-                    view.innerHTML = `<h2 style="color:red; text-align:center; padding-top:50px;">Connection Error.<br><small style="color:var(--sub); font-size:1rem;">The Quran API might be rate-limiting. Please wait 5 seconds and refresh.</small></h2>`;
+                    view.innerHTML = `<h2 style="color:red; text-align:center;">Handshake Failed. Retry in 5s.</h2>`;
                 }
+            },
+
+            // 2. Navigation Guards
+            navSurah(dir) {
+                const next = this.state.currentSurah + dir;
+                if(next >= 1 && next <= 114) this.load(next);
+            },
+
+            setReciter(val) { 
+                this.state.reciter = val; 
+                localStorage.setItem('sov_last_rec', val);
+                this.stopAudio();
+            },
+
+            setTranslation(val) { 
+                this.state.transId = val; 
+                localStorage.setItem('sov_last_trans', val);
+                this.load(this.state.currentSurah); 
             },
 
             playAudio(s, a) {
                 this.stopAudio();
-                const sPad = s.toString().padStart(3, '0');
-                const aPad = a.toString().padStart(3, '0');
-                this.currentAudio = new Audio(`https://everyayah.com/data/Alafasy_128kbps/${sPad}${aPad}.mp3`);
+                const sP = s.toString().padStart(3, '0');
+                const aP = a.toString().padStart(3, '0');
+                
+                this.currentAudio = new Audio(`https://everyayah.com/data/${this.state.reciter}/${sP}${aP}.mp3`);
                 
                 document.querySelectorAll('.ayah').forEach(el => el.classList.remove('playing'));
                 const el = document.getElementById(`v-${a}`);
@@ -111,7 +176,7 @@
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
 
-                this.currentAudio.play();
+                this.currentAudio.play().catch(e => console.log("Audio load blocked."));
                 this.currentAudio.onended = () => {
                     const next = a + 1;
                     if (document.getElementById(`v-${next}`)) this.playAudio(s, next);
@@ -126,12 +191,13 @@
             },
 
             cycleTheme() {
-                const next = this.themes[(this.themes.indexOf(document.body.getAttribute('data-theme')) + 1) % this.themes.length];
+                const themes = ['midnight', 'sepia', 'light'];
+                const next = themes[(themes.indexOf(document.body.getAttribute('data-theme')) + 1) % themes.length];
                 document.body.setAttribute('data-theme', next);
             }
         };
 
-        window.onload = () => Sovereign.load(1);
+        window.onload = () => Sovereign.init();
     </script>
 </body>
 </html>
