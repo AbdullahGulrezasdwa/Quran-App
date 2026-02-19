@@ -1,90 +1,118 @@
-const surahListContainer = document.getElementById('surahList');
-const readingView = document.getElementById('readingView');
-const ayahContainer = document.getElementById('ayahContainer');
-const surahHeader = document.getElementById('surahHeader');
+const API_BASE = "https://api.alquran.cloud/v1";
+let currentSurah = null;
+let currentAyahIndex = 0;
+let audioPlayer = document.getElementById('mainAudio');
 
-let allSurahs = [];
+// 1. Initial Load
+window.onload = () => {
+    loadSurahList();
+    checkLastRead();
+};
 
-// 1. Fetch Surah List on Load
-async function init() {
-    try {
-        const response = await fetch('https://api.alquran.cloud/v1/surah');
-        const data = await response.json();
-        allSurahs = data.data;
-        displaySurahs(allSurahs);
-    } catch (error) {
-        surahListContainer.innerHTML = `<p>Error loading Quran data. Please try again.</p>`;
-    }
+async function loadSurahList() {
+    const res = await fetch(`${API_BASE}/surah`);
+    const data = await res.json();
+    renderSurahGrid(data.data);
 }
 
-// 2. Display the Grid
-function displaySurahs(surahs) {
-    surahListContainer.innerHTML = surahs.map(surah => `
-        <div class="surah-card" onclick="loadSurahDetail(${surah.number})">
-            <div>
-                <strong>${surah.number}. ${surah.englishName}</strong>
-                <p>${surah.englishNameTranslation} • ${surah.numberOfAyahs} Ayahs</p>
+function renderSurahGrid(surahs) {
+    const grid = document.getElementById('surahGrid');
+    grid.innerHTML = surahs.map(s => `
+        <div class="surah-card" onclick="openSurah(${s.number})">
+            <div class="s-info">
+                <span class="s-num">#${s.number}</span>
+                <h3>${s.englishName}</h3>
+                <p>${s.englishNameTranslation} • ${s.numberOfAyahs} Ayahs</p>
             </div>
-            <div class="arabic-name">${surah.name}</div>
+            <div class="s-arabic" style="font-family: 'Amiri'; font-size: 1.8rem; color: var(--primary)">
+                ${s.name}
+            </div>
         </div>
     `).join('');
 }
 
-// 3. Search Filter
-function filterSurahs() {
-    const term = document.getElementById('surahSearch').value.toLowerCase();
-    const filtered = allSurahs.filter(s => 
-        s.englishName.toLowerCase().includes(term) || 
-        s.number.toString() === term
-    );
-    displaySurahs(filtered);
-}
+// 2. Open Surah with Dual Edition (Arabic + English + Audio)
+async function openSurah(id) {
+    document.getElementById('homeView').classList.add('hidden');
+    document.getElementById('readerView').classList.remove('hidden');
+    document.getElementById('ayahList').innerHTML = `<div class="loader">Loading...</div>`;
 
-// 4. Load Specific Surah
-async function loadSurahDetail(number) {
-    surahListContainer.classList.add('hidden');
-    readingView.classList.remove('hidden');
-    ayahContainer.innerHTML = '<div class="loader">Opening Surah...</div>';
+    const reciter = document.getElementById('reciterId').value;
     
-    // Fetch Arabic and English simultaneously
-    const [arRes, enRes] = await Promise.all([
-        fetch(`https://api.alquran.cloud/v1/surah/${number}`),
-        fetch(`https://api.alquran.cloud/v1/surah/${number}/en.asad`)
+    // We fetch 3 things at once: Arabic, English Translation, and Audio links
+    const [ar, en, aud] = await Promise.all([
+        fetch(`${API_BASE}/surah/${id}/quran-uthmani`).then(r => r.json()),
+        fetch(`${API_BASE}/surah/${id}/en.asad`).then(r => r.json()),
+        fetch(`${API_BASE}/surah/${id}/${reciter}`).then(r => r.json())
     ]);
 
-    const arData = await arRes.json();
-    const enData = await enRes.json();
+    currentSurah = {
+        arabic: ar.data,
+        english: en.data,
+        audio: aud.data
+    };
 
-    surahHeader.innerHTML = `
-        <h2 style="text-align: center; color: var(--primary); font-size: 2rem;">${arData.data.name}</h2>
-        <p style="text-align: center; margin-bottom: 30px;">${arData.data.englishName} (${arData.data.englishNameTranslation})</p>
-    `;
+    renderReader();
+    saveLastRead(id, ar.data.englishName);
+}
 
-    let html = '';
-    for(let i = 0; i < arData.data.ayahs.length; i++) {
-        html += `
-            <div class="ayah-box">
-                <span class="quran-text">
-                    ${arData.data.ayahs[i].text} 
-                    <span class="ayah-number">${i+1}</span>
-                </span>
-                <p class="translation-text">${enData.data.ayahs[i].text}</p>
-            </div>
-        `;
+function renderReader() {
+    const list = document.getElementById('ayahList');
+    document.getElementById('surahMeta').innerHTML = `<h2>${currentSurah.arabic.englishName}</h2>`;
+    
+    list.innerHTML = currentSurah.arabic.ayahs.map((ayah, i) => `
+        <div class="ayah-card" id="ayah-${i}" onclick="playAyah(${i})">
+            <span class="quran-arabic">${ayah.text} <span class="a-num">${i+1}</span></span>
+            <p class="translation-text">${currentSurah.english.ayahs[i].text}</p>
+        </div>
+    `).join('');
+}
+
+// 3. Audio Logic
+function playAyah(index) {
+    currentAyahIndex = index;
+    const audioUrl = currentSurah.audio.ayahs[index].audio;
+    
+    // UI Update
+    document.querySelectorAll('.ayah-card').forEach(el => el.classList.remove('active'));
+    document.getElementById(`ayah-${index}`).classList.add('active');
+    document.getElementById(`ayah-${index}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Audio Update
+    audioPlayer.src = audioUrl;
+    audioPlayer.play();
+    document.getElementById('audioPlayer').classList.remove('hidden');
+    document.getElementById('playingSurah').innerText = currentSurah.arabic.englishName;
+    document.getElementById('playingAyah').innerText = `Ayah ${index + 1}`;
+    document.getElementById('playIcon').setAttribute('data-lucide', 'pause');
+    lucide.createIcons();
+}
+
+audioPlayer.onended = () => {
+    if (currentAyahIndex < currentSurah.arabic.ayahs.length - 1) {
+        playAyah(currentAyahIndex + 1);
     }
-    ayahContainer.innerHTML = html;
-}
-
-function closeReadingView() {
-    readingView.classList.add('hidden');
-    surahListContainer.classList.remove('hidden');
-}
-
-// Theme Toggle
-const btn = document.getElementById("themeToggle");
-btn.onclick = () => {
-    const currentTheme = document.documentElement.getAttribute("data-theme");
-    document.documentElement.setAttribute("data-theme", currentTheme === "dark" ? "light" : "dark");
 };
 
-init();
+// 4. Utilities
+function saveLastRead(id, name) {
+    localStorage.setItem('lastRead', JSON.stringify({id, name}));
+}
+
+function checkLastRead() {
+    const last = JSON.parse(localStorage.getItem('lastRead'));
+    if(last) {
+        document.getElementById('lastReadCard').classList.remove('hidden');
+        document.getElementById('lastReadName').innerText = last.name;
+    }
+}
+
+function showHome() {
+    document.getElementById('homeView').classList.remove('hidden');
+    document.getElementById('readerView').classList.add('hidden');
+}
+
+function toggleAudio() {
+    if(audioPlayer.paused) audioPlayer.play();
+    else audioPlayer.pause();
+}
