@@ -3,274 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign | Nexus v9</title>
+    <title>Sovereign Elite | Zenith v11</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --p: #10b981; --p-glow: rgba(16, 185, 129, 0.3);
+            --p: #10b981; --p-glow: rgba(16, 185, 129, 0.2);
             --bg: #030712; --surf: #0f172a; --text: #f8fafc; --sub: #64748b;
-            --border: rgba(255, 255, 255, 0.06); --glass: blur(25px);
+            --border: rgba(255, 255, 255, 0.06); --glass: blur(20px);
+            --ar-size: 3rem; --en-size: 1.1rem;
         }
+        /* Theme Matrix */
+        [data-theme="nord"] { --bg: #2e3440; --surf: #3b4252; --text: #eceff4; --p: #88c0d0; }
+        [data-theme="sepia"] { --bg: #f4ecd8; --surf: #e6dec1; --text: #433422; --sub: #8d7b61; --p: #9b6731; --border: rgba(0,0,0,0.05); }
+        [data-theme="dracula"] { --bg: #282a36; --surf: #44475a; --text: #f8f8f2; --p: #bd93f9; }
 
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); 
-            margin: 0; display: flex; height: 100vh; overflow: hidden;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* Side Navigation - Ultra Slim */
-        nav { 
-            width: 70px; background: rgba(3, 7, 18, 0.9); border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 20px; z-index: 100;
-        }
-        .nav-link { color: var(--sub); cursor: pointer; padding: 12px; border-radius: 12px; transition: 0.3s; }
-        .nav-link:hover { color: var(--p); background: rgba(16,185,129,0.05); }
-        .nav-link.active { color: var(--p); background: var(--p-glow); box-shadow: 0 0 15px var(--p-glow); }
+        /* Navigation */
+        nav { width: 70px; background: rgba(0,0,0,0.3); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 20px; z-index: 100; }
+        .nav-link { color: var(--sub); cursor: pointer; padding: 12px; border-radius: 12px; transition: 0.2s; }
+        .nav-link.active { color: var(--p); background: var(--p-glow); }
 
-        /* Main Canvas */
-        main { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; background: radial-gradient(circle at top right, #0f172a, #030712); }
-        header { 
-            padding: 20px 40px; border-bottom: 1px solid var(--border); 
-            display: flex; justify-content: space-between; align-items: center; background: rgba(3, 7, 18, 0.4); backdrop-filter: var(--glass);
-        }
+        /* Header & Back Button */
+        header { padding: 15px 40px; height: 70px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: rgba(3, 7, 18, 0.5); backdrop-filter: var(--glass); z-index: 90; }
+        .back-btn { display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--sub); font-weight: 600; font-size: 0.9rem; transition: 0.2s; visibility: hidden; opacity: 0; }
+        .back-btn.show { visibility: visible; opacity: 1; }
+        .back-btn:hover { color: var(--p); }
 
-        #content { flex: 1; overflow-y: auto; padding: 40px 8%; scroll-behavior: smooth; }
+        /* Main Workspace */
+        main { flex: 1; display: flex; flex-direction: column; position: relative; }
+        #content { flex: 1; overflow-y: auto; padding: 20px 8%; scroll-behavior: smooth; }
 
-        /* Typography & Ayah Block */
-        .ayah { 
-            padding: 50px 0; border-bottom: 1px solid var(--border); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; flex-direction: column; gap: 20px; position: relative;
-        }
-        .ayah.active { border-left: 3px solid var(--p); padding-left: 30px; background: linear-gradient(90deg, rgba(16,185,129,0.03), transparent); }
-        .ar { font-family: 'Amiri', serif; font-size: 3.4rem; text-align: right; direction: rtl; line-height: 2.3; color: var(--text); }
-        .en { font-size: 1.2rem; color: var(--sub); line-height: 1.8; max-width: 850px; transition: 0.3s; }
+        /* The Reading Surface */
+        .ayah-block { padding: 50px 0; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 25px; transition: 0.5s; }
+        .ayah-block.active { background: linear-gradient(90deg, var(--p-glow), transparent); border-left: 3px solid var(--p); padding-left: 30px; }
+        .ar { font-family: 'Amiri', serif; font-size: var(--ar-size); text-align: right; direction: rtl; line-height: 2.2; transition: 0.3s; }
+        .en { font-size: var(--en-size); color: var(--sub); line-height: 1.8; font-weight: 300; transition: 0.3s; }
+        .ar-font-noto { font-family: 'Noto Sans Arabic', sans-serif; }
 
-        /* Interactive Elements */
-        .word { display: inline-block; cursor: pointer; transition: 0.2s; border-radius: 6px; padding: 0 4px; }
-        .word:hover { color: var(--p); background: rgba(16, 185, 129, 0.1); transform: scale(1.05); }
-        
-        /* Modern HUD */
-        #hud { 
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            background: rgba(15, 23, 42, 0.8); backdrop-filter: var(--glass);
-            border: 1px solid var(--border); padding: 12px 35px; border-radius: 60px; 
-            display: flex; align-items: center; gap: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 1000;
-        }
-        .btn-play { width: 45px; height: 45px; background: var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; cursor: pointer; }
+        /* Settings Panel */
+        #settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; display: none; justify-content: flex-end; }
+        #settings-panel { width: 400px; height: 100%; background: var(--surf); padding: 40px; box-shadow: -10px 0 40px rgba(0,0,0,0.5); overflow-y: auto; }
+        .setting-item { margin-bottom: 25px; }
+        .setting-label { font-size: 0.75rem; font-weight: 800; color: var(--p); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: block; }
+        select, input[type="range"] { width: 100%; padding: 10px; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 8px; outline: none; }
 
-        /* AI Context Sidebar */
-        #ai-sidebar { 
-            width: 0; background: rgba(15, 23, 42, 0.95); border-left: 1px solid var(--border);
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; backdrop-filter: blur(40px);
-        }
-        #ai-sidebar.open { width: 480px; }
-        .sidebar-inner { width: 480px; padding: 40px; box-sizing: border-box; }
+        /* Grid */
+        .surah-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .s-card { background: var(--surf); padding: 25px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; }
+        .s-card:hover { border-color: var(--p); transform: translateY(-5px); }
 
-        /* Translation Pill */
-        .pill-container { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
-        .pill { background: var(--border); padding: 6px 15px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: 0.2s; color: var(--sub); }
-        .pill.active { background: var(--p); color: #000; font-weight: 700; }
+        /* HUD */
+        #hud { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--surf); border: 1px solid var(--border); padding: 12px 30px; border-radius: 50px; display: flex; align-items: center; gap: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 1000; }
+        .play-trigger { width: 45px; height: 45px; background: var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; cursor: pointer; }
 
-        /* Search Overlay */
-        #search-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000;
-            display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px);
-        }
-        .search-box { width: 600px; background: var(--surf); border-radius: 20px; padding: 20px; border: 1px solid var(--p); }
-
-        .loader { width: 18px; height: 18px; border: 2px solid var(--p); border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Auth Screen */
+        #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+        .auth-box { background: var(--surf); padding: 40px; border-radius: 30px; border: 1px solid var(--border); width: 350px; text-align: center; }
     </style>
 </head>
 <body>
 
+    <div id="auth-screen">
+        <div class="auth-box">
+            <h1 style="color:var(--p); margin-bottom:10px;">ZENITH</h1>
+            <p style="color:var(--sub); font-size:0.8rem; margin-bottom:30px;">Initialize Secure Neural Link</p>
+            <input type="text" id="login-id" placeholder="User ID" style="margin-bottom:15px; padding:12px; border-radius:10px; width:100%; box-sizing:border-box;">
+            <button onclick="Sovereign.auth.login()" style="width:100%; background:var(--p); color:black; border:none; padding:14px; border-radius:12px; font-weight:800; cursor:pointer;">CONNECT</button>
+        </div>
+    </div>
+
     <nav>
-        <div class="nav-link active" onclick="Sovereign.setView('home')"><i data-lucide="grid"></i></div>
-        <div class="nav-link" id="nav-hifz" onclick="Sovereign.setView('hifz')"><i data-lucide="bookmark"></i></div>
-        <div class="nav-link" onclick="Sovereign.toggleSearch()"><i data-lucide="search"></i></div>
-        <div class="nav-link" onclick="Sovereign.toggleAI()"><i data-lucide="bot"></i></div>
+        <div class="nav-link active" onclick="Sovereign.setView('home')"><i data-lucide="layout"></i></div>
+        <div class="nav-link" onclick="Sovereign.setView('hifz')"><i data-lucide="brain"></i></div>
+        <div class="nav-link" onclick="Sovereign.toggleSettings()"><i data-lucide="sliders"></i></div>
     </nav>
 
     <main>
         <header>
-            <div>
-                <h1 style="margin:0; font-size: 0.8rem; letter-spacing: 4px; color: var(--p); font-weight: 800;">NEXUS NODE</h1>
-                <div id="header-surah" style="font-weight:800; font-size: 1.4rem;">SOVEREIGN</div>
+            <div id="nav-left">
+                <div class="back-btn" id="btn-back" onclick="Sovereign.setView('home')">
+                    <i data-lucide="chevron-left"></i> <span>BACK TO INDEX</span>
+                </div>
             </div>
-            <div id="ai-indicator" style="font-size: 0.7rem; background: rgba(16,185,129,0.1); padding: 5px 12px; border-radius: 20px; color: var(--p);">
-                LOCAL GPU: IDLE
+            <div id="nav-center">
+                <b id="surah-title" style="letter-spacing:2px; font-size:1.1rem;">VITAL ARCHIVE</b>
+            </div>
+            <div id="nav-right" style="font-size:0.7rem; color:var(--p); font-weight:800;">
+                <span id="user-name">GUEST_LINK</span>
             </div>
         </header>
 
         <div id="content"></div>
     </main>
 
-    <div id="ai-sidebar">
-        <div class="sidebar-inner">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 40px;">
-                <span style="letter-spacing:2px; font-size: 0.7rem; font-weight: 800; color: var(--p);">NEURAL ARCHITECT</span>
-                <i data-lucide="x" onclick="Sovereign.toggleAI()" style="cursor:pointer; width:20px;"></i>
+    <div id="settings-overlay" onclick="Sovereign.toggleSettings()">
+        <div id="settings-panel" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; margin-bottom:40px;">
+                <h2 style="margin:0">System Config</h2>
+                <i data-lucide="x" onclick="Sovereign.toggleSettings()" style="cursor:pointer"></i>
             </div>
-            <div id="ai-focus">
-                <p style="color:var(--sub); line-height: 1.6;">Interact with any verse or word to initialize the local neural analysis engine.</p>
+
+            <div class="setting-item">
+                <label class="setting-label">1. Interface Theme</label>
+                <select onchange="Sovereign.setPref('theme', this.value)">
+                    <option value="default">Midnight (OLED)</option>
+                    <option value="nord">Nordic Frost</option>
+                    <option value="sepia">Ancient Sepia</option>
+                    <option value="dracula">Dracula Dark</option>
+                </select>
             </div>
-            <div id="ai-results" style="margin-top: 30px;"></div>
+            <div class="setting-item">
+                <label class="setting-label">2. Arabic Font Size</label>
+                <input type="range" min="2" max="5" step="0.2" oninput="Sovereign.setPref('arSize', this.value + 'rem')">
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">3. Translation Font Size</label>
+                <input type="range" min="0.8" max="2" step="0.1" oninput="Sovereign.setPref('enSize', this.value + 'rem')">
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">4. Arabic Typography</label>
+                <select onchange="Sovereign.setPref('arFont', this.value)">
+                    <option value="Amiri">Amiri Classical</option>
+                    <option value="Noto Sans Arabic">Modern Noto</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">5. Reciter Global</label>
+                <select onchange="Sovereign.audio.reciter = this.value">
+                    <option value="Alafasy_128kbps">Mishary Alafasy</option>
+                    <option value="Abdul_Basit_Murattal_192kbps">Abdul Basit</option>
+                    <option value="Husary_128kbps">Mahmoud Al-Husary</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">6. Audio Playback Speed</label>
+                <input type="range" min="0.5" max="2" step="0.1" value="1" oninput="Sovereign.audio.setSpeed(this.value)">
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">7. Translation Visibility</label>
+                <select onchange="Sovereign.setPref('enVisible', this.value)">
+                    <option value="block">Visible</option>
+                    <option value="none">Hidden (Hifz Focus)</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">8. Auto-Scroll on Audio</label>
+                <select id="set-autoscroll">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">9. Verse Highlight Color</label>
+                <input type="color" value="#10b981" onchange="document.documentElement.style.setProperty('--p', this.value)">
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">10. AI Response Verbosity</label>
+                <select>
+                    <option>Concise (Linguistic Only)</option>
+                    <option>Expanded (Tafsir & Context)</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">11. Dark Matter Pulse Intensity</label>
+                <input type="range" min="0.1" max="1" step="0.1">
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">12. Default Language</label>
+                <select onchange="Sovereign.state.lang = this.value">
+                    <option value="en.sahih">English (Sahih)</option>
+                    <option value="ur.ahmedali">Urdu</option>
+                    <option value="tr.ates">Turkish</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">13. Clear Neural Cache</label>
+                <button onclick="db.delete(); location.reload();" class="pill" style="width:100%; border:1px solid red; color:red; background:transparent; padding:10px; border-radius:8px; cursor:pointer;">Purge All Data</button>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">14. Export Hifz Data</label>
+                <button class="pill" style="width:100%; background:var(--bg); border:1px solid var(--border); color:white; padding:10px; border-radius:8px; cursor:pointer;">Download JSON</button>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">15. Notification Reminders</label>
+                <select>
+                    <option>Off</option>
+                    <option>Daily Fajr</option>
+                    <option>Daily Isha</option>
+                </select>
+            </div>
         </div>
     </div>
 
     <div id="hud">
-        <i data-lucide="chevron-left" style="cursor:pointer" onclick="Sovereign.audio.prev()"></i>
-        <div class="btn-play" onclick="Sovereign.audio.toggle()"><i data-lucide="play" id="play-icon"></i></div>
-        <i data-lucide="chevron-right" style="cursor:pointer" onclick="Sovereign.audio.next()"></i>
-        <div style="width: 1px; height: 20px; background: var(--border);"></div>
-        <div id="hud-status" style="font-size: 0.75rem; color: var(--sub); font-weight: 600;">SELECT STREAM</div>
-    </div>
-
-    <div id="search-overlay" onclick="Sovereign.toggleSearch()">
-        <div class="search-box" onclick="event.stopPropagation()">
-            <input type="text" id="search-input" placeholder="Jump to Surah..." 
-                   oninput="Sovereign.filterSearch(this.value)"
-                   style="width:100%; background:none; border:none; color:white; font-size:1.5rem; outline:none;">
-            <div id="search-results" style="margin-top: 20px; max-height: 400px; overflow-y: auto;"></div>
+        <i data-lucide="skip-back" onclick="Sovereign.audio.prev()" style="cursor:pointer"></i>
+        <div class="play-trigger" onclick="Sovereign.audio.toggle()">
+            <i data-lucide="play" id="play-icon"></i>
         </div>
+        <i data-lucide="skip-forward" onclick="Sovereign.audio.next()" style="cursor:pointer"></i>
+        <div id="hud-label" style="font-size:0.7rem; color:var(--sub); border-left:1px solid var(--border); padding-left:15px; font-weight:800;">IDLE</div>
     </div>
 
     <script type="module">
-        import * as webllm from "https://esm.run/@mlc-ai/web-llm";
-
-        const db = new Dexie("SovereignNexus");
-        db.version(1).stores({ hifz: 'ayahKey', meta: 'key, value' });
+        const db = new Dexie("SovereignZenith");
+        db.version(1).stores({ prefs: 'key, val', hifz: 'ayahKey', user: 'id' });
 
         window.Sovereign = {
-            state: { 
-                chapters: [], currentS: null, currentA: 1, 
-                lang: 'en.sahih', isAIOpen: false,
-                translations: [
-                    { id: 'en.sahih', n: 'English' },
-                    { id: 'tr.ates', n: 'Turkish' },
-                    { id: 'fr.hamidullah', n: 'French' },
-                    { id: 'ur.ahmedali', n: 'Urdu' }
-                ]
-            },
+            state: { chapters: [], currentS: null, currentA: 1, lang: 'en.sahih' },
 
             async init() {
                 const r = await fetch('https://api.alquran.cloud/v1/surah');
                 const d = await r.json();
                 this.state.chapters = d.data;
-                this.renderHome();
+                this.setView('home');
                 lucide.createIcons();
-                if(navigator.gpu) document.getElementById('ai-indicator').innerText = "LOCAL GPU: READY";
+                this.auth.check();
             },
 
-            renderHome() {
+            auth: {
+                async check() {
+                    const u = await db.user.get('session');
+                    if(u) {
+                        document.getElementById('auth-screen').style.display = 'none';
+                        document.getElementById('user-name').innerText = u.id.toUpperCase();
+                    }
+                },
+                async login() {
+                    const id = document.getElementById('login-id').value;
+                    if(!id) return;
+                    await db.user.put({id: id}, 'session');
+                    location.reload();
+                }
+            },
+
+            setView(view) {
                 const c = document.getElementById('content');
-                c.innerHTML = `
-                    <div class="pill-container">
-                        ${this.state.translations.map(t => `<div class="pill ${this.state.lang === t.id ? 'active' : ''}" onclick="Sovereign.setLang('${t.id}')">${t.n}</div>`).join('')}
-                    </div>
-                    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
-                    ${this.state.chapters.map(s => `
-                        <div onclick="Sovereign.loadSurah(${s.number})" style="background:var(--surf); padding:25px; border-radius:20px; border:1px solid var(--border); cursor:pointer; transition:0.3s;" onmouseover="this.style.borderColor='var(--p)'" onmouseout="this.style.borderColor='var(--border)'">
-                            <div style="font-size:0.6rem; color:var(--p); font-weight:800; margin-bottom:10px;">NODE ${s.number.toString().padStart(3,'0')}</div>
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <b style="font-size:1.2rem;">${s.englishName}</b>
-                                <span style="font-family:Amiri; font-size:1.8rem; color:white;">${s.name}</span>
+                const b = document.getElementById('btn-back');
+                
+                if(view === 'home') {
+                    this.state.currentS = null;
+                    b.classList.remove('show');
+                    document.getElementById('surah-title').innerText = "VITAL ARCHIVE";
+                    c.innerHTML = `<div class="surah-grid">${this.state.chapters.map(s => `
+                        <div class="s-card" onclick="Sovereign.loadSurah(${s.number})">
+                            <div style="font-size:0.6rem; color:var(--p); font-weight:800;">STREAM ${s.number}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                                <b style="font-size:1.1rem;">${s.englishName}</b>
+                                <span style="font-family:Amiri; font-size:1.6rem;">${s.name}</span>
                             </div>
-                        </div>`).join('')}
-                    </div>`;
+                        </div>`).join('')}</div>`;
+                }
+                lucide.createIcons();
             },
 
             async loadSurah(id) {
                 this.state.currentS = id;
+                this.state.currentA = 1;
+                document.getElementById('btn-back').classList.add('show');
                 const c = document.getElementById('content');
-                c.innerHTML = `<div style="display:flex; justify-content:center; padding:100px;"><div class="loader"></div></div>`;
+                c.innerHTML = `<div style="padding:100px; text-align:center;"><div style="width:20px; height:20px; border:2px solid var(--p); border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite; margin:auto;"></div></div>`;
                 
                 const [ar, tr] = await Promise.all([
                     fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
                     fetch(`https://api.alquran.cloud/v1/surah/${id}/${this.state.lang}`).then(r => r.json())
                 ]);
 
-                document.getElementById('header-surah').innerText = ar.data.englishName.toUpperCase();
+                document.getElementById('surah-title').innerText = ar.data.englishName.toUpperCase();
                 c.innerHTML = ar.data.ayahs.map((v, i) => `
-                    <div class="ayah" id="a-${i+1}">
-                        <div class="ar">${this.wrapWords(v.text, i+1)}</div>
+                    <div class="ayah-block" id="a-${i+1}">
+                        <div class="ar">${v.text}</div>
                         <div class="en">${tr.data.ayahs[i].text}</div>
-                        <div style="position:absolute; left:-60px; top:55px; font-size:0.7rem; color:var(--p); font-weight:800;">${id}:${i+1}</div>
                     </div>`).join('');
                 c.scrollTop = 0;
             },
 
-            wrapWords(t, idx) {
-                return t.split(' ').map(w => `<span class="word" onclick="Sovereign.ai.analyze('${w}', ${idx})">${w}</span>`).join(' ');
+            setPref(key, val) {
+                if(key === 'theme') document.body.setAttribute('data-theme', val);
+                if(key === 'arSize') document.documentElement.style.setProperty('--ar-size', val);
+                if(key === 'enSize') document.documentElement.style.setProperty('--en-size', val);
+                if(key === 'arFont') document.querySelectorAll('.ar').forEach(el => el.style.fontFamily = val);
+                if(key === 'enVisible') document.querySelectorAll('.en').forEach(el => el.style.display = val);
             },
 
-            setLang(id) { this.state.lang = id; if(this.state.currentS) this.loadSurah(this.state.currentS); else this.renderHome(); },
-
-            toggleAI(open) {
-                this.state.isAIOpen = open !== undefined ? open : !this.state.isAIOpen;
-                document.getElementById('ai-sidebar').className = this.state.isAIOpen ? 'open' : '';
-            },
-
-            toggleSearch() {
-                const s = document.getElementById('search-overlay');
+            toggleSettings() {
+                const s = document.getElementById('settings-overlay');
                 s.style.display = s.style.display === 'flex' ? 'none' : 'flex';
-                if(s.style.display === 'flex') document.getElementById('search-input').focus();
-            },
-
-            filterSearch(q) {
-                const res = document.getElementById('search-results');
-                const filtered = this.state.chapters.filter(s => s.englishName.toLowerCase().includes(q.toLowerCase())).slice(0, 8);
-                res.innerHTML = filtered.map(s => `
-                    <div onclick="Sovereign.loadSurah(${s.number}); Sovereign.toggleSearch()" style="padding:15px; border-bottom:1px solid var(--border); cursor:pointer;">
-                        <b>${s.number}. ${s.englishName}</b>
-                    </div>`).join('');
+                lucide.createIcons();
             },
 
             audio: {
                 p: new Audio(),
+                reciter: 'Alafasy_128kbps',
                 play(s, a) {
-                    this.p.src = `https://everyayah.com/data/Alafasy_128kbps/${s.toString().padStart(3,'0')}${a.toString().padStart(3,'0')}.mp3`;
+                    this.p.src = `https://everyayah.com/data/${this.reciter}/${s.toString().padStart(3,'0')}${a.toString().padStart(3,'0')}.mp3`;
                     this.p.play();
-                    document.querySelectorAll('.ayah').forEach(el => el.classList.remove('active'));
+                    document.querySelectorAll('.ayah-block').forEach(el => el.classList.remove('active'));
                     const target = document.getElementById(`a-${a}`);
-                    if(target) { target.classList.add('active'); target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-                    document.getElementById('hud-status').innerText = `${s}:${a} ACTIVE`;
+                    if(target) {
+                        target.classList.add('active');
+                        if(document.getElementById('set-autoscroll').value === 'true') target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    document.getElementById('hud-label').innerText = `STREAMING ${s}:${a}`;
                     this.p.onended = () => Sovereign.audio.next();
                 },
                 toggle() {
-                    if(this.p.paused) { this.play(Sovereign.state.currentS, Sovereign.state.currentA); document.getElementById('play-icon').setAttribute('data-lucide', 'pause'); }
-                    else { this.p.pause(); document.getElementById('play-icon').setAttribute('data-lucide', 'play'); }
+                    if(this.p.paused) {
+                        if(!Sovereign.state.currentS) return;
+                        this.play(Sovereign.state.currentS, Sovereign.state.currentA);
+                        document.getElementById('play-icon').setAttribute('data-lucide', 'pause');
+                    } else {
+                        this.p.pause();
+                        document.getElementById('play-icon').setAttribute('data-lucide', 'play');
+                    }
                     lucide.createIcons();
                 },
                 next() { Sovereign.state.currentA++; this.play(Sovereign.state.currentS, Sovereign.state.currentA); },
-                prev() { Sovereign.state.currentA = Math.max(1, Sovereign.state.currentA - 1); this.play(Sovereign.state.currentS, Sovereign.state.currentA); }
-            },
-
-            ai: {
-                analyze(w, i) {
-                    Sovereign.toggleAI(true);
-                    const clean = w.replace(/[^\u0600-\u06FF]/g, '');
-                    document.getElementById('ai-focus').innerHTML = `
-                        <div style="font-family:Amiri; font-size:4.5rem; color:white; margin-bottom:20px;">${clean}</div>
-                        <div style="color:var(--sub); font-size:0.8rem; letter-spacing:2px;">CROSS-REFERENCE: SURAH ${Sovereign.state.currentS}:${i}</div>
-                    `;
-                    const res = document.getElementById('ai-results');
-                    res.innerHTML = `<div class="loader"></div>`;
-                    // Simulated Neural Output
-                    setTimeout(() => {
-                        res.innerHTML = `
-                            <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:15px; border-left:4px solid var(--p);">
-                                <h4 style="margin:0 0 10px 0; color:var(--p);">Linguistic Archetype</h4>
-                                <p style="font-size:0.95rem; line-height:1.7;">The term <b>${clean}</b> carries a root frequency associated with "Divine Sustenance." In this context, it modifies the subject to emphasize permanence.</p>
-                            </div>
-                        `;
-                    }, 800);
-                }
+                prev() { Sovereign.state.currentA = Math.max(1, Sovereign.state.currentA - 1); this.play(Sovereign.state.currentS, Sovereign.state.currentA); },
+                setSpeed(s) { this.p.playbackRate = s; }
             }
         };
 
         window.onload = () => Sovereign.init();
     </script>
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 </body>
 </html>
