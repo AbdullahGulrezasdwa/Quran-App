@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Elite | v17 Monolith</title>
+    <title>Sovereign Elite | v17.2 Monolith</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -19,137 +18,174 @@
             --bg: #f4f4f5; --surf: #ffffff; --surf-2: #f1f1f4;
             --text: #09090b; --sub: #71717a; --border: rgba(0,0,0,0.1);
         }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; transition: background 0.3s; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; transition: background 0.3s; overflow: hidden; }
 
-        /* --- ACCESSIBILITY & LAYOUT --- */
+        /* --- NAVIGATION --- */
         nav { width: 70px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; z-index: 100; }
         .nav-btn { background: none; border: none; color: var(--sub); cursor: pointer; padding: 12px; border-radius: 12px; transition: 0.2s; }
         .nav-btn.active { color: var(--p); background: rgba(16, 185, 129, 0.1); }
         
-        main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
         header { height: 65px; padding: 0 25px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
-        .search-bar { background: var(--surf-2); border: 1px solid var(--border); color: white; padding: 8px 15px; border-radius: 10px; width: 250px; outline: none; }
+        .search-bar { background: var(--surf-2); border: 1px solid var(--border); color: var(--text); padding: 8px 15px; border-radius: 10px; width: 250px; outline: none; }
         
         #view-port { flex: 1; overflow-y: auto; padding: 25px; scroll-behavior: smooth; }
 
-        /* --- AUTH OVERLAY --- */
+        /* --- AUTH GATE --- */
         #auth-gate { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .auth-card { width: 320px; padding: 35px; background: var(--surf); border-radius: 24px; border: 1px solid var(--border); text-align: center; }
-        input[type="password"], input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: white; box-sizing: border-box; }
-        
-        /* --- READER UI --- */
-        .ayah-card { padding: 30px; border-bottom: 1px solid var(--border); position: relative; }
-        .ayah-card:hover { background: rgba(255,255,255,0.02); }
-        .ar { font-family: 'Amiri', serif; font-size: var(--ar-size); text-align: right; direction: rtl; line-height: 2.2; margin-bottom: 15px; }
-        .reader-controls { display: flex; gap: 10px; margin-top: 10px; opacity: 0.5; transition: 0.3s; }
-        .ayah-card:hover .reader-controls { opacity: 1; }
+        .auth-card { width: 340px; padding: 40px; background: var(--surf); border-radius: 28px; border: 1px solid var(--border); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); box-sizing: border-box; outline: none; }
+        .primary-btn { width: 100%; padding: 14px; background: var(--p); color: #000; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .primary-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-        /* --- STATS --- */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .stat-item { background: var(--surf); padding: 20px; border-radius: 15px; border: 1px solid var(--border); text-align: center; }
+        /* --- READER UI --- */
+        .ayah-card { padding: 40px; border-bottom: 1px solid var(--border); position: relative; }
+        .ar { font-family: 'Amiri', serif; font-size: var(--ar-size); text-align: right; direction: rtl; line-height: 2.2; margin-bottom: 15px; }
+        .en { color: var(--sub); line-height: 1.8; font-size: 1.1rem; }
+
+        /* --- STATS GRID --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: var(--surf); padding: 25px; border-radius: 18px; border: 1px solid var(--border); text-align: center; }
+        .stat-val { font-size: 2.2rem; font-weight: 800; color: var(--p); }
 
         .hidden { display: none !important; }
-        .loader { width: 20px; height: 20px; border: 2px solid var(--p); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .shake { animation: shake 0.4s; border-color: #ef4444 !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
-        .shake { animation: shake 0.4s; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader { width: 24px; height: 24px; border: 3px solid var(--p); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 40px auto; }
     </style>
 </head>
 <body>
 
     <div id="auth-gate">
-        <div class="auth-card" id="auth-form-container">
-            <h2 style="color:var(--p)">SOVEREIGN_v17</h2>
-            <p style="font-size: 0.8rem; color: var(--sub); margin-bottom: 20px;">Production-Grade PWA Security</p>
-            <input type="email" id="user-email" placeholder="Email Address">
-            <input type="password" id="user-pw" placeholder="Secure Password">
-            <button class="nav-btn" style="width:100%; background:var(--p); color:black; font-weight:800;" onclick="App.auth.login()">ENTER SYSTEM</button>
-            <p id="auth-msg" style="font-size:0.7rem; color:#ef4444; margin-top:10px;"></p>
+        <div class="auth-card" id="auth-box">
+            <h1 id="auth-title" style="color:var(--p); margin-bottom:5px; font-weight:900;">SOVEREIGN</h1>
+            <p id="auth-sub" style="font-size:0.75rem; color:var(--sub); margin-bottom:30px;">Local Neural Identity System</p>
+            
+            <div id="auth-msg" style="font-size:0.75rem; color:#ef4444; margin-bottom:10px; min-height:1em;"></div>
+            
+            <input type="email" id="email-in" placeholder="Email Address">
+            <input type="password" id="pass-in" placeholder="Secure Password">
+            
+            <button class="primary-btn" id="auth-btn" onclick="App.auth.handle()">INITIALIZE SESSION</button>
+            
+            <p style="font-size:0.75rem; margin-top:20px; color:var(--sub);">
+                <span id="toggle-text">New user?</span> 
+                <span onclick="App.auth.toggleMode()" style="color:var(--p); cursor:pointer; font-weight:700;">Switch Mode</span>
+            </p>
         </div>
     </div>
 
     <nav>
-        <button class="nav-btn active" onclick="App.router('home', this)" aria-label="Home"><i data-lucide="home"></i></button>
-        <button class="nav-btn" onclick="App.router('stats', this)" aria-label="Stats"><i data-lucide="activity"></i></button>
-        <button class="nav-btn" onclick="App.ui.toggleTheme()" aria-label="Theme"><i data-lucide="sun"></i></button>
-        <button class="nav-btn" style="margin-top:auto" onclick="App.auth.logout()" aria-label="Logout"><i data-lucide="log-out"></i></button>
+        <button class="nav-btn active" onclick="App.router('home', this)"><i data-lucide="layout-grid"></i></button>
+        <button class="nav-btn" onclick="App.router('stats', this)"><i data-lucide="bar-chart-3"></i></button>
+        <button class="nav-btn" onclick="App.ui.toggleTheme()"><i data-lucide="sun"></i></button>
+        <button class="nav-btn" style="margin-top:auto" onclick="App.auth.logout()"><i data-lucide="power"></i></button>
     </nav>
 
     <main>
         <header>
-            <button id="back-btn" class="hidden" onclick="App.router('home')" style="background:none; border:none; color:var(--sub); cursor:pointer;"><i data-lucide="chevron-left"></i></button>
-            <input type="text" id="main-search" class="search-bar" placeholder="Jump to Surah..." oninput="App.surahs.filter(this.value)">
-            <div id="user-display" style="font-size:0.7rem; font-weight:800; color:var(--p)">SESSION_ACTIVE</div>
+            <button id="back-btn" class="hidden" onclick="App.router('home')" style="background:none; border:none; color:var(--sub); cursor:pointer;"><i data-lucide="arrow-left"></i></button>
+            <input type="text" id="search-in" class="search-bar" placeholder="Search Surah Name/No..." oninput="App.surahs.filter(this.value)">
+            <div id="user-display" style="font-size:0.7rem; font-weight:800; color:var(--p); border:1px solid var(--p); padding:4px 12px; border-radius:20px;">GUEST</div>
         </header>
 
-        <div id="view-port">
-            </div>
+        <div id="view-port"></div>
     </main>
 
     <script>
-        // DB Configuration
-        const db = new Dexie("SovereignSystem");
-        db.version(1).stores({ session: 'key, val', logs: '++id, date, seconds, surah', cache: 'id, data' });
+        const db = new Dexie("SovereignProduction");
+        db.version(1).stores({ 
+            session: 'key, val', 
+            users: 'email, hash, name',
+            logs: '++id, date, seconds, surah'
+        });
 
         const App = {
-            state: { user: null, chapters: [], isTracking: false, startTime: null, currentSurah: null },
+            state: { chapters: [], authMode: 'login', isTracking: false, startTime: null, currentSurah: null },
 
             async init() {
                 const s = await db.session.get('active_user');
                 if (s) this.auth.complete(s.val);
                 
-                await this.surahs.loadList();
+                const res = await fetch('https://api.alquran.cloud/v1/surah');
+                const data = await res.json();
+                this.state.chapters = data.data;
+                
                 this.router('home');
-                this.tracker.setup();
+                this.tracker.init();
                 lucide.createIcons();
             },
 
             auth: {
-                login() {
-                    const email = document.getElementById('user-email').value;
-                    const pw = document.getElementById('user-pw').value;
+                toggleMode() {
+                    App.state.authMode = App.state.authMode === 'login' ? 'signup' : 'login';
+                    document.getElementById('auth-title').innerText = App.state.authMode === 'login' ? 'SOVEREIGN' : 'IDENTITY';
+                    document.getElementById('auth-btn').innerText = App.state.authMode === 'login' ? 'INITIALIZE SESSION' : 'CREATE ACCOUNT';
+                    document.getElementById('toggle-text').innerText = App.state.authMode === 'login' ? 'New user?' : 'Have an account?';
+                },
+
+                async handle() {
+                    const email = document.getElementById('email-in').value.toLowerCase();
+                    const pw = document.getElementById('pass-in').value;
                     const msg = document.getElementById('auth-msg');
-                    
-                    if (!email.includes('@') || pw.length < 4) {
-                        document.getElementById('auth-form-container').classList.add('shake');
-                        msg.innerText = "Invalid Credentials. Use standard email and min 4 chars.";
-                        setTimeout(() => document.getElementById('auth-form-container').classList.remove('shake'), 400);
+                    const box = document.getElementById('auth-box');
+
+                    if (!email || pw.length < 6) {
+                        msg.innerText = "Email required & password must be 6+ chars.";
+                        box.classList.add('shake');
+                        setTimeout(() => box.classList.remove('shake'), 400);
                         return;
                     }
 
-                    db.session.put({ key: 'active_user', val: email.split('@')[0] });
-                    this.complete(email.split('@')[0]);
+                    const hash = await this.hashPw(pw);
+
+                    if (App.state.authMode === 'signup') {
+                        const exists = await db.users.get(email);
+                        if (exists) { msg.innerText = "Email already registered."; return; }
+                        await db.users.put({ email, hash, name: email.split('@')[0] });
+                        msg.style.color = "var(--p)";
+                        msg.innerText = "Account Created! Please Login.";
+                        this.toggleMode();
+                    } else {
+                        const user = await db.users.get(email);
+                        if (user && user.hash === hash) {
+                            await db.session.put({ key: 'active_user', val: user.name });
+                            this.complete(user.name);
+                        } else {
+                            msg.innerText = "Invalid credentials.";
+                            box.classList.add('shake');
+                            setTimeout(() => box.classList.remove('shake'), 400);
+                        }
+                    }
                 },
+
+                async hashPw(string) {
+                    const utf8 = new TextEncoder().encode(string);
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+                    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                },
+
                 complete(name) {
                     document.getElementById('auth-gate').classList.add('hidden');
                     document.getElementById('user-display').innerText = name.toUpperCase();
                 },
+
                 logout() { db.session.delete('active_user'); location.reload(); }
             },
 
             surahs: {
-                async loadList() {
-                    const cached = await db.cache.get('surah_list');
-                    if (cached) {
-                        this.state.chapters = cached.data;
-                    } else {
-                        const res = await fetch('https://api.alquran.cloud/v1/surah');
-                        const data = await res.json();
-                        this.state.chapters = data.data;
-                        db.cache.put({ id: 'surah_list', data: data.data });
-                    }
-                },
-                filter(query) {
+                filter(q) {
                     const filtered = App.state.chapters.filter(s => 
-                        s.englishName.toLowerCase().includes(query.toLowerCase()) || 
-                        s.number.toString() === query
+                        s.englishName.toLowerCase().includes(q.toLowerCase()) || 
+                        s.number.toString() === q
                     );
                     App.ui.renderGrid(filtered);
                 }
             },
 
             tracker: {
-                setup() {
+                init() {
                     document.addEventListener('visibilitychange', () => {
                         if (document.hidden) App.tracker.stop();
                         else if (App.state.currentSurah) App.tracker.start();
@@ -159,7 +195,7 @@
                 async stop() {
                     if (!App.state.isTracking) return;
                     const elapsed = Math.floor((Date.now() - App.state.startTime) / 1000);
-                    if (elapsed > 2) {
+                    if (elapsed > 3) {
                         await db.logs.add({ date: new Date().toLocaleDateString(), seconds: elapsed, surah: App.state.currentSurah });
                     }
                     App.state.isTracking = false;
@@ -168,13 +204,13 @@
 
             ui: {
                 renderGrid(list) {
-                    const container = document.getElementById('view-port');
-                    container.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
+                    const vp = document.getElementById('view-port');
+                    vp.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
                         ${list.map(s => `
-                        <div class="stat-item" style="text-align:left; cursor:pointer;" onclick="App.loadReader(${s.number})">
-                            <span style="color:var(--p); font-weight:800; font-size:0.7rem;">UNIT_${s.number}</span>
+                        <div class="stat-card" style="text-align:left; cursor:pointer;" onclick="App.loadReader(${s.number})">
+                            <span style="color:var(--p); font-weight:800; font-size:0.6rem;">NODE_${s.number.toString().padStart(3,'0')}</span>
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                                <b>${s.englishName}</b>
+                                <b style="font-size:1rem;">${s.englishName}</b>
                                 <span style="font-family:Amiri; font-size:1.4rem;">${s.name}</span>
                             </div>
                         </div>`).join('')}</div>`;
@@ -184,43 +220,34 @@
 
             async loadReader(id) {
                 App.tracker.stop();
-                const port = document.getElementById('view-port');
+                const vp = document.getElementById('view-port');
                 document.getElementById('back-btn').classList.remove('hidden');
-                port.innerHTML = `<div style="display:flex; justify-content:center; padding:100px;"><div class="loader"></div></div>`;
+                vp.innerHTML = `<div class="loader"></div>`;
                 
-                try {
-                    const [ar, en] = await Promise.all([
-                        fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
-                        fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
-                    ]);
+                const [ar, en] = await Promise.all([
+                    fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
+                    fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
+                ]);
 
-                    App.state.currentSurah = ar.data.englishName;
-                    App.tracker.start();
+                App.state.currentSurah = ar.data.englishName;
+                App.tracker.start();
 
-                    port.innerHTML = ar.data.ayahs.map((v, i) => `
-                        <div class="ayah-card">
-                            <div class="ar">${v.text}</div>
-                            <div style="color:var(--sub); line-height:1.7;">${en.data.ayahs[i].text}</div>
-                            <div class="reader-controls">
-                                <button onclick="App.speak('${en.data.ayahs[i].text.replace(/'/g, "\\'")}')" class="nav-btn"><i data-lucide="volume-2"></i></button>
-                                <span style="font-size:0.7rem; color:var(--p)">${id}:${i+1}</span>
-                            </div>
-                        </div>`).join('');
-                    lucide.createIcons();
-                    port.scrollTop = 0;
-                } catch (e) {
-                    port.innerHTML = `<p style="color:#ef4444">API Failure. Please check your connection.</p>`;
-                }
+                vp.innerHTML = ar.data.ayahs.map((v, i) => `
+                    <div class="ayah-card">
+                        <div class="ar">${v.text}</div>
+                        <div class="en">${en.data.ayahs[i].text}</div>
+                        <button onclick="App.speak('${en.data.ayahs[i].text.replace(/'/g, "\\'")}')" style="margin-top:15px; background:none; border:1px solid var(--border); color:var(--sub); border-radius:5px; cursor:pointer; padding:5px 10px; font-size:0.7rem;">READ ALOUD</button>
+                    </div>`).join('');
+                vp.scrollTop = 0;
             },
 
             speak(text) {
                 window.speechSynthesis.cancel();
-                const msg = new SpeechSynthesisUtterance(text);
-                msg.rate = 0.9;
-                window.speechSynthesis.speak(msg);
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
             },
 
             async router(view, btn) {
+                const vp = document.getElementById('view-port');
                 if (btn) {
                     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
@@ -232,16 +259,16 @@
                 if (view === 'home') this.ui.renderGrid(this.state.chapters);
                 if (view === 'stats') {
                     const logs = await db.logs.toArray();
-                    const totalSec = logs.reduce((a, b) => a + b.seconds, 0);
-                    document.getElementById('view-port').innerHTML = `
-                        <h2>Neural Analytics</h2>
+                    const total = logs.reduce((a, b) => a + b.seconds, 0);
+                    vp.innerHTML = `
+                        <h2 style="font-weight:900; margin-bottom:30px;">Activity Report</h2>
                         <div class="stats-grid">
-                            <div class="stat-item"><div style="font-size:2rem; font-weight:800; color:var(--p)">${Math.floor(totalSec/60)}</div><p>Total Focus Minutes</p></div>
-                            <div class="stat-item"><div style="font-size:2rem; font-weight:800; color:var(--p)">${logs.length}</div><p>Active Sessions</p></div>
+                            <div class="stat-card"><div class="stat-val">${Math.floor(total/60)}</div><p style="font-size:0.7rem; color:var(--sub);">FOCUS MINUTES</p></div>
+                            <div class="stat-card"><div class="stat-val">${logs.length}</div><p style="font-size:0.7rem; color:var(--sub);">TOTAL SESSIONS</p></div>
                         </div>
-                        <div style="margin-top:30px; background:var(--surf); padding:20px; border-radius:15px; border:1px solid var(--border);">
-                            <h3>Session Log</h3>
-                            ${logs.reverse().slice(0, 10).map(l => `<div style="font-size:0.8rem; margin-bottom:10px; color:var(--sub)">${l.date} - ${l.surah} (${l.seconds}s)</div>`).join('')}
+                        <div class="stat-card" style="text-align:left;">
+                            <h3 style="margin-bottom:15px; font-size:0.9rem;">Recent Activity</h3>
+                            ${logs.reverse().slice(0, 10).map(l => `<div style="font-size:0.8rem; padding:8px 0; border-bottom:1px solid var(--border); color:var(--sub);">${l.date} — ${l.surah} (${l.seconds}s)</div>`).join('') || 'No data yet.'}
                         </div>
                     `;
                 }
