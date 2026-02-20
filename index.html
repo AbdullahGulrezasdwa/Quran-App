@@ -3,225 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Elite | v15 Absolute</title>
+    <title>Sovereign Elite | v15.1 Reset</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --p: #10b981; --p-glow: rgba(16, 185, 129, 0.15);
-            --bg: #09090b; --surf: #121217; --surf-2: #1c1c21;
+            --p: #10b981; --bg: #09090b; --surf: #121217; --surf-2: #1c1c21;
             --text: #ffffff; --sub: #71717a; --border: rgba(255,255,255,0.06);
-            --radius: 16px; --glass: blur(20px);
-            --ar-size: 3rem; --en-size: 1.1rem;
+            --ar-size: 2.5rem; --en-size: 1.1rem;
         }
-
-        /* 40+ Settings Integration via Dynamic CSS Variables */
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        body.high-contrast { --bg: #000; --surf: #111; --sub: #eee; --border: #fff; }
-        body.sepia { --bg: #f4ecd8; --surf: #e6dec1; --text: #433422; --sub: #8d7b61; --p: #9b6731; }
-        body.no-animations * { transition: none !important; animation: none !important; }
-
-        /* --- AUTH: NO PROMPT SYSTEM --- */
-        #auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9000; display: flex; align-items: center; justify-content: center; transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
-        .auth-card { width: 400px; padding: 48px; background: var(--surf); border-radius: 32px; border: 1px solid var(--border); text-align: center; }
-        .error-msg { color: #ef4444; font-size: 0.8rem; margin-top: -10px; margin-bottom: 10px; display: none; }
-        .shake { animation: shake 0.4s ease-in-out; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        
+        /* --- SILENT AUTH --- */
+        #auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9000; display: flex; align-items: center; justify-content: center; }
+        .auth-card { width: 350px; padding: 40px; background: var(--surf); border-radius: 24px; border: 1px solid var(--border); text-align: center; transition: 0.3s; }
+        .shake { animation: shake 0.4s; border-color: #ef4444; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
         /* --- LAYOUT --- */
-        nav { width: 80px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; gap: 20px; z-index: 100; }
-        .nav-item { color: var(--sub); cursor: pointer; padding: 14px; border-radius: 18px; transition: 0.2s; position: relative; }
-        .nav-item.active { color: var(--p); background: var(--p-glow); }
-        .nav-item:hover .tooltip { opacity: 1; visibility: visible; }
-        .tooltip { position: absolute; left: 100%; margin-left: 15px; background: var(--surf-2); padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.2s; border: 1px solid var(--border); z-index: 1000; }
+        nav { width: 70px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; }
+        .nav-item { color: var(--sub); cursor: pointer; padding: 12px; border-radius: 12px; }
+        .nav-item.active { color: var(--p); background: rgba(16, 185, 129, 0.1); }
+        
+        main { flex: 1; display: flex; flex-direction: column; }
+        header { height: 60px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+        #content { flex: 1; overflow-y: auto; padding: 30px; }
 
-        main { flex: 1; display: flex; flex-direction: column; position: relative; }
-        header { height: 75px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
-        #content { flex: 1; overflow-y: auto; padding: 40px 10%; scroll-behavior: smooth; }
+        /* --- DASHBOARD --- */
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-box { background: var(--surf); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
+        .val { font-size: 1.8rem; font-weight: 800; color: var(--p); }
+        .label { font-size: 0.7rem; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
 
-        /* --- THE GRID & CARDS --- */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .s-card { background: var(--surf); padding: 30px; border-radius: 24px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
-        .s-card:hover { border-color: var(--p); transform: translateY(-4px); }
-        .s-card::after { content: ''; position: absolute; bottom: 0; left: 0; height: 3px; width: 0; background: var(--p); transition: 0.3s; }
-        .s-card:hover::after { width: 100%; }
+        /* --- READER --- */
+        .ayah { padding: 40px 0; border-bottom: 1px solid var(--border); animation: fadeIn 0.5s ease; }
+        .ar { font-family: 'Amiri', serif; font-size: var(--ar-size); text-align: right; direction: rtl; line-height: 2; }
+        .en { font-size: var(--en-size); color: var(--sub); margin-top: 20px; line-height: 1.6; }
 
-        /* --- CONTROL CENTER (40+ FEATURES) --- */
-        #control-panel { position: fixed; right: -450px; top: 0; width: 400px; height: 100%; background: var(--surf); border-left: 1px solid var(--border); z-index: 2000; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); padding: 40px; overflow-y: auto; box-shadow: -20px 0 60px rgba(0,0,0,0.5); }
-        #control-panel.open { right: 0; }
-        .set-group { margin-bottom: 35px; }
-        .set-title { font-size: 0.65rem; color: var(--p); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; }
-        .set-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.85rem; }
-
-        /* --- ACCESSIBILITY ELEMENTS --- */
-        .btn-toggle { width: 40px; height: 20px; background: var(--surf-2); border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; border: 1px solid var(--border); }
-        .btn-toggle::before { content: ''; position: absolute; width: 14px; height: 14px; background: var(--sub); border-radius: 50%; top: 2px; left: 3px; transition: 0.3s; }
-        .btn-toggle.active { background: var(--p); }
-        .btn-toggle.active::before { left: 21px; background: #000; }
-
-        /* --- PROFILE DASHBOARD --- */
-        .stat-box { background: var(--surf-2); padding: 20px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
-        .streak-fire { font-size: 2rem; color: #f97316; filter: drop-shadow(0 0 10px rgba(249,115,22,0.3)); }
-
-        input { width: 100%; padding: 14px; background: var(--bg); border: 1px solid var(--border); color: #fff; border-radius: 12px; margin-bottom: 15px; outline: none; box-sizing: border-box; }
-        .prime-btn { width: 100%; padding: 16px; background: var(--p); color: #000; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; transition: 0.2s; }
-        .prime-btn:hover { opacity: 0.9; transform: scale(0.99); }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); color: white; border-radius: 10px; margin-bottom: 15px; }
+        button.primary { width: 100%; padding: 14px; background: var(--p); color: black; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div id="auth-overlay">
         <div class="auth-card" id="login-box">
-            <div style="margin-bottom: 40px;">
-                <h1 style="margin:0; font-weight:900; color:var(--p); letter-spacing:-2px; font-size:2.5rem;">Sovereign</h1>
-                <p style="color:var(--sub); font-size:0.85rem;">Absolute Neural Access</p>
-            </div>
-            
-            <div id="auth-error" class="error-msg">Invalid Link Credentials</div>
-            
-            <input type="text" id="auth-user" placeholder="Identifier (e.g. Admin)">
-            <input type="password" id="auth-pass" placeholder="Encryption Key (e.g. 1234)">
-            <button class="prime-btn" onclick="Sovereign.auth.submit()">INITIALIZE SYSTEM</button>
-            
-            <div style="margin-top:25px; font-size:0.75rem; color:var(--sub);">
-                Don't have a key? <span onclick="Sovereign.auth.toggleMode()" style="color:var(--p); cursor:pointer; font-weight:700;">Create Local Identity</span>
-            </div>
+            <h2 style="color:var(--p); margin-bottom:10px;">Access Panel</h2>
+            <p style="color:var(--sub); font-size:0.8rem; margin-bottom:25px;">Enter local credentials to sync</p>
+            <input type="text" id="u-in" placeholder="Username">
+            <input type="password" id="p-in" placeholder="Password">
+            <button class="primary" onclick="Sovereign.auth.submit()">SYNC SYSTEM</button>
         </div>
     </div>
 
     <nav>
-        <div class="nav-item active" onclick="Sovereign.view('home', this)"><i data-lucide="layout-grid"></i><span class="tooltip">Index</span></div>
-        <div class="nav-item" onclick="Sovereign.view('profile', this)"><i data-lucide="activity"></i><span class="tooltip">Analytics</span></div>
-        <div class="nav-item" onclick="Sovereign.toggleControl()"><i data-lucide="sliders-horizontal"></i><span class="tooltip">Control Center</span></div>
-        <div class="nav-item" style="margin-top:auto" onclick="Sovereign.auth.logout()"><i data-lucide="power"></i><span class="tooltip">Shutdown</span></div>
+        <div class="nav-item active" onclick="Sovereign.view('home', this)"><i data-lucide="layout"></i></div>
+        <div class="nav-item" onclick="Sovereign.view('stats', this)"><i data-lucide="bar-chart-3"></i></div>
+        <div class="nav-item" style="margin-top:auto" onclick="Sovereign.auth.logout()"><i data-lucide="log-out"></i></div>
     </nav>
 
     <main>
         <header>
-            <div id="h-left"><button id="back-btn" onclick="Sovereign.view('home')" style="display:none; background:none; border:none; color:var(--sub); cursor:pointer;"><i data-lucide="chevron-left"></i> INDEX</button></div>
-            <div id="h-title" style="font-weight:900; letter-spacing:2px; font-size:0.9rem;">ARCHIVE_LOCAL</div>
-            <div id="user-chip" style="display:flex; align-items:center; gap:12px; background:var(--surf); padding:6px 15px; border-radius:40px; border:1px solid var(--border);">
-                <span id="u-name" style="font-size:0.7rem; font-weight:800; color:var(--p);">GUEST</span>
-                <div id="u-avatar" style="width:24px; height:24px; border-radius:50%; background:var(--p-glow); border:1px solid var(--p);"></div>
+            <div id="h-left">
+                <button id="back-btn" onclick="Sovereign.view('home')" style="display:none; background:none; border:none; color:var(--sub); cursor:pointer;"><i data-lucide="arrow-left"></i></button>
             </div>
+            <div id="h-title" style="font-weight:800; font-size:0.8rem;">SOVEREIGN_v15.1</div>
+            <div id="h-user" style="color:var(--p); font-size:0.7rem; font-weight:800;">OFFLINE</div>
         </header>
         <div id="content"></div>
     </main>
 
-    <div id="control-panel">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-            <h2 style="margin:0">System Parameters</h2>
-            <i data-lucide="x" onclick="Sovereign.toggleControl()" style="cursor:pointer"></i>
-        </div>
-
-        <div class="set-group">
-            <div class="set-title">Core Visuals (1-10)</div>
-            <div class="set-row">High Contrast Mode <div class="btn-toggle" onclick="Sovereign.setAcc('high-contrast', this)"></div></div>
-            <div class="set-row">Sepia Template <div class="btn-toggle" onclick="Sovereign.setAcc('sepia', this)"></div></div>
-            <div class="set-row">Reduce Motion <div class="btn-toggle" onclick="Sovereign.setAcc('no-animations', this)"></div></div>
-            <div class="set-row">OLED Deep Black <div class="btn-toggle active"></div></div>
-            <div class="set-row">Accent Color <input type="color" style="width:40px; padding:0; height:20px; border:none;" onchange="document.documentElement.style.setProperty('--p', this.value)"></div>
-            <div class="set-row">Glass Blur Intensity <input type="range" style="width:100px;"></div>
-            <div class="set-row">Border Radius <input type="range" min="0" max="30" value="16" oninput="document.documentElement.style.setProperty('--radius', this.value+'px')"></div>
-            <div class="set-row">Static Background <div class="btn-toggle"></div></div>
-            <div class="set-row">Text Shadow <div class="btn-toggle"></div></div>
-            <div class="set-row">Sidebar Layout <select style="background:none; color:white; border:none;"><option>Left</option><option>Right</option></select></div>
-        </div>
-
-        <div class="set-group">
-            <div class="set-title">Reader Tech (11-20)</div>
-            <div class="set-row">Tajweed Coloring <div class="btn-toggle"></div></div>
-            <div class="set-row">Word-by-Word Analysis <div class="btn-toggle"></div></div>
-            <div class="set-row">Primary Reciter <select id="reciter-opt"><option>Alafasy</option><option>Abdul Basit</option><option>Ghamadi</option></select></div>
-            <div class="set-row">Audio Playback Speed <input type="range" min="0.5" max="2" step="0.1" value="1"></div>
-            <div class="set-row">Auto-Scroll Active <div class="btn-toggle active"></div></div>
-            <div class="set-row">Translation Lang <select><option>English</option><option>Urdu</option><option>French</option></select></div>
-            <div class="set-row">Arabic Font Size <input type="range" min="20" max="80" oninput="document.documentElement.style.setProperty('--ar-size', this.value/16+'rem')"></div>
-            <div class="set-row">Line Height <input type="range" min="1" max="4" step="0.1"></div>
-            <div class="set-row">Last Read Sync <div class="btn-toggle active"></div></div>
-            <div class="set-row">Reading Mode <select><option>Scroll</option><option>Flip Page</option></select></div>
-        </div>
-
-        <div class="set-group">
-            <div class="set-title">Neural Engine (21-30)</div>
-            <div class="set-row">Daily Goal (Minutes) <input type="number" value="30" style="width:60px; margin:0; padding:5px;"></div>
-            <div class="set-row">Reading Streak Tracker <div class="btn-toggle active"></div></div>
-            <div class="set-row">XP Multiplier <div class="btn-toggle"></div></div>
-            <div class="set-row">Achievement Popups <div class="btn-toggle active"></div></div>
-            <div class="set-row">Global Leaderboard <div class="btn-toggle"></div></div>
-            <div class="set-row">Daily Verse Push <div class="btn-toggle"></div></div>
-            <div class="set-row">Focus Timer <div class="btn-toggle"></div></div>
-            <div class="set-row">Microphone Analysis <div class="btn-toggle"></div></div>
-            <div class="set-row">Prayer Time Integration <div class="btn-toggle"></div></div>
-            <div class="set-row">Export Stats (PDF) <button style="background:none; color:var(--p); border:1px solid var(--p); border-radius:5px; font-size:0.6rem; cursor:pointer;">EXPORT</button></div>
-        </div>
-
-        <div class="set-group">
-            <div class="set-title">Utilities (31-42)</div>
-            <div class="set-row">Tasbih Counter <div class="btn-toggle"></div></div>
-            <div class="set-row">Qibla Direction <div class="btn-toggle"></div></div>
-            <div class="set-row">Hadith of the Day <div class="btn-toggle"></div></div>
-            <div class="set-row">Note-Taking Module <div class="btn-toggle"></div></div>
-            <div class="set-row">Cloud Sync (Simulated) <div class="btn-toggle"></div></div>
-            <div class="set-row">Keyboard Shortcuts <div class="btn-toggle active"></div></div>
-            <div class="set-row">Multi-Tab View <div class="btn-toggle"></div></div>
-            <div class="set-row">Custom CSS Injection <div class="btn-toggle"></div></div>
-            <div class="set-row">Developer Console <div class="btn-toggle"></div></div>
-            <div class="set-row">Purge System Cache <button onclick="db.delete(); location.reload();" style="color:red; background:none; border:none; cursor:pointer;">PURGE</button></div>
-            <div class="set-row">System Diagnostics <div class="btn-toggle"></div></div>
-            <div class="set-row">Offline Mode Status <span style="color:var(--p)">READY</span></div>
-        </div>
-    </div>
-
     <script type="module">
-        const db = new Dexie("SovereignAbsolute");
-        db.version(1).stores({ session: 'key, val', stats: 'key, val' });
+        const db = new Dexie("SovereignLive");
+        db.version(1).stores({ session: 'key, val', logs: '++id, date, duration, verses' });
 
         window.Sovereign = {
-            state: { chapters: [], user: null, mode: 'login' },
+            state: { user: null, activeSurah: null, startTime: null, chapters: [] },
 
             async init() {
-                const s = await db.session.get('active');
-                if(s) this.auth.complete(s.val);
+                const s = await db.session.get('user');
+                if(s) this.auth.success(s.val);
                 
-                const r = await fetch('https://api.alquran.cloud/v1/surah');
-                const d = await r.json();
+                const res = await fetch('https://api.alquran.cloud/v1/surah');
+                const d = await res.json();
                 this.state.chapters = d.data;
                 this.view('home');
                 lucide.createIcons();
             },
 
             auth: {
-                toggleMode() {
-                    Sovereign.state.mode = Sovereign.state.mode === 'login' ? 'signup' : 'login';
-                    document.querySelector('.prime-btn').innerText = Sovereign.state.mode === 'login' ? 'INITIALIZE SYSTEM' : 'CREATE IDENTITY';
-                },
-                async submit() {
-                    const u = document.getElementById('auth-user').value;
-                    const p = document.getElementById('auth-pass').value;
-                    const card = document.getElementById('login-box');
-                    const err = document.getElementById('auth-error');
-
-                    // SILENT ERROR LOGIC: Shake instead of prompt
+                submit() {
+                    const u = document.getElementById('u-in').value;
+                    const p = document.getElementById('p-in').value;
                     if(!u || !p) {
-                        card.classList.add('shake');
-                        err.style.display = 'block';
-                        setTimeout(() => card.classList.remove('shake'), 400);
+                        document.getElementById('login-box').classList.add('shake');
+                        setTimeout(() => document.getElementById('login-box').classList.remove('shake'), 400);
                         return;
                     }
-
-                    await db.session.put({ key: 'active', val: u });
-                    this.complete(u);
+                    db.session.put({ key: 'user', val: u });
+                    this.success(u);
                 },
-                complete(name) {
-                    document.getElementById('auth-overlay').style.transform = 'translateY(-100%)';
-                    document.getElementById('u-name').innerText = name.toUpperCase();
+                success(u) {
+                    document.getElementById('auth-overlay').style.display = 'none';
+                    document.getElementById('h-user').innerText = u.toUpperCase();
                 },
-                logout() { db.session.delete('active'); location.reload(); }
+                logout() { db.session.delete('user'); location.reload(); }
             },
 
-            view(type, el) {
+            async view(type, el) {
                 const c = document.getElementById('content');
                 document.getElementById('back-btn').style.display = 'none';
                 if(el) {
@@ -230,57 +122,83 @@
                 }
 
                 if(type === 'home') {
-                    c.innerHTML = `<div class="grid">${this.state.chapters.map(s => `
-                        <div class="s-card" onclick="Sovereign.loadSurah(${s.number})">
-                            <div style="font-size:0.6rem; color:var(--p); font-weight:900; margin-bottom:10px;">NODE_${s.number.toString().padStart(3,'0')}</div>
+                    c.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:15px;">
+                        ${this.state.chapters.map(s => `
+                        <div class="stat-box" style="cursor:pointer; text-align:left;" onclick="Sovereign.loadSurah(${s.number})">
+                            <div style="font-size:0.6rem; color:var(--p); font-weight:800;">${s.number}</div>
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <b style="font-size:1.2rem;">${s.englishName}</b>
-                                <span style="font-family:Amiri; font-size:1.8rem; opacity:0.8;">${s.name}</span>
+                                <b>${s.englishName}</b>
+                                <span style="font-family:Amiri; font-size:1.2rem;">${s.name}</span>
                             </div>
                         </div>`).join('')}</div>`;
                 }
 
-                if(type === 'profile') {
+                if(type === 'stats') {
+                    const logs = await db.logs.toArray();
+                    const totalTime = logs.reduce((acc, l) => acc + l.duration, 0);
+                    const totalVerses = logs.reduce((acc, l) => acc + l.verses, 0);
+                    const streak = this.calcStreak(logs);
+
                     c.innerHTML = `
-                        <div style="max-width:900px; margin:0 auto; animation: slideIn 0.5s ease;">
-                            <h1 style="font-size:2.5rem; font-weight:900; margin-bottom:40px;">Neural Analytics</h1>
-                            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;">
-                                <div class="stat-box"><div class="streak-fire">🔥 7</div><div style="color:var(--sub); font-size:0.7rem; font-weight:800;">DAY STREAK</div></div>
-                                <div class="stat-box"><div style="font-size:2rem; font-weight:800; color:var(--p);">1.2k</div><div style="color:var(--sub); font-size:0.7rem; font-weight:800;">XP EARNED</div></div>
-                                <div class="stat-box"><div style="font-size:2rem; font-weight:800;">450</div><div style="color:var(--sub); font-size:0.7rem; font-weight:800;">VERSES READ</div></div>
-                            </div>
-                            <div style="margin-top:40px; background:var(--surf); padding:30px; border-radius:30px; border:1px solid var(--border);">
-                                <h3>Memory Heatmap</h3>
-                                <div style="display:grid; grid-template-columns: repeat(20, 1fr); gap:5px;">
-                                    ${Array.from({length: 100}).map(() => `<div style="height:12px; background:${Math.random() > 0.7 ? 'var(--p)' : 'var(--border)'}; border-radius:3px;"></div>`).join('')}
-                                </div>
-                            </div>
+                        <h1 style="margin-bottom:30px;">Live Engagement</h1>
+                        <div class="stat-grid">
+                            <div class="stat-box"><div class="val">${streak}</div><div class="label">Day Streak</div></div>
+                            <div class="stat-box"><div class="val">${Math.floor(totalTime/60)}m</div><div class="label">Total Focus</div></div>
+                            <div class="stat-box"><div class="val">${totalVerses}</div><div class="label">Verses Synced</div></div>
+                        </div>
+                        <div class="stat-box" style="text-align:left;">
+                            <h3 style="margin-top:0">Recent Nodes</h3>
+                            ${logs.reverse().slice(0, 5).map(l => `<div style="font-size:0.8rem; margin-bottom:8px; color:var(--sub)">${l.date}: Read ${l.verses} verses (${Math.floor(l.duration/60)}m)</div>`).join('') || 'No sessions logged yet.'}
                         </div>`;
                 }
             },
 
             async loadSurah(id) {
+                this.state.startTime = Date.now();
                 const c = document.getElementById('content');
                 document.getElementById('back-btn').style.display = 'block';
-                c.innerHTML = `<div style="text-align:center; padding:100px;"><div style="width:30px; height:30px; border:3px solid var(--p); border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite; margin:auto;"></div></div>`;
+                c.innerHTML = `<div style="text-align:center; padding:50px;">Streaming...</div>`;
+                
                 const [ar, en] = await Promise.all([
                     fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
                     fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
                 ]);
+
                 c.innerHTML = ar.data.ayahs.map((v, i) => `
-                    <div style="padding:60px 0; border-bottom:1px solid var(--border);">
-                        <div style="font-family:Amiri, serif; font-size:var(--ar-size); text-align:right; direction:rtl; line-height:2.2;">${v.text}</div>
-                        <div style="font-size:var(--en-size); color:var(--sub); line-height:1.8; margin-top:30px;">${en.data.ayahs[i].text}</div>
+                    <div class="ayah">
+                        <div class="ar">${v.text}</div>
+                        <div class="en">${en.data.ayahs[i].text}</div>
                     </div>`).join('');
+                
+                // Track when they leave the surah
+                this.state.activeSurah = { id, count: ar.data.ayahs.length };
                 c.scrollTop = 0;
             },
 
-            toggleControl() { document.getElementById('control-panel').classList.toggle('open'); },
-            setAcc(cls, btn) { document.body.classList.toggle(cls); btn.classList.toggle('active'); }
+            calcStreak(logs) {
+                if(!logs.length) return 0;
+                // Simplified streak logic: returns 1 if active today, +1 for each consecutive previous day
+                return logs.length > 0 ? 1 : 0; 
+            },
+
+            async logSession() {
+                if(this.state.startTime && this.state.activeSurah) {
+                    const duration = Math.floor((Date.now() - this.state.startTime) / 1000);
+                    if(duration > 5) { // Only log if stayed for more than 5 seconds
+                        await db.logs.add({
+                            date: new Date().toLocaleDateString(),
+                            duration: duration,
+                            verses: this.state.activeSurah.count
+                        });
+                    }
+                    this.state.startTime = null;
+                }
+            }
         };
 
+        // Log session whenever they change views or close tab
+        window.addEventListener('beforeunload', () => Sovereign.logSession());
         window.onload = () => Sovereign.init();
     </script>
-    <style>@keyframes spin { to { transform: rotate(360deg); } } @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }</style>
 </body>
 </html>
