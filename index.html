@@ -3,188 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign | Elite v3</title>
+    <title>Sovereign Elite | v4.0</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        :root { 
-            --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc; --sub: #94a3b8; --border: #1e293b; 
-            --ar-size: 2.8rem; --en-size: 1.1rem;
-        }
-        [data-theme="sepia"] { --bg: #f5f2e9; --surf: #e8e4d9; --text: #2d241e; --sub: #5d534a; --border: #d1cdc0; --p: #8b5e3c; }
-        
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar Navigation */
-        nav { width: 80px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 20px; z-index: 100; }
-        .nav-link { color: var(--sub); cursor: pointer; padding: 12px; border-radius: 12px; transition: 0.2s; }
-        .nav-link.active { color: var(--p); background: rgba(16,185,129,0.1); }
-
-        /* Main Workspace */
-        main { flex: 1; display: flex; flex-direction: column; position: relative; }
-        .progress-bar { height: 4px; background: var(--p); width: 0%; position: absolute; top: 0; left: 0; transition: 0.3s; z-index: 1000; }
-        header { padding: 20px 40px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg); }
-        #content { flex: 1; overflow-y: auto; padding: 40px; }
-
-        /* Arabic Text & Tajweed */
-        .ayah { padding: 35px 0; border-bottom: 1px solid var(--border); transition: 0.3s; }
-        .ar { font-family: 'Amiri', serif; font-size: var(--ar-size); text-align: right; direction: rtl; line-height: 2.5; margin-bottom: 15px; }
-        .tj-ghunnah { color: #f43f5e; font-weight: bold; border-bottom: 2px solid #f43f5e; }
-        .tj-qal { color: #3b82f6; font-weight: bold; }
-        
-        /* Word by Word Tooltip */
-        .word { display: inline-block; cursor: pointer; transition: 0.2s; border-radius: 4px; padding: 0 4px; }
-        .word:hover { background: rgba(16, 185, 129, 0.15); transform: translateY(-2px); }
-
-        /* UI Overlays */
-        #dictionary-panel { position: fixed; right: -400px; top: 0; width: 350px; height: 100%; background: var(--surf); border-left: 1px solid var(--border); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1001; padding: 30px; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
-        #dictionary-panel.open { right: 0; }
-
-        /* Controls Hud */
-        #hud { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--surf); border: 1px solid var(--border); padding: 12px 25px; border-radius: 50px; display: flex; align-items: center; gap: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); z-index: 99; }
-        .control-btn { color: var(--sub); cursor: pointer; border: none; background: none; transition: 0.2s; }
-        .control-btn:hover { color: var(--p); transform: scale(1.1); }
-    </style>
 </head>
-<body>
-
-    <nav>
-        <div class="nav-link active" onclick="Sovereign.setView('home')"><i data-lucide="home"></i></div>
-        <div class="nav-link" onclick="Sovereign.setView('hifz')"><i data-lucide="brain"></i></div>
-        <div class="nav-link" onclick="Sovereign.toggleSettings()"><i data-lucide="settings"></i></div>
+<body data-theme="midnight">
+    <nav id="sidebar">
+        <div class="nav-brand">S</div>
+        <div class="nav-link active" onclick="Router.go('home')" id="n-home"><i data-lucide="home"></i></div>
+        <div class="nav-link" onclick="Router.go('hifz')" id="n-hifz"><i data-lucide="target"></i></div>
+        <div class="nav-link" onclick="UI.toggleSearch()"><i data-lucide="search"></i></div>
+        <div class="spacer"></div>
+        <div class="nav-link" onclick="UI.toggleTheme()"><i data-lucide="sun"></i></div>
     </nav>
 
     <main>
-        <div class="progress-bar" id="reading-progress"></div>
         <header>
-            <h2 id="header-title" style="margin:0">Sovereign</h2>
-            <div id="header-actions"></div>
+            <div id="header-context">
+                <h2 id="view-title">Sovereign</h2>
+                <span id="view-subtitle">Universal Edition</span>
+            </div>
+            <div class="search-container">
+                <input type="text" id="global-search" placeholder="Search (Cmd + K)" onfocus="UI.toggleSearch(true)">
+            </div>
         </header>
-        <div id="content"></div>
+
+        <div id="app-container">
+            <section id="app-viewport"></section>
+            <aside id="side-panel">
+                <div class="panel-header">
+                    <h3>Exegesis (Tafsir)</h3>
+                    <button onclick="UI.closePanel()"><i data-lucide="x"></i></button>
+                </div>
+                <div id="panel-content">Select a verse to view commentary.</div>
+            </aside>
+        </div>
     </main>
 
-    <div id="dictionary-panel">
-        <button onclick="Sovereign.closeDict()" style="background:none; border:none; color:var(--sub); cursor:pointer;"><i data-lucide="x"></i></button>
-        <h3 id="dict-word" style="font-family:'Amiri'; font-size: 3rem; color:var(--p); margin: 20px 0;"></h3>
-        <p id="dict-root" style="color:var(--sub); text-transform:uppercase; letter-spacing:1px;"></p>
-        <hr style="border:0.5px solid var(--border); margin: 20px 0;">
-        <p id="dict-meaning" style="line-height:1.6; font-size: 1.1rem;"></p>
+    <div id="audio-hud">
+        <div class="progress-bar-container" onclick="AudioEngine.seek(event)">
+            <div id="audio-progress"></div>
+        </div>
+        <div class="hud-main">
+            <div class="hud-info">
+                <b id="hud-ayah-ref">1:1</b>
+                <small id="hud-reciter-name">Mishary Alafasy</small>
+            </div>
+            <div class="hud-controls">
+                <button onclick="AudioEngine.prev()"><i data-lucide="skip-back"></i></button>
+                <button id="play-pause" class="main-play" onclick="AudioEngine.toggle()"><i data-lucide="play"></i></button>
+                <button onclick="AudioEngine.next()"><i data-lucide="skip-forward"></i></button>
+            </div>
+            <div class="hud-meta">
+                <select onchange="AudioEngine.setReciter(this.value)">
+                    <option value="Alafasy_128kbps">Alafasy</option>
+                    <option value="Abdul_Basit_Murattal_64kbps">Abdul Basit</option>
+                </select>
+            </div>
+        </div>
     </div>
 
-    <div id="hud">
-        <button class="control-btn" onclick="Sovereign.audio.prev()"><i data-lucide="rewind"></i></button>
-        <button class="control-btn" onclick="Sovereign.audio.toggle()" id="play-trigger"><i data-lucide="play" style="fill: currentColor;"></i></button>
-        <button class="control-btn" onclick="Sovereign.audio.next()"><i data-lucide="fast-forward"></i></button>
-        <div id="hud-label" style="font-size: 0.8rem; color: var(--sub); border-left: 1px solid var(--border); padding-left: 15px;">Awaiting Selection</div>
-    </div>
-
-    <script>
-        const db = new Dexie("SovereignElite");
-        db.version(1).stores({ hifz: 'ayahKey', prefs: 'key, value' });
-
-        const Sovereign = {
-            state: { currentSurah: null, isPlaying: false, arSize: 2.8 },
-            chapters: [],
-
-            async init() {
-                const res = await fetch('https://api.alquran.cloud/v1/surah');
-                const data = await res.json();
-                this.chapters = data.data;
-                this.setView('home');
-                lucide.createIcons();
-                
-                // Track Reading Progress
-                document.getElementById('content').onscroll = (e) => {
-                    const winScroll = e.target.scrollTop;
-                    const height = e.target.scrollHeight - e.target.clientHeight;
-                    const scrolled = (winScroll / height) * 100;
-                    document.getElementById('reading-progress').style.width = scrolled + "%";
-                };
-            },
-
-            setView(view) {
-                const container = document.getElementById('content');
-                if (view === 'home') this.renderIndex(container);
-            },
-
-            renderIndex(container) {
-                document.getElementById('header-title').innerText = "Surah Index";
-                container.innerHTML = `<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
-                    ${this.chapters.map(s => `
-                        <div style="background:var(--surf); padding:20px; border-radius:15px; border:1px solid var(--border); cursor:pointer;" onclick="Sovereign.loadSurah(${s.number})">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <b>${s.number}. ${s.englishName}</b>
-                                <span style="font-family:Amiri; color:var(--p); font-size:1.4rem;">${s.name}</span>
-                            </div>
-                            <small style="color:var(--sub)">${s.numberOfAyahs} Verses • ${s.revelationType}</small>
-                        </div>
-                    `).join('')}
-                </div>`;
-            },
-
-            async loadSurah(id) {
-                this.state.currentSurah = id;
-                const container = document.getElementById('content');
-                container.innerHTML = `<p>Loading Revelation...</p>`;
-                
-                const [ar, en] = await Promise.all([
-                    fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
-                    fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
-                ]);
-
-                document.getElementById('header-title').innerText = ar.data.englishName;
-                container.innerHTML = ar.data.ayahs.map((v, i) => `
-                    <div class="ayah" id="a-${i+1}">
-                        <div class="ar">${this.applyTajweed(v.text)}</div>
-                        <div class="en" style="font-size: var(--en-size); color: var(--sub); line-height:1.8;">${en.data.ayahs[i].text}</div>
-                        <div style="margin-top:15px; display:flex; gap:10px;">
-                            <button onclick="Sovereign.audio.play(${id}, ${i+1})" style="background:none; border:none; color:var(--p); cursor:pointer; font-size:0.8rem; display:flex; align-items:center; gap:5px;"><i data-lucide="play" style="width:14px"></i> Listen</button>
-                            <button onclick="Sovereign.markHifz('${id}:${i+1}')" style="background:none; border:none; color:var(--sub); cursor:pointer; font-size:0.8rem;">Mark Memorized</button>
-                        </div>
-                    </div>
-                `).join('');
-                lucide.createIcons();
-                container.scrollTop = 0;
-            },
-
-            applyTajweed(text) {
-                // Feature: Dynamic Word-by-Word + Tajweed colorization
-                return text.split(' ').map(word => {
-                    let tajweed = word
-                        .replace(/([نّمّ])/g, '<span class="tj-ghunnah">$1</span>')
-                        .replace(/([قطبجد])/g, '<span class="tj-qal">$1</span>');
-                    return `<span class="word" onclick="Sovereign.openDict('${word}')">${tajweed}</span>`;
-                }).join(' ');
-            },
-
-            openDict(word) {
-                document.getElementById('dict-word').innerText = word.replace(/<[^>]*>?/gm, '');
-                document.getElementById('dict-root').innerText = "Root: Semantic Analysis...";
-                document.getElementById('dict-meaning').innerText = "Linguistic breakdown is fetching from Sovereign Lexicon... (Clicking this word identifies grammatical markers and classical usage).";
-                document.getElementById('dictionary-panel').classList.add('open');
-            },
-
-            closeDict() { document.getElementById('dictionary-panel').classList.remove('open'); },
-
-            audio: {
-                player: new Audio(),
-                play(s, a) {
-                    const src = `https://everyayah.com/data/Alafasy_128kbps/${s.toString().padStart(3,'0')}${a.toString().padStart(3,'0')}.mp3`;
-                    this.player.src = src;
-                    this.player.play();
-                    document.getElementById('hud-label').innerText = `Reciting ${s}:${a}`;
-                    document.getElementById('play-trigger').innerHTML = '<i data-lucide="pause" style="fill:currentColor"></i>';
-                    lucide.createIcons();
-                },
-                toggle() {
-                    if (this.player.paused) this.player.play();
-                    else this.player.pause();
-                }
-            }
-        };
-
-        window.onload = () => Sovereign.init();
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
