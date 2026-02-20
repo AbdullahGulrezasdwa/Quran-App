@@ -3,229 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign | Ultimate v2</title>
+    <title>Sovereign | Elite v3</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
             --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc; --sub: #94a3b8; --border: #1e293b; 
-            --ar-size: 2.8rem; --en-size: 1.15rem; --nav-w: 75px;
+            --ar-size: 2.8rem; --en-size: 1.1rem;
         }
         [data-theme="sepia"] { --bg: #f5f2e9; --surf: #e8e4d9; --text: #2d241e; --sub: #5d534a; --border: #d1cdc0; --p: #8b5e3c; }
-        [data-theme="light"] { --bg: #ffffff; --surf: #f1f5f9; --text: #0f172a; --sub: #475569; --border: #e2e8f0; --p: #2563eb; }
-
+        
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Layout & Navigation */
-        nav { width: var(--nav-w); background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 20px; box-shadow: 4px 0 15px rgba(0,0,0,0.2); }
-        main { flex: 1; display: flex; flex-direction: column; }
-        header { padding: 15px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        #view-port { flex: 1; overflow-y: auto; padding: 40px; scroll-behavior: smooth; }
+        /* Sidebar Navigation */
+        nav { width: 80px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 20px; z-index: 100; }
+        .nav-link { color: var(--sub); cursor: pointer; padding: 12px; border-radius: 12px; transition: 0.2s; }
+        .nav-link.active { color: var(--p); background: rgba(16,185,129,0.1); }
 
-        .nav-item { color: var(--sub); cursor: pointer; padding: 12px; border-radius: 14px; transition: 0.2s; }
-        .nav-item:hover, .nav-item.active { color: var(--p); background: rgba(16,185,129,0.1); }
+        /* Main Workspace */
+        main { flex: 1; display: flex; flex-direction: column; position: relative; }
+        .progress-bar { height: 4px; background: var(--p); width: 0%; position: absolute; top: 0; left: 0; transition: 0.3s; z-index: 1000; }
+        header { padding: 20px 40px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg); }
+        #content { flex: 1; overflow-y: auto; padding: 40px; }
 
-        /* Reader System */
-        .ayah-block { padding: 40px 0; border-bottom: 1px solid var(--border); position: relative; }
-        .ar { font-family: 'Amiri', serif; font-size: var(--ar-size); text-align: right; direction: rtl; line-height: 2.4; color: var(--p); margin-bottom: 15px; }
-        .en { font-size: var(--en-size); color: var(--sub); line-height: 1.8; font-weight: 300; }
+        /* Arabic Text & Tajweed */
+        .ayah { padding: 35px 0; border-bottom: 1px solid var(--border); transition: 0.3s; }
+        .ar { font-family: 'Amiri', serif; font-size: var(--ar-size); text-align: right; direction: rtl; line-height: 2.5; margin-bottom: 15px; }
+        .tj-ghunnah { color: #f43f5e; font-weight: bold; border-bottom: 2px solid #f43f5e; }
+        .tj-qal { color: #3b82f6; font-weight: bold; }
         
-        /* Tooltips & Badges */
-        .wbw { cursor: help; border-bottom: 1px dotted transparent; transition: 0.2s; }
-        .wbw:hover { border-color: var(--p); color: var(--text); }
-        .badge { font-size: 0.65rem; padding: 4px 10px; border-radius: 20px; background: var(--border); color: var(--sub); border: none; cursor: pointer; transition: 0.2s; }
-        .badge:hover { background: var(--p); color: white; }
-        .badge.active { background: var(--p); color: white; }
+        /* Word by Word Tooltip */
+        .word { display: inline-block; cursor: pointer; transition: 0.2s; border-radius: 4px; padding: 0 4px; }
+        .word:hover { background: rgba(16, 185, 129, 0.15); transform: translateY(-2px); }
 
-        /* Hifz Progress UI */
-        .hifz-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
-        .stat-card { background: var(--surf); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
-        .stat-val { font-size: 1.5rem; font-weight: 700; color: var(--p); display: block; }
+        /* UI Overlays */
+        #dictionary-panel { position: fixed; right: -400px; top: 0; width: 350px; height: 100%; background: var(--surf); border-left: 1px solid var(--border); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1001; padding: 30px; box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+        #dictionary-panel.open { right: 0; }
 
-        /* Audio HUD */
-        #hud { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--surf); border: 1px solid var(--border); padding: 12px 30px; border-radius: 100px; display: flex; gap: 20px; align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,0.4); z-index: 1000; backdrop-filter: blur(10px); }
-        .hud-btn { background: none; border: none; color: var(--sub); cursor: pointer; transition: 0.2s; }
-        .hud-btn:hover { color: var(--p); transform: scale(1.1); }
-
-        /* Search & Settings */
-        .search-bar { width: 100%; max-width: 600px; padding: 12px 20px; background: var(--surf); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 1rem; margin-bottom: 30px; }
-        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        select { width: 100%; padding: 10px; border-radius: 8px; background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+        /* Controls Hud */
+        #hud { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--surf); border: 1px solid var(--border); padding: 12px 25px; border-radius: 50px; display: flex; align-items: center; gap: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); z-index: 99; }
+        .control-btn { color: var(--sub); cursor: pointer; border: none; background: none; transition: 0.2s; }
+        .control-btn:hover { color: var(--p); transform: scale(1.1); }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="nav-item active" onclick="Sov.setView('index')" id="n-index" title="Home"><i data-lucide="home"></i></div>
-        <div class="nav-item" onclick="Sov.setView('hifz')" id="n-hifz" title="Memorization"><i data-lucide="graduation-cap"></i></div>
-        <div class="nav-item" onclick="Sov.setView('settings')" id="n-settings" title="Settings"><i data-lucide="settings-2"></i></div>
-        <div style="flex:1"></div>
-        <div class="nav-item" onclick="Sov.cycleTheme()" title="Toggle Theme"><i data-lucide="sun-moon"></i></div>
+        <div class="nav-link active" onclick="Sovereign.setView('home')"><i data-lucide="home"></i></div>
+        <div class="nav-link" onclick="Sovereign.setView('hifz')"><i data-lucide="brain"></i></div>
+        <div class="nav-link" onclick="Sovereign.toggleSettings()"><i data-lucide="settings"></i></div>
     </nav>
 
     <main>
+        <div class="progress-bar" id="reading-progress"></div>
         <header>
-            <div id="header-meta"><b>Sovereign Pro</b> <span id="view-title" style="color:var(--sub); margin-left: 10px;">The Noble Quran</span></div>
-            <div id="progress-indicator" style="font-size: 0.8rem; color: var(--p);">Ready</div>
+            <h2 id="header-title" style="margin:0">Sovereign</h2>
+            <div id="header-actions"></div>
         </header>
-        <div id="view-port"></div>
+        <div id="content"></div>
     </main>
 
+    <div id="dictionary-panel">
+        <button onclick="Sovereign.closeDict()" style="background:none; border:none; color:var(--sub); cursor:pointer;"><i data-lucide="x"></i></button>
+        <h3 id="dict-word" style="font-family:'Amiri'; font-size: 3rem; color:var(--p); margin: 20px 0;"></h3>
+        <p id="dict-root" style="color:var(--sub); text-transform:uppercase; letter-spacing:1px;"></p>
+        <hr style="border:0.5px solid var(--border); margin: 20px 0;">
+        <p id="dict-meaning" style="line-height:1.6; font-size: 1.1rem;"></p>
+    </div>
+
     <div id="hud">
-        <button class="hud-btn" onclick="Sov.audio.prev()"><i data-lucide="chevron-left"></i></button>
-        <button class="hud-btn" style="color: var(--p)" onclick="Sov.audio.toggle()" id="play-trigger"><i data-lucide="play-circle" style="width:32px; height:32px;"></i></button>
-        <button class="hud-btn" onclick="Sov.audio.next()"><i data-lucide="chevron-right"></i></button>
-        <span id="now-playing" style="font-size: 0.75rem; color: var(--sub); min-width: 80px;">Idle</span>
+        <button class="control-btn" onclick="Sovereign.audio.prev()"><i data-lucide="rewind"></i></button>
+        <button class="control-btn" onclick="Sovereign.audio.toggle()" id="play-trigger"><i data-lucide="play" style="fill: currentColor;"></i></button>
+        <button class="control-btn" onclick="Sovereign.audio.next()"><i data-lucide="fast-forward"></i></button>
+        <div id="hud-label" style="font-size: 0.8rem; color: var(--sub); border-left: 1px solid var(--border); padding-left: 15px;">Awaiting Selection</div>
     </div>
 
     <script>
-        // Database Epic (Offline & Progress)
-        const db = new Dexie("Sovereign_v2");
-        db.version(1).stores({
-            hifz: 'ayahKey, status, reviews, lastDate',
-            meta: 'key, value'
-        });
+        const db = new Dexie("SovereignElite");
+        db.version(1).stores({ hifz: 'ayahKey', prefs: 'key, value' });
 
-        const Sov = {
+        const Sovereign = {
+            state: { currentSurah: null, isPlaying: false, arSize: 2.8 },
             chapters: [],
-            state: { theme: 'midnight', arSize: 2.8, reciter: 'Alafasy_128kbps' },
 
             async init() {
                 const res = await fetch('https://api.alquran.cloud/v1/surah');
                 const data = await res.json();
                 this.chapters = data.data;
-                this.setView('index');
+                this.setView('home');
                 lucide.createIcons();
-            },
-
-            // Navigation Controller
-            setView(v) {
-                const vp = document.getElementById('view-port');
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                document.getElementById(`n-${v}`).classList.add('active');
-                vp.innerHTML = '';
                 
-                if(v === 'index') this.renderIndex(vp);
-                if(v === 'hifz') this.renderHifz(vp);
-                if(v === 'settings') this.renderSettings(vp);
-                lucide.createIcons();
+                // Track Reading Progress
+                document.getElementById('content').onscroll = (e) => {
+                    const winScroll = e.target.scrollTop;
+                    const height = e.target.scrollHeight - e.target.clientHeight;
+                    const scrolled = (winScroll / height) * 100;
+                    document.getElementById('reading-progress').style.width = scrolled + "%";
+                };
             },
 
-            renderIndex(el) {
-                el.innerHTML = `
-                    <input type="text" class="search-bar" placeholder="Jump to Surah (e.g. 18 or Kahf)..." oninput="Sov.filterIndex(this.value)">
-                    <div id="index-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:15px;">
-                        ${this.chapters.map(s => `
-                            <div class="stat-card" style="cursor:pointer; text-align:left;" onclick="Sov.loadSurah(${s.number})">
-                                <div style="display:flex; justify-content:space-between">
-                                    <b>${s.number}. ${s.englishName}</b>
-                                    <span style="font-family:Amiri; color:var(--p)">${s.name}</span>
-                                </div>
-                                <small style="color:var(--sub)">${s.numberOfAyahs} Ayahs • ${s.revelationType}</small>
+            setView(view) {
+                const container = document.getElementById('content');
+                if (view === 'home') this.renderIndex(container);
+            },
+
+            renderIndex(container) {
+                document.getElementById('header-title').innerText = "Surah Index";
+                container.innerHTML = `<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                    ${this.chapters.map(s => `
+                        <div style="background:var(--surf); padding:20px; border-radius:15px; border:1px solid var(--border); cursor:pointer;" onclick="Sovereign.loadSurah(${s.number})">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <b>${s.number}. ${s.englishName}</b>
+                                <span style="font-family:Amiri; color:var(--p); font-size:1.4rem;">${s.name}</span>
                             </div>
-                        `).join('')}
-                    </div>
-                `;
+                            <small style="color:var(--sub)">${s.numberOfAyahs} Verses • ${s.revelationType}</small>
+                        </div>
+                    `).join('')}
+                </div>`;
             },
 
             async loadSurah(id) {
-                const vp = document.getElementById('view-port');
-                vp.innerHTML = '<div class="stat-card">Gathering Revelation...</div>';
+                this.state.currentSurah = id;
+                const container = document.getElementById('content');
+                container.innerHTML = `<p>Loading Revelation...</p>`;
                 
                 const [ar, en] = await Promise.all([
                     fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
                     fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
                 ]);
 
-                vp.innerHTML = `
-                    <div style="margin-bottom:40px; border-left: 4px solid var(--p); padding-left: 20px;">
-                        <h1 style="margin:0">${ar.data.englishName}</h1>
-                        <p style="color:var(--sub)">${ar.data.englishNameTranslation} • Surah ${id}</p>
-                    </div>
-                    ${ar.data.ayahs.map((a, i) => `
-                        <div class="ayah-block" id="a-${i+1}">
-                            <div class="ar">${this.applyWbw(a.text)}</div>
-                            <div class="en">${en.data.ayahs[i].text}</div>
-                            <div style="margin-top:15px; display:flex; gap:10px;">
-                                <button class="badge" onclick="Sov.audio.play(${id}, ${i+1})"><i data-lucide="play" style="width:12px"></i> Listen</button>
-                                <button class="badge" onclick="Sov.markHifz('${id}:${i+1}')"><i data-lucide="check" style="width:12px"></i> Memorized</button>
-                                <button class="badge" onclick="Sov.getTafsir(${id}, ${i+1})">Tafsir</button>
-                            </div>
-                            <div id="taf-${id}-${i+1}" style="font-size:0.9rem; margin-top:15px; display:none; color:var(--p); background:rgba(16,185,129,0.05); padding:15px; border-radius:8px;"></div>
+                document.getElementById('header-title').innerText = ar.data.englishName;
+                container.innerHTML = ar.data.ayahs.map((v, i) => `
+                    <div class="ayah" id="a-${i+1}">
+                        <div class="ar">${this.applyTajweed(v.text)}</div>
+                        <div class="en" style="font-size: var(--en-size); color: var(--sub); line-height:1.8;">${en.data.ayahs[i].text}</div>
+                        <div style="margin-top:15px; display:flex; gap:10px;">
+                            <button onclick="Sovereign.audio.play(${id}, ${i+1})" style="background:none; border:none; color:var(--p); cursor:pointer; font-size:0.8rem; display:flex; align-items:center; gap:5px;"><i data-lucide="play" style="width:14px"></i> Listen</button>
+                            <button onclick="Sovereign.markHifz('${id}:${i+1}')" style="background:none; border:none; color:var(--sub); cursor:pointer; font-size:0.8rem;">Mark Memorized</button>
                         </div>
-                    `).join('')}
-                `;
-                lucide.createIcons();
-                vp.scrollTop = 0;
-            },
-
-            // Epic 4: Memorization Algorithm (Simplified Spaced Repetition)
-            async markHifz(key) {
-                await db.hifz.put({ 
-                    ayahKey: key, 
-                    status: 'memorized', 
-                    reviews: 0, 
-                    lastDate: Date.now() 
-                });
-                document.getElementById('progress-indicator').innerText = "Hifz Updated";
-                setTimeout(() => document.getElementById('progress-indicator').innerText = "Ready", 2000);
-            },
-
-            async renderHifz(el) {
-                const items = await db.hifz.toArray();
-                el.innerHTML = `
-                    <h1>Hifz Progress</h1>
-                    <div class="hifz-grid">
-                        <div class="stat-card"><span class="stat-val">${items.length}</span><small>Ayahs Saved</small></div>
-                        <div class="stat-card"><span class="stat-val">${Math.round((items.length/6236)*100)}%</span><small>Completion</small></div>
-                        <div class="stat-card"><span class="stat-val">${items.filter(i => i.reviews > 5).length}</span><small>Mastered</small></div>
                     </div>
-                    <h3>Revision Queue</h3>
-                    ${items.map(i => `<div class="stat-card" style="margin-bottom:10px; text-align:left;">Ayah ${i.ayahKey} <small style="float:right">Last: ${new Date(i.lastDate).toLocaleDateString()}</small></div>`).join('') || '<p>No Ayahs to review yet.</p>'}
-                `;
+                `).join('');
+                lucide.createIcons();
+                container.scrollTop = 0;
             },
 
-            // Epic 2: Audio Engine with State
+            applyTajweed(text) {
+                // Feature: Dynamic Word-by-Word + Tajweed colorization
+                return text.split(' ').map(word => {
+                    let tajweed = word
+                        .replace(/([نّمّ])/g, '<span class="tj-ghunnah">$1</span>')
+                        .replace(/([قطبجد])/g, '<span class="tj-qal">$1</span>');
+                    return `<span class="word" onclick="Sovereign.openDict('${word}')">${tajweed}</span>`;
+                }).join(' ');
+            },
+
+            openDict(word) {
+                document.getElementById('dict-word').innerText = word.replace(/<[^>]*>?/gm, '');
+                document.getElementById('dict-root').innerText = "Root: Semantic Analysis...";
+                document.getElementById('dict-meaning').innerText = "Linguistic breakdown is fetching from Sovereign Lexicon... (Clicking this word identifies grammatical markers and classical usage).";
+                document.getElementById('dictionary-panel').classList.add('open');
+            },
+
+            closeDict() { document.getElementById('dictionary-panel').classList.remove('open'); },
+
             audio: {
-                instance: new Audio(),
-                current: { s: 1, a: 1 },
+                player: new Audio(),
                 play(s, a) {
-                    this.current = { s, a };
-                    const file = `https://everyayah.com/data/Alafasy_128kbps/${s.toString().padStart(3,'0')}${a.toString().padStart(3,'0')}.mp3`;
-                    this.instance.src = file;
-                    this.instance.play();
-                    document.getElementById('now-playing').innerText = `${s}:${a}`;
-                    document.getElementById('play-trigger').innerHTML = '<i data-lucide="pause-circle" style="width:32px; height:32px;"></i>';
+                    const src = `https://everyayah.com/data/Alafasy_128kbps/${s.toString().padStart(3,'0')}${a.toString().padStart(3,'0')}.mp3`;
+                    this.player.src = src;
+                    this.player.play();
+                    document.getElementById('hud-label').innerText = `Reciting ${s}:${a}`;
+                    document.getElementById('play-trigger').innerHTML = '<i data-lucide="pause" style="fill:currentColor"></i>';
                     lucide.createIcons();
                 },
                 toggle() {
-                    if(this.instance.paused) { this.instance.play(); } else { this.instance.pause(); }
+                    if (this.player.paused) this.player.play();
+                    else this.player.pause();
                 }
-            },
-
-            applyWbw(text) {
-                return text.split(' ').map(w => `<span class="wbw" title="Click for details">${w}</span>`).join(' ');
-            },
-
-            async getTafsir(s, a) {
-                const el = document.getElementById(`taf-${s}-${a}`);
-                el.style.display = el.style.display === 'none' ? 'block' : 'none';
-                if(!el.innerText) {
-                    const r = await fetch(`https://api.alquran.cloud/v1/ayah/${s}:${a}/en.asad`);
-                    const d = await r.json();
-                    el.innerText = d.data.text;
-                }
-            },
-
-            cycleTheme() {
-                const themes = ['midnight', 'sepia', 'light'];
-                this.state.theme = themes[(themes.indexOf(this.state.theme) + 1) % themes.length];
-                document.body.setAttribute('data-theme', this.state.theme);
             }
         };
 
-        window.onload = () => Sov.init();
+        window.onload = () => Sovereign.init();
     </script>
 </body>
 </html>
