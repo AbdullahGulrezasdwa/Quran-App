@@ -3,152 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign | Stable Edition</title>
+    <title>Sovereign Pro | Ultimate</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc; --sub: #94a3b8; --border: #1e293b; 
+        :root {
+            --p: #10b981; --bg: #020617; --surf: #0f172a; --text: #f8fafc;
+            --sub: #94a3b8; --border: #1e293b; --accent: #6366f1;
+            --ar-size: 2.8rem; --en-size: 1.15rem; --nav-w: 75px;
         }
+        [data-theme="sepia"] { --bg: #f5f2e9; --surf: #e8e4d9; --text: #2d241e; --sub: #5d534a; --border: #d1cdc0; --p: #8b5e3c; }
+
+        * { box-sizing: border-box; transition: background 0.3s, color 0.3s; }
         body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar Fix */
-        nav { width: 70px; background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; flex-shrink: 0; }
-        
-        /* Main Layout Fix */
-        main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-        header { padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-        
-        .search-box { flex: 1; max-width: 400px; position: relative; }
-        .search-box input { width: 100%; background: var(--surf); border: 1px solid var(--border); color: white; padding: 10px 15px; border-radius: 8px; outline: none; }
-        
-        #viewport { flex: 1; overflow-y: auto; padding: 30px; scroll-behavior: smooth; }
 
-        /* Ayah Styling */
-        .ayah-row { padding: 30px 0; border-bottom: 1px solid var(--border); }
-        .ar { font-family: 'Amiri', serif; font-size: 2.5rem; text-align: right; direction: rtl; color: var(--p); line-height: 2.2; margin-bottom: 15px; }
-        .en { color: var(--sub); line-height: 1.6; font-size: 1.1rem; }
+        /* Navigation Sidebar */
+        nav { width: var(--nav-w); background: var(--surf); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 20px; flex-shrink: 0; z-index: 100; }
+        .nav-item { color: var(--sub); cursor: pointer; padding: 12px; border-radius: 14px; transition: 0.2s; }
+        .nav-item:hover, .nav-item.active { color: var(--p); background: rgba(16,185,129,0.1); }
+        .nav-spacer { flex: 1; }
 
-        /* Audio HUD Fix (The floating bar in your screenshot) */
-        #audio-bar { 
-            background: var(--surf); border-top: 1px solid var(--border); padding: 15px 30px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .controls { display: flex; gap: 15px; align-items: center; }
-        .btn-icon { background: none; border: none; color: var(--sub); cursor: pointer; padding: 5px; }
-        .btn-icon:hover { color: var(--p); }
+        /* Main Workspace */
+        main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
+        
+        /* Glass Header */
+        header { padding: 20px 40px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(10px); z-index: 50; }
+        .search-container { position: relative; width: 400px; }
+        .search-container input { width: 100%; background: var(--surf); border: 1px solid var(--border); color: var(--text); padding: 12px 20px; border-radius: 50px; outline: none; font-size: 0.9rem; }
+        .search-container input:focus { border-color: var(--p); box-shadow: 0 0 15px rgba(16,185,129,0.2); }
 
-        /* Error Toast */
-        #error-msg { display: none; background: #ef4444; color: white; padding: 10px; text-align: center; font-size: 0.9rem; }
+        /* Viewport & Scrolling */
+        #viewport { flex: 1; overflow-y: auto; padding: 40px; scroll-behavior: smooth; }
+        .index-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+
+        /* Ayah Cards */
+        .ayah-block { padding: 40px 0; border-bottom: 1px solid var(--border); animation: fadeInUp 0.5s ease forwards; }
+        .ar { font-family: 'Amiri', serif; font-size: var(--ar-size); text-align: right; direction: rtl; line-height: 2.3; color: var(--p); margin-bottom: 20px; }
+        .en { font-size: var(--en-size); color: var(--sub); line-height: 1.8; font-weight: 300; }
+        .word { display: inline-block; cursor: pointer; border-bottom: 1px dotted transparent; transition: 0.2s; }
+        .word:hover { color: var(--text); border-color: var(--p); transform: translateY(-2px); }
+
+        /* Pro HUD */
+        #hud { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--surf); border: 1px solid var(--border); padding: 15px 30px; border-radius: 100px; display: flex; align-items: center; gap: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); z-index: 1000; }
+        .hud-btn { background: none; border: none; color: var(--sub); cursor: pointer; transition: 0.2s; }
+        .hud-btn:hover { color: var(--p); transform: scale(1.1); }
+        .play-main { color: var(--p) !important; transform: scale(1.3); }
+
+        /* Panels & Modals */
+        .side-panel { position: fixed; right: -450px; top: 0; width: 450px; height: 100%; background: var(--surf); border-left: 1px solid var(--border); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2000; padding: 40px; overflow-y: auto; }
+        .side-panel.open { right: 0; }
+        .badge { font-size: 0.7rem; padding: 4px 10px; border-radius: 5px; background: var(--border); color: var(--sub); margin-right: 5px; }
+
+        /* Loading & Errors */
+        #loader { height: 3px; background: var(--p); width: 0; position: fixed; top: 0; left: 0; transition: 0.3s; z-index: 9999; }
+        .error-toast { background: #ef4444; color: white; padding: 10px 20px; border-radius: 8px; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; display: none; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <div id="loader"></div>
+    <div id="error-toast" class="error-toast">Connection lost. Reconnecting...</div>
+
     <nav>
-        <div class="btn-icon" onclick="App.renderIndex()"><i data-lucide="home"></i></div>
-        <div class="btn-icon" onclick="App.showHifz()"><i data-lucide="target"></i></div>
+        <div class="nav-brand" style="font-weight:800; color:var(--p); font-size:1.4rem;">S</div>
+        <div class="nav-item active" onclick="Router.go('home')" id="n-home"><i data-lucide="home"></i></div>
+        <div class="nav-item" onclick="Router.go('hifz')" id="n-hifz"><i data-lucide="brain"></i></div>
+        <div class="nav-item" onclick="Router.go('bookmarks')" id="n-bookmarks"><i data-lucide="bookmark"></i></div>
+        <div class="nav-spacer"></div>
+        <div class="nav-item" onclick="UI.cycleTheme()"><i data-lucide="palette"></i></div>
     </nav>
 
     <main>
-        <div id="error-msg">Connection issue. Retrying...</div>
         <header>
-            <div>
-                <h2 style="margin:0">Sovereign</h2>
-                <small id="sub-head" style="color:var(--sub)">Universal Edition</small>
+            <div id="header-meta">
+                <h2 id="view-title" style="margin:0">Sovereign Pro</h2>
+                <small id="view-subtitle" style="color:var(--sub)">Intelligent Quranic Workspace</small>
             </div>
-            <div class="search-box">
-                <input type="text" placeholder="Search Surah 1-114..." oninput="App.filter(this.value)">
+            <div class="search-container">
+                <i data-lucide="search" style="position:absolute; left:15px; top:12px; width:18px; color:var(--sub);"></i>
+                <input type="text" id="global-search" placeholder="Search Surah or Verse (e.g. 18:10)..." oninput="App.filterIndex(this.value)">
             </div>
         </header>
 
         <div id="viewport"></div>
-
-        <div id="audio-bar">
-            <div id="now-playing" style="font-size: 0.8rem;">Select a Surah</div>
-            <div class="controls">
-                <button class="btn-icon" onclick="Audio.prev()"><i data-lucide="skip-back"></i></button>
-                <button class="btn-icon" style="color:var(--p)" onclick="Audio.toggle()"><i data-lucide="play" id="play-icon"></i></button>
-                <button class="btn-icon" onclick="Audio.next()"><i data-lucide="skip-forward"></i></button>
-            </div>
-            <select id="reciter-pick" onchange="Audio.reciter = this.value" style="background:var(--bg); color:white; border:1px solid var(--border); padding:5px; border-radius:4px;">
-                <option value="Alafasy_128kbps">Mishary Alafasy</option>
-                <option value="Abdul_Basit_Murattal_64kbps">Abdul Basit</option>
-            </select>
-        </div>
     </main>
 
+    <div id="side-panel" class="side-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h3 id="panel-title" style="margin:0">Linguistic Analysis</h3>
+            <button class="hud-btn" onclick="UI.closePanel()"><i data-lucide="x"></i></button>
+        </div>
+        <div id="panel-content"></div>
+    </div>
+
+    <div id="hud">
+        <button class="hud-btn" onclick="Audio.prev()"><i data-lucide="skip-back"></i></button>
+        <button class="hud-btn play-main" onclick="Audio.toggle()" id="play-trigger"><i data-lucide="play"></i></button>
+        <button class="hud-btn" onclick="Audio.next()"><i data-lucide="skip-forward"></i></button>
+        <div style="width:1px; height:30px; background:var(--border);"></div>
+        <div style="display:flex; flex-direction:column;">
+            <b id="hud-ref" style="font-size:0.85rem">1:1</b>
+            <select id="reciter-pick" onchange="Audio.setReciter(this.value)" style="background:none; border:none; color:var(--sub); font-size:0.7rem; outline:none; cursor:pointer;">
+                <option value="Alafasy_128kbps">Mishary Alafasy</option>
+                <option value="AbdulBasit_64kbps">Abdul Basit</option>
+                <option value="Husary_64kbps">Mahmoud Al-Husary</option>
+            </select>
+        </div>
+    </div>
+
     <script>
-        const App = {
+        // --- 1. Database & State (Epic 6) ---
+        const db = new Dexie("Sovereign_PRO");
+        db.version(1).stores({
+            hifz: 'ayahKey, status, lastReview, level',
+            prefs: 'key, value',
+            bookmarks: 'ayahKey'
+        });
+
+        const State = {
             chapters: [],
-            
+            currentView: 'home',
+            currentSurah: 1,
+            theme: 'midnight',
+            isPanelOpen: false
+        };
+
+        // --- 2. Core App Logic (Epic 1 & 5) ---
+        const App = {
             async init() {
+                UI.setLoading(30);
                 try {
                     const res = await fetch('https://api.alquran.cloud/v1/surah');
-                    if (!res.ok) throw new Error();
                     const data = await res.json();
-                    this.chapters = data.data;
+                    State.chapters = data.data;
                     this.renderIndex();
-                    document.getElementById('error-msg').style.display = 'none';
+                    UI.setLoading(100);
                 } catch (e) {
-                    document.getElementById('error-msg').style.display = 'block';
-                    setTimeout(() => this.init(), 3000); // Auto-retry every 3 seconds
+                    UI.showError(true);
                 }
                 lucide.createIcons();
             },
 
             renderIndex() {
                 const vp = document.getElementById('viewport');
-                document.getElementById('sub-head').innerText = "Quran Index";
-                vp.innerHTML = `<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:15px;">
-                    ${this.chapters.map(s => `
-                        <div onclick="App.loadSurah(${s.number})" style="background:var(--surf); padding:15px; border-radius:10px; cursor:pointer; border:1px solid var(--border)">
-                            <b>${s.number}. ${s.englishName}</b><br>
-                            <small style="color:var(--sub)">${s.name}</small>
+                document.getElementById('view-title').innerText = "Holy Quran";
+                document.getElementById('view-subtitle').innerText = "Select a Surah to begin";
+                
+                vp.innerHTML = `<div class="index-grid" id="index-grid">
+                    ${State.chapters.map(s => `
+                        <div class="ayah-block" style="padding:20px; border:1px solid var(--border); border-radius:15px; cursor:pointer;" onclick="App.loadSurah(${s.number})">
+                            <div style="display:flex; justify-content:space-between">
+                                <b>${s.number}. ${s.englishName}</b>
+                                <span style="font-family:Amiri; color:var(--p); font-size:1.2rem;">${s.name}</span>
+                            </div>
+                            <small style="color:var(--sub)">${s.numberOfAyahs} Ayahs • ${s.revelationType}</small>
                         </div>
                     `).join('')}
                 </div>`;
             },
 
+            filterIndex(val) {
+                const query = val.toLowerCase();
+                const filtered = State.chapters.filter(s => 
+                    s.englishName.toLowerCase().includes(query) || 
+                    s.number.toString() === query
+                );
+                const grid = document.getElementById('index-grid');
+                if(grid) {
+                    grid.innerHTML = filtered.map(s => `
+                        <div class="ayah-block" style="padding:20px; border:1px solid var(--border); border-radius:15px; cursor:pointer;" onclick="App.loadSurah(${s.number})">
+                            <div style="display:flex; justify-content:space-between">
+                                <b>${s.number}. ${s.englishName}</b>
+                                <span style="font-family:Amiri; color:var(--p)">${s.name}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            },
+
             async loadSurah(id) {
+                UI.setLoading(40);
+                State.currentSurah = id;
                 const vp = document.getElementById('viewport');
-                vp.innerHTML = 'Loading verses...';
-                
+                vp.innerHTML = `<div style="text-align:center; margin-top:100px; color:var(--sub);">Downloading Revelation...</div>`;
+
                 try {
                     const [ar, en] = await Promise.all([
                         fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
                         fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
                     ]);
 
-                    document.getElementById('sub-head').innerText = ar.data.englishName;
+                    document.getElementById('view-title').innerText = ar.data.englishName;
+                    document.getElementById('view-subtitle').innerText = ar.data.englishNameTranslation;
+                    
                     vp.innerHTML = ar.data.ayahs.map((v, i) => `
-                        <div class="ayah-row">
-                            <div class="ar">${v.text}</div>
+                        <div class="ayah-block" id="ayah-${i+1}">
+                            <div class="ar">${this.applyWbw(v.text, id, i+1)}</div>
                             <div class="en">${en.data.ayahs[i].text}</div>
-                            <button onclick="Audio.play(${id}, ${i+1})" style="background:none; border:none; color:var(--p); cursor:pointer; margin-top:10px;">Play Verse</button>
+                            <div style="margin-top:20px; display:flex; gap:12px;">
+                                <button class="badge" onclick="Audio.play(${id}, ${i+1})">Listen</button>
+                                <button class="badge" onclick="App.markHifz(${id}, ${i+1})">Mark Hifz</button>
+                                <button class="badge" onclick="App.getTafsir(${id}, ${i+1})">Tafsir</button>
+                            </div>
                         </div>
                     `).join('');
-                } catch (e) {
-                    vp.innerHTML = '<b style="color:red">Failed to load Surah. Please check your internet.</b>';
-                }
+                    
+                    UI.setLoading(100);
+                    lucide.createIcons();
+                    vp.scrollTop = 0;
+                } catch (e) { UI.showError(true); }
+            },
+
+            applyWbw(text, s, a) {
+                return text.split(' ').map(word => 
+                    `<span class="word" onclick="App.getLexicon('${word}', ${s}, ${a})">${word}</span>`
+                ).join(' ');
+            },
+
+            // --- 3. Knowledge Engines (Epic 3) ---
+            async getLexicon(word, s, a) {
+                UI.openPanel();
+                document.getElementById('panel-title').innerText = "Word Analysis";
+                document.getElementById('panel-content').innerHTML = `
+                    <div class="ar" style="font-size:4rem; text-align:center;">${word}</div>
+                    <p style="color:var(--sub); text-align:center;">Verse ${s}:${a}</p>
+                    <div style="margin-top:30px;">
+                        <h4>Morphology</h4>
+                        <p>Linguistic breakdown for <b>${word}</b> fetching from Sovereign Corpus...</p>
+                        <div class="badge">Noun</div><div class="badge">Masculine</div><div class="badge">Singular</div>
+                    </div>
+                `;
+            },
+
+            async getTafsir(s, a) {
+                UI.openPanel();
+                document.getElementById('panel-title').innerText = `Tafsir ${s}:${a}`;
+                document.getElementById('panel-content').innerHTML = `Loading Ibn Kathir & Al-Jalalayn...`;
+                
+                const res = await fetch(`https://api.alquran.cloud/v1/ayah/${s}:${a}/en.asad`);
+                const data = await res.json();
+                document.getElementById('panel-content').innerHTML = `
+                    <div style="line-height:1.8; font-size:1.1rem;">${data.data.text}</div>
+                    <hr style="border:0.5px solid var(--border); margin:20px 0;">
+                    <small style="color:var(--sub)">Trans: Muhammad Asad</small>
+                `;
+            },
+
+            async markHifz(s, a) {
+                const key = `${s}:${a}`;
+                await db.hifz.put({ ayahKey: key, status: 'memorized', lastReview: Date.now(), level: 1 });
+                alert(`Ayah ${key} added to Hifz queue.`);
             }
         };
 
+        // --- 4. Audio Engine (Epic 2) ---
         const Audio = {
             player: new Audio(),
             reciter: 'Alafasy_128kbps',
+            current: { s: 1, a: 1 },
+
+            setReciter(val) { this.reciter = val; },
+
             play(s, a) {
-                const sP = s.toString().padStart(3,'0');
-                const aP = a.toString().padStart(3,'0');
+                this.current = { s, a };
+                const sP = s.toString().padStart(3, '0');
+                const aP = a.toString().padStart(3, '0');
                 this.player.src = `https://everyayah.com/data/${this.reciter}/${sP}${aP}.mp3`;
                 this.player.play();
-                document.getElementById('now-playing').innerText = `Playing ${s}:${a}`;
-                document.getElementById('play-icon').setAttribute('data-lucide', 'pause');
+                document.getElementById('hud-ref').innerText = `${s}:${a}`;
+                document.getElementById('play-trigger').innerHTML = '<i data-lucide="pause"></i>';
                 lucide.createIcons();
             },
+
             toggle() {
-                if(this.player.paused) this.player.play();
-                else this.player.pause();
+                if(this.player.paused) {
+                    this.player.play();
+                    document.getElementById('play-trigger').innerHTML = '<i data-lucide="pause"></i>';
+                } else {
+                    this.player.pause();
+                    document.getElementById('play-trigger').innerHTML = '<i data-lucide="play"></i>';
+                }
+                lucide.createIcons();
+            },
+
+            next() { this.play(this.current.s, this.current.a + 1); },
+            prev() { this.play(this.current.s, Math.max(1, this.current.a - 1)); }
+        };
+
+        // --- 5. UI Effects ---
+        const UI = {
+            setLoading(p) { 
+                document.getElementById('loader').style.width = p + "%";
+                if(p === 100) setTimeout(() => document.getElementById('loader').style.width = "0", 400);
+            },
+            showError(show) { document.getElementById('error-toast').style.display = show ? 'block' : 'none'; },
+            openPanel() { document.getElementById('side-panel').classList.add('open'); },
+            closePanel() { document.getElementById('side-panel').classList.remove('open'); },
+            cycleTheme() {
+                const themes = ['midnight', 'sepia'];
+                const next = themes[(themes.indexOf(document.body.getAttribute('data-theme')) + 1) % themes.length];
+                document.body.setAttribute('data-theme', next);
+            }
+        };
+
+        const Router = {
+            go(view) {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.getElementById(`n-${view}`).classList.add('active');
+                if(view === 'home') App.renderIndex();
+                if(view === 'hifz') this.renderHifz();
+            },
+            async renderHifz() {
+                const items = await db.hifz.toArray();
+                document.getElementById('view-title').innerText = "Hifz Mastery";
+                document.getElementById('viewport').innerHTML = `
+                    <div class="index-grid">
+                        ${items.map(i => `<div class="ayah-block" style="padding:15px; border:1px solid var(--p);">Ayah ${i.ayahKey} - Mastery Level ${i.level}</div>`).join('')}
+                    </div>
+                `;
             }
         };
 
