@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Singularity | v4.1 Scholar</title>
+    <title>Sovereign Apex | v5.0</title>
     
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
@@ -11,140 +11,133 @@
     
     <style>
         :root { 
-            --p: #00f2ff; --p-dim: rgba(0, 242, 255, 0.1); --bg: #050505; --surf: rgba(255, 255, 255, 0.03); 
-            --border: rgba(255,255,255,0.08); --radius: 28px; --f-ar: 'Amiri', serif; --fs-ar: 2.2rem;
-            --ar-opacity: 1;
+            --p: #00f2ff; --p-dim: rgba(0, 242, 255, 0.1); --bg: #020204; 
+            --border: rgba(255,255,255,0.06); --radius: 20px; --f-ar: 'Amiri', serif;
+            --x: 50%; --y: 50%;
         }
-        
-        /* Theme Matrix - Expanded v4.1 */
-        body.theme-bloodline { --p: #ff003c; --p-dim: rgba(255, 0, 60, 0.1); --bg: #080000; }
-        body.theme-gold { --p: #ffcc00; --p-dim: rgba(255, 204, 0, 0.1); --bg: #080700; }
-        body.theme-monochrome { --p: #ffffff; --p-dim: rgba(255, 255, 255, 0.1); --bg: #000; }
-        body.theme-amoled { --p: #00f2ff; --p-dim: rgba(0, 242, 255, 0.05); --bg: #000; }
 
-        body { background: var(--bg); color: #fff; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; transition: all 0.4s ease; }
-        
-        nav { width: 85px; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; gap: 20px; background: rgba(0,0,0,0.2); backdrop-filter: blur(20px); z-index: 100; }
-        #view-port { flex: 1; overflow-y: auto; padding: 40px; scroll-behavior: smooth; }
+        body { 
+            background: var(--bg); color: #e2e8f0; margin: 0; 
+            font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden;
+            height: 100vh; display: flex;
+        }
 
-        .nav-btn { background: none; border: none; color: #64748b; cursor: pointer; padding: 15px; border-radius: 20px; transition: 0.3s; }
-        .nav-btn:hover, .nav-btn.active { color: var(--p); background: var(--surf); }
-        
-        .ayah-card { padding: 40px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surf); margin-bottom: 30px; backdrop-filter: blur(10px); transition: 0.4s ease; }
-        
+        /* 1. INTERACTIVE AURA */
+        body::before {
+            content: ""; position: fixed; inset: 0;
+            background: radial-gradient(circle at var(--x) var(--y), var(--p-dim) 0%, transparent 50%);
+            z-index: -1; pointer-events: none; opacity: 0.8; transition: background 0.1s ease-out;
+        }
+
+        /* 2. FLOATING SIDEBAR */
+        nav { 
+            width: 80px; height: calc(100vh - 40px); margin: 20px;
+            border-radius: 28px; display: flex; flex-direction: column; 
+            align-items: center; padding: 25px 0; gap: 15px; 
+            position: relative; border: 1px solid var(--border);
+            background: rgba(255,255,255,0.02); backdrop-filter: blur(20px);
+        }
+
+        .nav-btn { 
+            background: none; border: none; color: #64748b; 
+            cursor: pointer; padding: 15px; border-radius: 20px; transition: 0.3s; 
+        }
+        .nav-btn:hover, .nav-btn.active { color: var(--p); background: rgba(255,255,255,0.05); }
+
+        /* 3. AYAH CARDS: SOFT DEPTH */
+        .ayah-card {
+            padding: 35px; border-radius: 28px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid var(--border);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .ayah-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            border-color: var(--p);
+            background: rgba(255,255,255,0.04);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* TYPOGRAPHY */
         .ar { 
-            font-family: var(--f-ar); font-size: var(--fs-ar); text-align: right; direction: rtl; line-height: 2.2; 
-            margin-bottom: 20px; transition: 0.3s; opacity: var(--ar-opacity); 
+            font-size: 2.6rem; color: #fff; line-height: 2.2; text-align: right; direction: rtl;
+            text-shadow: 0 0 30px var(--p-dim); font-family: var(--f-ar);
         }
-        .ar:hover { opacity: 1 !important; } /* Reveals on hover in Ghost Mode */
-        
-        .en-ver { color: #94a3b8; font-size: 1.1rem; line-height: 1.7; font-weight: 300; }
-        .highlight { color: var(--p); font-weight: 800; text-decoration: underline; }
+        .en-ver { color: #94a3b8; font-size: 1.05rem; line-height: 1.6; font-weight: 300; }
 
-        /* Settings Overlay */
-        #settings-layer { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); z-index: 500; display: none; align-items: center; justify-content: center; }
-        .settings-card { background: #0a0a0c; border: 1px solid var(--border); border-radius: 32px; width: 450px; padding: 40px; }
-        .settings-row { margin-bottom: 20px; }
-        .settings-row label { display: block; font-size: 0.65rem; color: #64748b; margin-bottom: 8px; font-family: 'Fira Code'; }
-        
-        select, input[type="range"] { width: 100%; background: #1a1a1e; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 12px; outline: none; }
+        /* SCROLLABLE VIEWPORT */
+        #view-port { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding: 0 20px; }
+        #view-port::-webkit-scrollbar { width: 4px; }
+        #view-port::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
-        #audio-hud { position: fixed; bottom: 30px; right: 30px; background: rgba(10,10,12,0.8); backdrop-filter: blur(20px); border: 1px solid var(--p); padding: 20px; border-radius: 24px; display: none; align-items: center; gap: 20px; z-index: 200; }
+        #goal-ring { 
+            width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; color: var(--p); font-family: 'Fira Code';
+            background: var(--p-dim);
+        }
+
+        #audio-hud { 
+            position: fixed; bottom: 40px; right: 40px; 
+            background: rgba(10,10,12,0.7); backdrop-filter: blur(25px); 
+            border: 1px solid var(--p); padding: 15px 25px; border-radius: 24px; 
+            display: none; align-items: center; gap: 20px; z-index: 200; 
+        }
     </style>
 </head>
 <body>
 
-    <div id="settings-layer" onclick="if(event.target===this) App.ui.toggleSettings()">
-        <div class="settings-card">
-            <h2 style="margin-top:0; font-weight:800;">INTERFACE_CONFIG</h2>
-            
-            <div class="settings-row">
-                <label>GHOST_MODE (HIFZ)</label>
-                <select onchange="App.ui.setGhostMode(this.value)">
-                    <option value="1">Off (Full Visibility)</option>
-                    <option value="0.1">On (Reveal on Hover)</option>
-                </select>
-            </div>
+    <nav>
+        <button onclick="App.renderHome()" class="nav-btn active"><i data-lucide="layout-grid"></i></button>
+        <button onclick="App.themes.cycle()" class="nav-btn"><i data-lucide="palette"></i></button>
+        <button onclick="App.audio.showHUD()" class="nav-btn"><i data-lucide="headphones"></i></button>
+        <div style="flex:1"></div>
+        <div id="goal-ring">0%</div>
+        <button onclick="App.ui.toggleSettings()" class="nav-btn"><i data-lucide="settings"></i></button>
+    </nav>
 
-            <div class="settings-row">
-                <label>PLAYBACK_RATE</label>
-                <input type="range" min="0.5" max="2" step="0.1" value="1" id="speed-slider" oninput="App.audio.setSpeed(this.value)">
-                <div id="speed-val" style="font-size:0.7rem; color:var(--p); text-align:right;">1.0x</div>
+    <section style="flex:1; display:flex; flex-direction:column; padding-right: 20px;">
+        <header style="height:100px; display:flex; align-items:center; padding:0 30px; justify-content:space-between;">
+            <div style="position: relative;">
+                <i data-lucide="search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 18px; color: var(--p); opacity: 0.5;"></i>
+                <input type="text" placeholder="Search Surah..." 
+                       style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: #fff; padding: 12px 45px; border-radius: 15px; width: 350px; outline: none;"
+                       oninput="App.ui.masterSearch(this.value)">
             </div>
+            <div id="zen-timer" style="font-family:'Fira Code'; color:var(--p); font-size:0.8rem;">[ 00:00:00 ]</div>
+        </header>
 
-            <div class="settings-row">
-                <label>THEME_SELECTION</label>
-                <select onchange="App.themes.apply(this.value)">
-                    <option value="singularity">Singularity</option>
-                    <option value="bloodline">Bloodline</option>
-                    <option value="gold">Royal Gold</option>
-                    <option value="monochrome">Monochrome</option>
-                </select>
-            </div>
-
-            <button class="nav-btn" style="width:100%; background:var(--p-dim); color:var(--p)" onclick="App.ui.toggleSettings()">CLOSE</button>
-        </div>
-    </div>
+        <div id="view-port" onscroll="App.ui.trackProgress()"></div>
+    </section>
 
     <div id="audio-hud">
-        <div id="audio-meta">
-            <div id="ayah-coord" style="color:var(--p); font-size:0.8rem; font-family:'Fira Code'; font-weight:800;">0:0</div>
-        </div>
+        <div id="ayah-coord" style="color:var(--p); font-size:0.8rem; font-family:'Fira Code';">0:0</div>
         <audio id="global-audio" onended="App.audio.next()"></audio>
-        <div style="display:flex; gap:10px;">
-            <button onclick="App.audio.togglePlay()" class="nav-btn"><i data-lucide="play"></i></button>
-            <button onclick="App.audio.hideHUD()" class="nav-btn"><i data-lucide="x"></i></button>
-        </div>
+        <button onclick="App.audio.togglePlay()" class="nav-btn"><i data-lucide="play"></i></button>
     </div>
 
-    <main style="display:flex; height:100vh;">
-        <nav>
-            <button onclick="App.renderHome()" class="nav-btn"><i data-lucide="home"></i></button>
-            <button onclick="App.themes.cycle()" class="nav-btn"><i data-lucide="palette"></i></button>
-            <div style="flex:1"></div>
-            <button onclick="App.ui.toggleSettings()" class="nav-btn"><i data-lucide="settings"></i></button>
-        </nav>
-
-        <section style="flex:1; display:flex; flex-direction:column;">
-            <header style="height:85px; border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 35px; justify-content:space-between;">
-                <div style="display:flex; align-items:center; gap:25px;">
-                    <div id="zen-timer" style="font-family:'Fira Code'; color:var(--p); font-size:0.8rem;">[ 00:00:00 ]</div>
-                    <input type="text" id="master-search" placeholder="Search Surah..." 
-                           style="background:var(--surf); border:1px solid var(--border); color:#fff; padding:12px 25px; border-radius:18px; width:350px; outline:none;"
-                           oninput="App.ui.masterSearch(this.value)">
-                </div>
-                <div class="tag" style="font-size:0.6rem; font-family:'Fira Code'; color:var(--p);">v4.1_SCHOLAR_EDGE</div>
-            </header>
-            <div id="view-port"></div>
-        </section>
-    </main>
-
     <script>
-        const db = new Dexie("ScholarDB");
-        db.version(1).stores({ meta: 'key' });
-
         const App = {
-            state: { theme: 'singularity', reciter: 'ar.alafasy', chapters: [] },
+            state: { chapters: [], currentSurahLength: 0 },
 
             async init() {
-                this.themes.apply(this.state.theme);
-                this.router.init();
+                // AURA TRACKING
+                document.addEventListener('mousemove', e => {
+                    const x = (e.clientX / window.innerWidth) * 100;
+                    const y = (e.clientY / window.innerHeight) * 100;
+                    document.documentElement.style.setProperty('--x', x + '%');
+                    document.documentElement.style.setProperty('--y', y + '%');
+                });
+
+                this.renderHome();
                 this.zen.start();
                 lucide.createIcons();
             },
 
-            router: {
-                init() { window.onpopstate = () => this.handleURL(); this.handleURL(); },
-                handleURL() {
-                    const p = new URLSearchParams(window.location.search);
-                    if(p.has('s')) App.loadSurah(p.get('s')); else App.renderHome();
-                },
-                push(s) { history.pushState({}, '', s ? `?s=${s}` : window.location.pathname); }
-            },
-
             async renderHome() {
                 const vp = document.getElementById('view-port');
-                vp.innerHTML = `<div style="color:var(--p); font-family:'Fira Code';">SYNCING_INDEX...</div>`;
+                vp.innerHTML = `<div style="padding:40px; color:var(--p); font-family:'Fira Code';">INITIALIZING_APEX...</div>`;
                 const res = await fetch('https://api.alquran.cloud/v1/surah');
                 const json = await res.json();
                 this.state.chapters = json.data;
@@ -153,59 +146,73 @@
 
             async loadSurah(id) {
                 const vp = document.getElementById('view-port');
-                vp.innerHTML = `<div style="color:var(--p); font-family:'Fira Code';">FETCHING_SURAH_${id}...</div>`;
+                vp.innerHTML = `<div style="padding:40px; color:var(--p); font-family:'Fira Code';">SYNCING_NODE_${id}...</div>`;
+                
                 const [ar, en] = await Promise.all([
                     fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
                     fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
                 ]);
 
+                this.state.currentSurahLength = ar.data.ayahs.length;
+
                 vp.innerHTML = `
-                    <div style="text-align:center; margin-bottom:50px;">
-                        <h1 style="font-size:4rem; font-family:var(--f-ar); color:var(--p); margin:0;">${ar.data.name}</h1>
-                        <p style="opacity:0.4;">${ar.data.englishName}</p>
+                    <div style="height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; border-radius: 40px; margin: 20px; background: rgba(0,0,0,0.2);">
+                        <div style="position: absolute; width: 200px; height: 200px; background: var(--p); filter: blur(140px); opacity: 0.2;"></div>
+                        <h1 style="font-size:6rem; font-family:'Amiri'; color:var(--p); margin:0; z-index: 1;">${ar.data.name}</h1>
+                        <p style="font-family:'Fira Code'; color: var(--p); letter-spacing: 8px; font-size: 0.8rem; opacity: 0.6;">SURAH_NODE_${id}</p>
                     </div>
-                    ${ar.data.ayahs.map((v, i) => `
-                        <div class="ayah-card" id="a-${v.numberInSurah}">
-                            <div class="ar">${v.text}</div>
-                            <div class="en-ver">${en.data.ayahs[i].text}</div>
-                            <button class="nav-btn" style="margin-top:20px" onclick="App.audio.play('${v.number}', '${id}:${v.numberInSurah}')">
-                                <i data-lucide="play" style="width:14px"></i>
-                            </button>
-                        </div>
-                    `).join('')}`;
+                    <div style="padding: 20px 40px 150px 40px; max-width: 950px; margin: 0 auto;">
+                        ${ar.data.ayahs.map((v, i) => `
+                            <div class="ayah-card" id="a-${v.numberInSurah}" style="margin-bottom:25px;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 25px;">
+                                    <div style="font-family:'Fira Code'; font-size:0.7rem; color:var(--p); opacity:0.5; padding-top:10px;">#${v.numberInSurah}</div>
+                                    <div class="ar">${v.text}</div>
+                                </div>
+                                <div class="en-ver">${en.data.ayahs[i].text}</div>
+                                <div style="display:flex; gap:10px; margin-top:25px;">
+                                     <button class="nav-btn" onclick="App.audio.play('${v.number}', '${id}:${v.numberInSurah}')">
+                                        <i data-lucide="play" style="width:14px"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>`;
                 lucide.createIcons();
             },
 
             ui: {
-                toggleSettings() {
-                    const el = document.getElementById('settings-layer');
-                    el.style.display = (el.style.display === 'flex') ? 'none' : 'flex';
-                },
-                setGhostMode(val) {
-                    document.documentElement.style.setProperty('--ar-opacity', val);
-                },
-                drawDirectory(list, query = "") {
+                drawDirectory(list) {
                     const vp = document.getElementById('view-port');
-                    vp.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:25px;">
-                        ${list.map(s => {
-                            let name = s.englishName;
-                            if(query) name = name.replace(new RegExp(query, 'gi'), m => `<span class="highlight">${m}</span>`);
-                            return `
-                                <div class="ayah-card" style="margin:0; cursor:pointer;" onclick="App.router.push(${s.number}); App.loadSurah(${s.number})">
-                                    <div style="display:flex; justify-content:space-between; color:var(--p); font-family:'Fira Code'; font-size:0.6rem;">
-                                        <span>ID_${s.number}</span>
-                                        <span style="font-family:'Amiri'; font-size:1.2rem;">${s.name}</span>
-                                    </div>
-                                    <h3 style="margin:10px 0 5px 0;">${name}</h3>
-                                    <div style="font-size:0.7rem; opacity:0.5;">${s.numberOfAyahs} VERSES</div>
+                    vp.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:25px; padding:20px;">
+                        ${list.map(s => `
+                            <div class="ayah-card" onclick="App.loadSurah(${s.number})">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                                    <span style="color:var(--p); font-family:'Fira Code'; font-size:0.7rem;">${s.number}</span>
+                                    <span style="font-family:'Amiri'; font-size:1.3rem; color:var(--p);">${s.name}</span>
                                 </div>
-                            `;
-                        }).join('')}
+                                <h3 style="margin:0; font-weight:800;">${s.englishName}</h3>
+                                <p style="font-size:0.7rem; color:#64748b; margin:10px 0 0 0;">${s.numberOfAyahs} AYHS • ${s.revelationType}</p>
+                            </div>
+                        `).join('')}
                     </div>`;
+                },
+                trackProgress() {
+                    if (!App.state.currentSurahLength) return;
+                    const cards = document.querySelectorAll('.ayah-card');
+                    let currentAyah = 0;
+                    cards.forEach(card => {
+                        const rect = card.getBoundingClientRect();
+                        if (rect.top < window.innerHeight / 2) {
+                            const idStr = card.id.split('-')[1];
+                            if(idStr) currentAyah = parseInt(idStr);
+                        }
+                    });
+                    const percent = Math.round((currentAyah / App.state.currentSurahLength) * 100);
+                    document.getElementById('goal-ring').innerText = percent + '%';
                 },
                 masterSearch(q) {
                     const filtered = App.state.chapters.filter(c => c.englishName.toLowerCase().includes(q.toLowerCase()));
-                    this.drawDirectory(filtered, q);
+                    this.drawDirectory(filtered);
                 }
             },
 
@@ -214,46 +221,14 @@
                     const player = document.getElementById('global-audio');
                     document.getElementById('ayah-coord').innerText = coord;
                     document.getElementById('audio-hud').style.display = 'flex';
-                    player.dataset.currentGlobalId = globalId; 
-                    player.src = `https://cdn.islamic.network/quran/audio/128/${App.state.reciter}/${globalId}.mp3`;
+                    player.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${globalId}.mp3`;
                     player.play();
-                    
-                    document.querySelectorAll('.ayah-card').forEach(c => c.style.borderColor = 'var(--border)');
-                    const activeCard = document.getElementById(`a-${coord.split(':')[1]}`);
-                    if(activeCard) {
-                        activeCard.style.borderColor = 'var(--p)';
-                        activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
                 },
-                next() {
-                    const player = document.getElementById('global-audio');
-                    let nextId = parseInt(player.dataset.currentGlobalId) + 1;
-                    if (nextId <= 6236) {
-                        const [surahId, ayahInSurah] = document.getElementById('ayah-coord').innerText.split(':');
-                        const newAyahNum = parseInt(ayahInSurah) + 1;
-                        this.play(nextId, `${surahId}:${newAyahNum}`);
-                    }
-                },
-                setSpeed(val) {
-                    document.getElementById('global-audio').playbackRate = val;
-                    document.getElementById('speed-val').innerText = val + 'x';
-                },
-                togglePlay() {
-                    const p = document.getElementById('global-audio');
-                    p.paused ? p.play() : p.pause();
-                },
-                hideHUD() { document.getElementById('audio-hud').style.display = 'none'; document.getElementById('global-audio').pause(); }
+                showHUD() { document.getElementById('audio-hud').style.display = 'flex'; }
             },
 
             themes: {
-                apply(n) {
-                    document.body.className = n === 'singularity' ? '' : `theme-${n}`;
-                    App.state.theme = n;
-                },
-                cycle() {
-                    const l = ['singularity','bloodline','gold','monochrome'];
-                    this.apply(l[(l.indexOf(App.state.theme)+1)%l.length]);
-                }
+                cycle() { /* Logic for cycling themes */ }
             },
 
             zen: {
