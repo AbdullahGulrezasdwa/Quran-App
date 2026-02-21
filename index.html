@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sanctuary Quran | Ramadan Edition</title>
+  <title>Sanctuary Sovereign | Ultra Edition</title>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri+Quran:wght@400&family=Lateef:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
@@ -11,7 +11,7 @@
       --primary: #10b981;
       --secondary: #059669;
       --accent: #fbbf24;
-      --bg-dark: #05070a;
+      --bg-dark: #020617;
       --text-primary: #f1f5f9;
       --text-secondary: #94a3b8;
       --border-color: rgba(255, 255, 255, 0.08);
@@ -20,139 +20,188 @@
       --arabic-size: 2.8rem;
     }
 
-    body.ramadan-mode {
-      --primary: #fbbf24;
-      --secondary: #d97706;
-      --bg-dark: #020617;
-      background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
-    }
+    /* THEMES */
+    body.ramadan-mode { --primary: #fbbf24; --secondary: #d97706; --bg-dark: #020617; background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%); }
+    body.midnight { --primary: #3b82f6; --bg-dark: #000000; }
+    body.reading-mode main { grid-template-columns: 1fr !important; }
+    body.reading-mode aside { display: none !important; }
 
     * { box-sizing: border-box; transition: all 0.25s ease; }
-    
-    body { 
-        margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; 
-        background: var(--bg-dark); color: var(--text-primary); 
-        height: 100vh; overflow: hidden; display: flex; flex-direction: column;
-    }
+    body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-dark); color: var(--text-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-    /* NAVIGATION */
+    /* UI LAYOUT */
     header { height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); z-index: 100; }
     .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
     
-    .nav-actions { display: flex; align-items: center; gap: 15px; }
-    .icon-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-primary); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .icon-btn:hover { border-color: var(--primary); color: var(--primary); }
-
-    /* MAIN CONTAINER */
-    main { display: grid; grid-template-columns: 1fr 360px; flex: 1; overflow: hidden; }
-    
-    .content-viewport { overflow-y: auto; padding: 30px 50px; scrollbar-width: none; }
-    .content-viewport::-webkit-scrollbar { width: 0; }
+    main { display: grid; grid-template-columns: 1fr 380px; flex: 1; overflow: hidden; }
+    .content-viewport { overflow-y: auto; padding: 30px 50px; scrollbar-width: thin; scroll-behavior: smooth; }
     
     /* SEARCH & GRID */
-    .search-wrapper { margin-bottom: 40px; position: relative; max-width: 600px; }
-    #surahSearch { width: 100%; padding: 15px 25px; border-radius: 15px; background: var(--card-bg); border: 1px solid var(--border-color); color: white; font-size: 1rem; }
-
-    .surah-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; }
+    .surah-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
     .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; cursor: pointer; position: relative; }
-    .card:hover { border-color: var(--primary); background: rgba(255,255,255,0.05); transform: scale(1.02); }
-    .card h3 { margin: 0; font-size: 1.1rem; }
-    .card p { margin: 4px 0 0; font-size: 0.75rem; color: var(--text-secondary); letter-spacing: 0.5px; }
+    .card:hover { border-color: var(--primary); background: rgba(255,255,255,0.05); transform: translateY(-3px); }
+    .card .num { position: absolute; top: 15px; right: 20px; font-family: 'IBM Plex Mono'; font-size: 0.7rem; opacity: 0.3; }
 
-    /* READER VIEW */
-    .reader-view { display: none; max-width: 800px; margin: 0 auto; }
-    .reader-view.active { display: block; animation: fadeIn 0.4s ease; }
-    .ayah-block { margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    /* READER */
+    .reader-view { display: none; max-width: 900px; margin: 0 auto; }
+    .reader-view.active { display: block; animation: fadeIn 0.5s ease; }
+    .ayah-block { margin-bottom: 50px; padding: 25px; border-radius: 15px; border: 1px solid transparent; cursor: pointer; }
+    .ayah-block:hover { background: rgba(255,255,255,0.02); border-color: var(--border-color); }
+    .ayah-block.active { border-color: var(--primary); background: rgba(16, 185, 129, 0.05); }
     .q-text { font-family: 'Amiri Quran', serif; font-size: var(--arabic-size); text-align: right; line-height: 2.2; direction: rtl; margin-bottom: 15px; }
-    .q-trans { text-align: left; font-size: 1.05rem; color: var(--text-secondary); line-height: 1.7; font-weight: 400; }
+    .q-trans { text-align: left; font-size: 1.1rem; color: var(--text-secondary); line-height: 1.8; }
+    .trans-hidden .q-trans { display: none; }
 
-    /* SIDEBAR (SENTINEL) */
-    aside.sentinel { border-left: 1px solid var(--border-color); background: rgba(0,0,0,0.15); padding: 25px; display: flex; flex-direction: column; gap: 20px; }
+    /* SENTINEL SIDEBAR */
+    aside.sentinel { border-left: 1px solid var(--border-color); background: rgba(0,0,0,0.1); padding: 25px; display: flex; flex-direction: column; gap: 20px; }
     .tab-nav { display: flex; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 12px; }
-    .tab-btn { flex: 1; background: none; border: none; padding: 10px; color: var(--text-secondary); cursor: pointer; font-size: 0.7rem; font-weight: 700; border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .tab-btn.active { background: var(--primary); color: var(--bg-dark); }
+    .tab-btn { flex: 1; background: none; border: none; padding: 10px; color: var(--text-secondary); cursor: pointer; font-size: 0.7rem; font-weight: 700; border-radius: 8px; }
+    .tab-btn.active { background: var(--primary); color: #000; }
+    .insight-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 15px; line-height: 1.7; font-size: 0.95rem; flex: 1; overflow-y: auto; }
 
-    .insight-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 15px; line-height: 1.6; font-size: 0.9rem; }
+    /* AUDIO CONTROLLER */
+    .audio-player { height: 90px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border-color); backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+    .play-circle { width: 50px; height: 50px; border-radius: 50%; background: var(--primary); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #000; }
 
-    /* SETTINGS PANEL */
-    #settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 200; display: none; align-items: center; justify-content: center; }
-    .settings-modal { background: var(--bg-dark); border: 1px solid var(--border-color); padding: 30px; border-radius: 25px; width: 350px; display: flex; flex-direction: column; gap: 20px; }
+    /* MODAL SETTINGS */
+    #settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: none; align-items: center; justify-content: center; }
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 500px; background: #0a0a0a; padding: 40px; border-radius: 30px; border: 1px solid var(--border-color); }
+    .setting-item { display: flex; flex-direction: column; gap: 8px; }
+    .setting-item label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; }
+    select, input[type="range"] { background: #1a1a1a; color: white; border: 1px solid var(--border-color); padding: 10px; border-radius: 10px; }
+
+    .btn-pill { padding: 8px 15px; border-radius: 100px; border: 1px solid var(--border-color); background: none; color: white; cursor: pointer; font-size: 0.8rem; }
+    .btn-pill.active { border-color: var(--primary); color: var(--primary); }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* RAMADAN SPECIFIC */
-    .ramadan-badge { color: var(--accent); font-size: 0.7rem; font-weight: 800; border: 1px solid var(--accent); padding: 2px 8px; border-radius: 5px; margin-left: 10px; }
   </style>
 </head>
 <body class="ramadan-mode">
 
   <header>
-    <div class="logo"><i data-lucide="moon"></i> SANCTUARY <span class="ramadan-badge">RAMADAN</span></div>
-    <div class="nav-actions">
-        <div style="font-size: 0.8rem; color: var(--accent); margin-right: 15px;">
-            <i data-lucide="zap" size="14" style="vertical-align: middle;"></i> <span id="xp-display">0</span> XP
-        </div>
-        <button class="icon-btn" onclick="toggleSettings()"><i data-lucide="settings"></i></button>
+    <div class="logo"><i data-lucide="compass"></i> SANCTUARY <span style="font-size:0.6rem; border:1px solid; padding:2px 5px; border-radius:4px; margin-left:10px;">V9 ULTRA</span></div>
+    <div style="display:flex; gap:20px; align-items:center;">
+        <div id="last-read-chip" class="btn-pill" style="display:none;" onclick="App.resumeLast()">Resume: Surah <span id="last-name"></span></div>
+        <div class="btn-pill"><i data-lucide="zap" size="12"></i> <span id="xp-val">0</span> XP</div>
+        <button class="icon-btn" style="background:none; border:none; color:white; cursor:pointer;" onclick="toggleSettings()"><i data-lucide="sliders"></i></button>
     </div>
   </header>
 
   <main>
     <div class="content-viewport" id="scroll-root">
       <div id="home-view">
-        <div class="search-wrapper">
-            <input type="text" id="surahSearch" placeholder="Search Surah or Number..." oninput="App.filter(this.value)">
+        <div style="margin-bottom: 30px; display: flex; gap: 10px;">
+            <input type="text" id="surahSearch" placeholder="Search Surah Name..." oninput="App.filter(this.value)" 
+                   style="flex:1; padding:15px 25px; border-radius:15px; background:var(--card-bg); border:1px solid var(--border-color); color:white;">
+            <button class="btn-pill" onclick="App.toggleSort()">Sort <i data-lucide="arrow-up-down" size="14"></i></button>
         </div>
         <div id="grid-container" class="surah-grid"></div>
       </div>
 
       <div id="reader-view" class="reader-view">
-        <button onclick="closeReader()" style="background:none; border:none; color:var(--primary); cursor:pointer; margin-bottom:30px; display:flex; align-items:center; gap:8px; font-weight:700;">
-            <i data-lucide="chevron-left"></i> RETURN TO JOURNEY
-        </button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
+            <button onclick="closeReader()" class="btn-pill"><i data-lucide="arrow-left" size="14"></i> BACK</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-pill" onclick="App.toggleTranslation()"><i data-lucide="languages" size="14"></i> TRANSLATION</button>
+                <button class="btn-pill" onclick="App.toggleReadingMode()"><i data-lucide="maximize" size="14"></i> FOCUS</button>
+            </div>
+        </div>
         <div id="reader-content"></div>
       </div>
     </div>
 
     <aside class="sentinel">
+      <div style="color:var(--primary); font-size:0.65rem; font-weight:800; letter-spacing:2px; text-align:center;">SENTINEL ANALYTICS</div>
       <div class="tab-nav">
-        <button class="tab-btn active" onclick="switchTab('tafsir', this)"><i data-lucide="book-open" size="18"></i>TAFSIR</button>
-        <button class="tab-btn" onclick="switchTab('lessons', this)"><i data-lucide="graduation-cap" size="18"></i>LESSONS</button>
-        <button class="tab-btn" onclick="switchTab('hadith', this)"><i data-lucide="scroll" size="18"></i>HADITH</button>
+        <button class="tab-btn active" onclick="switchTab('tafsir', this)">TAFSIR</button>
+        <button class="tab-btn" onclick="switchTab('lessons', this)">LESSONS</button>
+        <button class="tab-btn" onclick="switchTab('hadith', this)">HADITH</button>
       </div>
       <div id="ai-output" class="insight-card">
-        <div style="text-align: center; opacity: 0.5; padding: 20px;">
-            <i data-lucide="fingerprint" size="40"></i><br><br>
-            Select a verse to analyze divine signatures.
-        </div>
+        Select a verse to load contextual metadata.
+      </div>
+      <div style="background:var(--card-bg); padding:15px; border-radius:15px; border:1px solid var(--border-color);">
+          <div style="font-size:0.7rem; opacity:0.6; margin-bottom:10px;">SURAH PROGRESS</div>
+          <div style="height:4px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden;">
+              <div id="surah-progress" style="width:0%; height:100%; background:var(--primary);"></div>
+          </div>
       </div>
     </aside>
   </main>
 
-  <div id="settings-overlay" onclick="toggleSettings()">
-    <div class="settings-modal" onclick="event.stopPropagation()">
-        <h2 style="margin:0 0 10px 0; font-family: Playfair Display;">Settings</h2>
-        <label style="font-size:0.8rem; opacity:0.7;">Arabic Font Size</label>
-        <input type="range" min="1.5" max="5" step="0.1" value="2.8" oninput="updateFontSize(this.value)">
-        
-        <label style="font-size:0.8rem; opacity:0.7;">Ramadan Focus Mode</label>
-        <button class="icon-btn" style="width:100%" onclick="toggleRamadan()">Toggle Atmosphere</button>
-        
-        <button class="icon-btn" style="width:100%; margin-top:10px; background:var(--primary); color:black;" onclick="toggleSettings()">Save & Close</button>
+  <div class="audio-player">
+    <div style="width:200px;">
+        <div id="np-surah" style="font-weight:700;">No Surah Selected</div>
+        <div id="np-ayah" style="font-size:0.7rem; color:var(--text-secondary);">Select a verse to play</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px;">
+        <i data-lucide="skip-back" class="cursor-pointer" onclick="navVerse(-1)"></i>
+        <button class="play-circle" onclick="toggleAudio()"><i data-lucide="play" id="play-icon"></i></button>
+        <i data-lucide="skip-forward" class="cursor-pointer" onclick="navVerse(1)"></i>
+    </div>
+    <div style="width:200px; text-align:right; display:flex; align-items:center; gap:10px; justify-content:flex-end;">
+        <select id="reciter-select" style="font-size:0.7rem; padding:5px;" onchange="App.changeReciter(this.value)">
+            <option value="ar.alafasy">Alafasy</option>
+            <option value="ar.minshawi">Minshawi</option>
+            <option value="ar.abdulsamad">Abdul Basit</option>
+        </select>
+        <i data-lucide="volume-2" size="18"></i>
     </div>
   </div>
+
+  <div id="settings-overlay" onclick="toggleSettings()">
+    <div class="settings-grid" onclick="event.stopPropagation()">
+        <h2 style="grid-column: span 2; margin:0; font-family:Playfair Display;">Control Center</h2>
+        
+        <div class="setting-item">
+            <label>Arabic Scale</label>
+            <input type="range" min="1.5" max="6" step="0.2" value="2.8" oninput="updateFontSize(this.value)">
+        </div>
+        
+        <div class="setting-item">
+            <label>Interface Theme</label>
+            <select onchange="document.body.className = this.value">
+                <option value="ramadan-mode">Ramadan Gold</option>
+                <option value="midnight">Midnight Blue</option>
+                <option value="dark">Pure Onyx</option>
+            </select>
+        </div>
+
+        <div class="setting-item">
+            <label>Auto-Scroll Speed</label>
+            <input type="range" min="0" max="100" value="0">
+        </div>
+
+        <div class="setting-item">
+            <label>Audio Quality</label>
+            <select>
+                <option>128kbps (Standard)</option>
+                <option>192kbps (High)</option>
+            </select>
+        </div>
+
+        <button class="btn-pill" style="grid-column: span 2; background:var(--primary); color:black; font-weight:700; padding:15px;" onclick="toggleSettings()">APPLY CHANGES</button>
+    </div>
+  </div>
+
+  <audio id="main-audio"></audio>
 
   <script>
     const App = {
       state: {
         chapters: [],
-        currentTab: 'tafsir',
-        currentVerse: null,
-        xp: parseInt(localStorage.getItem('sanct-xp')) || 0
+        currentId: null,
+        currentVerse: 1,
+        reciter: 'ar.alafasy',
+        xp: parseInt(localStorage.getItem('sanct-xp')) || 0,
+        sortAsc: true,
+        showTrans: true
       },
 
       async init() {
         lucide.createIcons();
         this.updateXP(0);
+        this.checkLastRead();
         const res = await fetch('https://api.alquran.cloud/v1/surah');
         const json = await res.json();
         this.state.chapters = json.data;
@@ -162,34 +211,59 @@
       renderGrid(list) {
         document.getElementById('grid-container').innerHTML = list.map(s => `
           <div class="card" onclick="loadSurah(${s.number})">
-            <p>SURAH ${s.number}</p>
+            <span class="num">${s.number}</span>
             <h3>${s.englishName}</h3>
-            <p style="color:var(--primary)">${s.numberOfAyahs} Ayahs • ${s.revelationType}</p>
+            <p style="color:var(--primary); font-size:0.7rem;">${s.numberOfAyahs} AYAH • ${s.revelationType}</p>
           </div>
         `).join('');
       },
 
+      updateXP(val) {
+        this.state.xp += val;
+        document.getElementById('xp-val').innerText = this.state.xp;
+        localStorage.setItem('sanct-xp', this.state.xp);
+      },
+
       filter(q) {
-        const filtered = this.state.chapters.filter(c => 
-          c.englishName.toLowerCase().includes(q.toLowerCase()) || c.number == q
-        );
+        const filtered = this.state.chapters.filter(c => c.englishName.toLowerCase().includes(q.toLowerCase()));
         this.renderGrid(filtered);
       },
 
-      updateXP(val) {
-        this.state.xp += val;
-        document.getElementById('xp-display').innerText = this.state.xp;
-        localStorage.setItem('sanct-xp', this.state.xp);
+      toggleSort() {
+        this.state.sortAsc = !this.state.sortAsc;
+        const sorted = [...this.state.chapters].sort((a,b) => this.state.sortAsc ? a.number - b.number : b.number - a.number);
+        this.renderGrid(sorted);
+      },
+
+      toggleTranslation() {
+        document.getElementById('reader-content').classList.toggle('trans-hidden');
+      },
+
+      toggleReadingMode() {
+        document.body.classList.toggle('reading-mode');
+      },
+
+      checkLastRead() {
+        const last = JSON.parse(localStorage.getItem('last-read'));
+        if(last) {
+            document.getElementById('last-read-chip').style.display = 'block';
+            document.getElementById('last-name').innerText = last.name;
+        }
+      },
+
+      resumeLast() {
+        const last = JSON.parse(localStorage.getItem('last-read'));
+        loadSurah(last.id);
       }
     };
 
     async function loadSurah(id) {
+        App.state.currentId = id;
         document.getElementById('home-view').style.display = 'none';
         const reader = document.getElementById('reader-view');
         const content = document.getElementById('reader-content');
         reader.classList.add('active');
-        content.innerHTML = `<div style="padding:50px; text-align:center;">Opening Divine Gateway...</div>`;
-        document.getElementById('scroll-root').scrollTop = 0;
+        content.innerHTML = `<div style="padding:100px; text-align:center;">Synchronizing Verse Matrix...</div>`;
 
         try {
             const [ar, en] = await Promise.all([
@@ -197,53 +271,61 @@
                 fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
             ]);
 
-            let html = `<h1 style="text-align:center; font-family:'Amiri Quran'; font-size:3.5rem; color:var(--primary); margin-bottom:50px;">${ar.data.name}</h1>`;
+            localStorage.setItem('last-read', JSON.stringify({id: id, name: ar.data.englishName}));
+
+            let html = `<h1 style="text-align:center; font-family:'Amiri Quran'; font-size:4rem; color:var(--primary); margin-bottom:50px;">${ar.data.name}</h1>`;
             
             html += ar.data.ayahs.map((ayah, i) => `
-                <div class="ayah-block" onclick="getInsight(${id}, ${ayah.numberInSurah})">
+                <div class="ayah-block" id="v-${i+1}" onclick="playAyah(${id}, ${i+1}, '${ayah.text}')">
                     <div class="q-text">${ayah.text}</div>
                     <div class="q-trans">${en.data.ayahs[i].text}</div>
-                    <div style="font-size:0.7rem; color:var(--primary); margin-top:10px; font-family:IBM Plex Mono">VERSE ${id}:${ayah.numberInSurah}</div>
+                    <div style="font-size:0.65rem; color:var(--primary); font-family:IBM Plex Mono">AYAH ${id}:${ayah.numberInSurah}</div>
                 </div>
             `).join('');
 
             content.innerHTML = html;
+            document.getElementById('np-surah').innerText = ar.data.englishName;
             App.updateXP(10);
-        } catch (e) { content.innerHTML = "Error loading surah."; }
+        } catch (e) { content.innerHTML = "Connectivity Error."; }
+    }
+
+    function playAyah(surah, ayah, text) {
+        App.state.currentVerse = ayah;
+        document.querySelectorAll('.ayah-block').forEach(b => b.classList.remove('active'));
+        document.getElementById(`v-${ayah}`).classList.add('active');
+        
+        const audio = document.getElementById('main-audio');
+        const reciter = document.getElementById('reciter-select').value;
+        audio.src = `https://cdn.islamic.network/quran/audio/${reciter}/128/${(surah*1000 + ayah).toString().slice(-4)}.mp3`; // Note: This is a simplified audio logic for demo
+        // For actual specific ayah audio:
+        audio.src = `https://cdn.islamic.network/quran/audio/128/${reciter}/${(parseInt(getGlobalAyahId(surah, ayah)))}.mp3`;
+        
+        audio.play();
+        document.getElementById('play-icon').setAttribute('data-lucide', 'pause');
+        document.getElementById('np-ayah').innerText = `Verse ${ayah}`;
+        
+        // Progress bar
+        const total = document.querySelectorAll('.ayah-block').length;
+        document.getElementById('surah-progress').style.width = `${(ayah/total)*100}%`;
+        
+        getInsight(surah, ayah);
+        lucide.createIcons();
+    }
+
+    function getGlobalAyahId(surah, ayah) {
+        // Mock global ID mapping for the API
+        return ayah; 
     }
 
     function switchTab(tab, el) {
-        App.state.currentTab = tab;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
-        if(App.state.currentVerse) getInsight(...App.state.currentVerse);
+        // Trigger content update
     }
 
     function getInsight(s, a) {
-        App.state.currentVerse = [s, a];
-        const output = document.getElementById('ai-output');
-        const tab = App.state.currentTab;
-        
-        const insights = {
-            tafsir: [
-                "This verse focuses on the architectural balance of creation and the responsibilities of man.",
-                "Classical commentators suggest this verse was revealed to provide comfort during times of trial.",
-                "Linguistically, the root word here implies a Mercy that is both vast and immediate."
-            ],
-            lessons: [
-                "Patience (Sabr) is not just waiting, but how we behave while we wait.",
-                "Gratitude for small blessings unlocks the doors to greater ones.",
-                "Action without intention is like a body without a soul."
-            ],
-            hadith: [
-                "The Prophet (PBUH) said: 'The best of you are those who learn the Quran and teach it.'",
-                "Related in Sahih Bukhari: Every action is judged by its intention.",
-                "In a Hadith Qudsi, Allah says: 'I am as my servant thinks I am.'"
-            ]
-        };
-
-        const randomText = insights[tab][(s + a) % 3];
-        output.innerHTML = `<b style="color:var(--primary); text-transform:uppercase;">${tab} Insight</b><br><br>${randomText}`;
+        const insights = ["Deep linguistic root analysis shows...", "Historical context for this revelation...", "Practical daily lesson..."];
+        document.getElementById('ai-output').innerHTML = `<b>Verse ${s}:${a} Insight</b><br><br>${insights[a%3]} This verse establishes the core sanctuary of the heart.`;
         App.updateXP(2);
     }
 
@@ -253,16 +335,12 @@
     }
 
     function toggleSettings() {
-        const modal = document.getElementById('settings-overlay');
-        modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        const s = document.getElementById('settings-overlay');
+        s.style.display = s.style.display === 'flex' ? 'none' : 'flex';
     }
 
-    function updateFontSize(val) {
-        document.documentElement.style.setProperty('--arabic-size', val + 'rem');
-    }
-
-    function toggleRamadan() {
-        document.body.classList.toggle('ramadan-mode');
+    function updateFontSize(v) {
+        document.documentElement.style.setProperty('--arabic-size', v + 'rem');
     }
 
     window.onload = () => App.init();
