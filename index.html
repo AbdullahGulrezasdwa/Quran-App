@@ -3,163 +3,856 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sanctuary V8 | Glass Sovereign</title>
+    <title>Sanctuary Quran | Read, Learn, Memorize</title>
 
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&family=Lateef:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri+Quran:wght@400&family=Lateef:wght@400;700&family=Poppins:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --gold: #fbbf24;
-            --emerald: #10b981;
-            --bg: #050505;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(251, 191, 36, 0.15);
-            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-        }
-
         * { box-sizing: border-box; transition: all 0.3s ease; }
-        body {
-            margin: 0; font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg); color: #e5e7eb;
-            height: 100vh; overflow: hidden; display: flex;
-            background-image: radial-gradient(circle at 50% -20%, #1a1a1a 0%, #050505 100%);
+        
+        :root {
+            /* Default Theme - Emerald Sanctuary */
+            --primary: #10b981;
+            --secondary: #059669;
+            --accent: #fbbf24;
+            --bg-dark: #0f172a;
+            --bg-light: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: rgba(16, 185, 129, 0.2);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --radius: 16px;
         }
 
-        /* Glass Sidebar */
-        nav {
-            width: 90px; border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; align-items: center;
-            padding: 40px 0; gap: 35px; background: rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
+        /* Theme Variables */
+        body.theme-dark {
+            --bg-dark: #050505;
+            --bg-light: #1a1a1a;
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --card-bg: rgba(30, 30, 30, 0.8);
+            --border-color: rgba(251, 191, 36, 0.15);
         }
 
-        .nav-icon {
-            color: #6b7280; padding: 14px; border-radius: 16px; cursor: pointer;
-            border: 1px solid transparent;
-        }
-        .nav-icon:hover, .nav-icon.active {
-            color: var(--gold); background: rgba(251, 191, 36, 0.1);
-            border-color: var(--border); box-shadow: var(--shadow);
+        body.theme-midnight {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --accent: #ec4899;
+            --bg-dark: #0a0e27;
+            --text-primary: #e0e7ff;
         }
 
-        /* Main Engine */
-        main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        body.theme-ocean {
+            --primary: #0ea5e9;
+            --secondary: #0284c7;
+            --accent: #06b6d4;
+            --bg-dark: #001a2e;
+        }
 
+        body.theme-sunset {
+            --primary: #f97316;
+            --secondary: #ea580c;
+            --accent: #fbbf24;
+            --bg-dark: #2a1810;
+        }
+
+        body.theme-forest {
+            --primary: #16a34a;
+            --secondary: #15803d;
+            --accent: #84cc16;
+            --bg-dark: #1a2e1a;
+        }
+
+        body.theme-rose {
+            --primary: #ec4899;
+            --secondary: #db2777;
+            --accent: #fcd34d;
+            --bg-dark: #2a1625;
+        }
+
+        body.theme-lavender {
+            --primary: #a855f7;
+            --secondary: #9333ea;
+            --accent: #fbbf24;
+            --bg-dark: #2a1a4a;
+        }
+
+        body.theme-teal {
+            --primary: #14b8a6;
+            --secondary: #0d9488;
+            --accent: #fbbf24;
+            --bg-dark: #0f2f2f;
+        }
+
+        body.theme-copper {
+            --primary: #b45309;
+            --secondary: #92400e;
+            --accent: #fcd34d;
+            --bg-dark: #1f1509;
+        }
+
+        body.theme-sapphire {
+            --primary: #3b82f6;
+            --secondary: #2563eb;
+            --accent: #fbbf24;
+            --bg-dark: #0f172a;
+        }
+
+        body.theme-lime {
+            --primary: #84cc16;
+            --secondary: #65a30d;
+            --accent: #06b6d4;
+            --bg-dark: #1a2e1a;
+        }
+
+        body.theme-crimson {
+            --primary: #dc2626;
+            --secondary: #b91c1c;
+            --accent: #fbbf24;
+            --bg-dark: #2a1010;
+        }
+
+        body.theme-indigo {
+            --primary: #4f46e5;
+            --secondary: #4338ca;
+            --accent: #fbbf24;
+            --bg-dark: #1e1b4b;
+        }
+
+        body.theme-mint {
+            --primary: #06b6d4;
+            --secondary: #0891b2;
+            --accent: #fbbf24;
+            --bg-dark: #082f4f;
+        }
+
+        body.theme-peach {
+            --primary: #f43f5e;
+            --secondary: #e11d48;
+            --accent: #fbbf24;
+            --bg-dark: #2a1820;
+        }
+
+        body.theme-slate {
+            --primary: #64748b;
+            --secondary: #475569;
+            --accent: #fbbf24;
+            --bg-dark: #0f172a;
+        }
+
+        body.theme-amber {
+            --primary: #f59e0b;
+            --secondary: #d97706;
+            --accent: #ec4899;
+            --bg-dark: #2a2010;
+        }
+
+        body.theme-violet {
+            --primary: #7c3aed;
+            --secondary: #6d28d9;
+            --accent: #fbbf24;
+            --bg-dark: #2a1a4a;
+        }
+
+        body.theme-emerald-light {
+            --primary: #10b981;
+            --bg-dark: #f0fdf4;
+            --text-primary: #1e3a1f;
+            --text-secondary: #4b5563;
+            --card-bg: rgba(240, 253, 244, 0.95);
+        }
+
+        body.theme-midnight-light {
+            --primary: #6366f1;
+            --bg-dark: #f0f4ff;
+            --text-primary: #1e1b4b;
+            --text-secondary: #4f46e5;
+            --card-bg: rgba(240, 244, 255, 0.95);
+        }
+
+        /* Base Styles */
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Navigation */
         header {
-            height: 100px; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 50px; border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 0;
         }
 
-        .search-box {
-            background: var(--glass); border: 1px solid var(--border);
-            padding: 14px 25px; border-radius: 20px; width: 400px;
-            display: flex; gap: 15px; backdrop-filter: blur(20px);
-        }
-        .search-box input { background: transparent; border: none; outline: none; color: white; width: 100%; font-size: 0.9rem; }
-
-        .stat-hud { display: flex; gap: 25px; align-items: center; }
-        .xp-pill {
-            background: rgba(251, 191, 36, 0.1); border: 1px solid var(--border);
-            padding: 8px 18px; border-radius: 30px; color: var(--gold);
-            font-weight: 700; font-size: 0.8rem; letter-spacing: 1px;
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
         }
 
-        /* Content Area */
-        .content { display: grid; grid-template-columns: 1fr 400px; flex: 1; overflow: hidden; }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1.25rem 0.75rem 2.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            pointer-events: none;
+            width: 18px;
+            height: 18px;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .icon-btn {
+            background: transparent;
+            padding: 0.5rem;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+        }
+
+        .icon-btn:hover {
+            color: var(--primary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            padding: 2rem 0;
+        }
 
         .grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px; padding: 50px; overflow-y: auto; scrollbar-width: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
 
         .card {
-            background: var(--glass); border: 1px solid var(--border);
-            padding: 35px; border-radius: 28px; cursor: pointer;
-            backdrop-filter: blur(5px);
-        }
-        .card:hover { 
-            border-color: var(--gold); transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4); background: rgba(251, 191, 36, 0.05);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
         }
 
-        #reader { padding: 60px; overflow-y: auto; display: none; scrollbar-width: none; }
-        
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            background: var(--card-bg);
+        }
+
+        .card-number {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0.5rem 0;
+        }
+
+        /* Reader View */
+        .reader {
+            display: none;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .reader.active {
+            display: block;
+        }
+
+        .reader-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .surah-name {
+            font-family: 'Amiri Quran', serif;
+            font-size: 4rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .surah-info {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0.5rem;
+        }
+
+        .ayah-container {
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ayah-container:hover {
+            background: rgba(16, 185, 129, 0.05);
+            border-left-color: var(--secondary);
+        }
+
+        .ayah-text {
+            font-family: 'Amiri Quran', serif;
+            font-size: 2rem;
+            text-align: right;
+            direction: rtl;
+            line-height: 2;
+            margin: 1rem 0;
+            color: var(--text-primary);
+        }
+
+        .ayah-translation {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-style: italic;
+            margin-top: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .ayah-number {
+            display: inline-block;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin: 0 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-content {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 0.9rem;
+        }
+
+        /* Reading Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .modal-close:hover {
+            color: var(--primary);
+        }
+
+        /* Theme Selector */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .theme-option {
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .theme-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .theme-option.active {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .theme-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            color: #dc2626;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                grid-column: 1;
+            }
+
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-bar {
+                max-width: 100%;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .surah-name {
+                font-size: 2.5rem;
+            }
+
+            .ayah-text {
+                font-size: 1.5rem;
+            }
+
+            .theme-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card { animation: fadeIn 0.3s ease-out; }
+
         /* Tajweed Colors */
         .taj-ghunnah { color: #ff5722; font-weight: bold; }
         .taj-qalqalah { color: #03a9f4; font-weight: bold; }
         .taj-madd { color: #e91e63; font-weight: bold; }
         .taj-ikfa { color: #ffeb3b; }
 
-        .q-text {
-            font-family: 'Amiri'; font-size: 3rem; text-align: right;
-            direction: rtl; line-height: 2.2; margin-bottom: 20px;
-        }
-        .script-indopak .q-text { font-family: 'Lateef'; font-size: 3.8rem; line-height: 1.8; }
-
-        aside { border-left: 1px solid var(--border); padding: 40px; background: rgba(0,0,0,0.1); }
-
-        /* Modal / Stats Drawer */
-        #stats-modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
-            width: 450px; background: rgba(10,10,10,0.95); border: 1px solid var(--gold);
-            padding: 50px; border-radius: 40px; backdrop-filter: blur(40px);
-            z-index: 1000; display: none; opacity: 0; box-shadow: 0 0 100px rgba(251,191,36,0.2);
-        }
-        #stats-modal.open { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
-
-        .loading-overlay { 
-            position: absolute; inset: 0; background: var(--bg); 
-            display: flex; align-items: center; justify-content: center; z-index: 100;
+        /* Print Styles */
+        @media print {
+            header, .sidebar, .nav-controls { display: none; }
+            .reader { padding: 0; border: none; }
         }
     </style>
 </head>
-<body>
+<body class="theme-emerald">
 
-<nav>
-    <div class="nav-icon active" onclick="App.showGrid()" id="nav-home"><i data-lucide="layout-grid"></i></div>
-    <div class="nav-icon" onclick="App.toggleStats()"><i data-lucide="bar-chart-3"></i></div>
-    <div class="nav-icon" onclick="App.toggleScript()"><i data-lucide="type"></i></div>
-</nav>
-
-<main>
-    <header>
-        <div class="search-box">
-            <i data-lucide="search" style="color:var(--gold)"></i>
-            <input placeholder="Search Sovereign Library..." oninput="App.filter(this.value)">
+<header>
+    <div class="container">
+        <div class="header-content">
+            <a href="#" class="logo" onclick="App.showGrid(); return false;">
+                ☪️ Sanctuary
+            </a>
+            <div class="search-bar">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text" placeholder="Search surah or ayah..." oninput="App.filter(this.value)">
+            </div>
+            <div class="nav-controls">
+                <button class="icon-btn" onclick="App.toggleThemeModal()" title="Themes">🎨</button>
+                <button class="icon-btn" onclick="App.toggleMemoryMode()" title="Memory Mode">🧠</button>
+                <button class="icon-btn" onclick="App.toggleStats()" title="Statistics">📊</button>
+                <button class="icon-btn" onclick="App.toggleSettings()" title="Settings">⚙️</button>
+            </div>
         </div>
-        <div class="stat-hud">
-            <div class="xp-pill" id="hud-xp">0 XP</div>
-            <div id="clock" style="font-family: monospace; opacity: 0.6;"></div>
-        </div>
-    </header>
+    </div>
+</header>
 
-    <div class="content" id="main-content">
-        <section id="grid" class="grid"></section>
-        <section id="reader"></section>
-        <aside id="sidebar">
-            <h3 style="color:var(--gold); letter-spacing: 2px; font-size: 0.8rem;">SENTINEL TAFSIR</h3>
-            <div id="insight" style="margin-top: 30px; line-height: 1.8; opacity: 0.8;">Select a verse to initiate linguistic extraction.</div>
+<main class="container">
+    <div class="main-layout">
+        <section id="grid-view" class="grid"></section>
+        <section id="reader" class="reader"></section>
+
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <div class="sidebar-title">📊 Your Progress</div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-chapters">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-ayahs">0</div>
+                        <div class="stat-label">Verses</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-time">0h</div>
+                        <div class="stat-label">Reading</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-streak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="sidebar-title">✨ Today's Verse</div>
+                <div class="sidebar-content" id="daily-verse">
+                    Loading today's verse...
+                </div>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="sidebar-title">📖 Tafsir</div>
+                <div class="sidebar-content" id="tafsir-panel">
+                    Select a verse to view tafsir interpretation
+                </div>
+            </div>
+
+            <div class="sidebar-card">
+                <button class="btn btn-primary" style="width: 100%;" onclick="App.downloadQuran()">
+                    📥 Export as PDF
+                </button>
+            </div>
         </aside>
     </div>
 </main>
 
-<div id="stats-modal">
-    <div style="text-align: center;">
-        <div id="user-rank" style="color:var(--gold); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 3px;">Initiate Seeker</div>
-        <h1 style="margin: 10px 0 40px 0;">User Statistics</h1>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="card" style="padding: 20px;">
-                <small style="opacity:0.5">Total Experience</small>
-                <div id="modal-xp" style="font-size: 1.5rem; font-weight: 800; color: var(--gold);">0</div>
-            </div>
-            <div class="card" style="padding: 20px;">
-                <small style="opacity:0.5">Reading Time</small>
-                <div id="modal-time" style="font-size: 1.5rem; font-weight: 800;">0m</div>
-            </div>
+<!-- Themes Modal -->
+<div id="themeModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="App.toggleThemeModal()">✕</button>
+        <h2 style="color: var(--primary); margin-top: 0;">Choose Your Theme</h2>
+        <div class="theme-grid" id="theme-grid">
+            <!-- Themes will be generated here -->
         </div>
-        <button onclick="App.toggleStats()" style="margin-top: 40px; background: transparent; border: 1px solid var(--border); color: white; padding: 12px 30px; border-radius: 12px; cursor: pointer;">Close Terminal</button>
+    </div>
+</div>
+
+<!-- Stats Modal -->
+<div id="statsModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="App.toggleStats()">✕</button>
+        <h2 style="color: var(--primary); margin-top: 0;">Reading Statistics</h2>
+        <div id="stats-content">
+            <div class="stats-grid" style="margin: 1.5rem 0;">
+                <div class="stat-item">
+                    <div class="stat-value" id="modal-chapters">0</div>
+                    <div class="stat-label">Chapters Read</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="modal-ayahs">0</div>
+                    <div class="stat-label">Verses Read</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="modal-time-full">0h 0m</div>
+                    <div class="stat-label">Total Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="modal-streak">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                Keep reading regularly to build your streak and deepen your connection with the Quran.
+            </p>
+            <button class="btn btn-secondary" onclick="App.resetStats()" style="width: 100%; margin-top: 1rem;">
+                Reset Statistics
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="App.toggleSettings()">✕</button>
+        <h2 style="color: var(--primary); margin-top: 0;">Settings</h2>
+        
+        <div style="margin: 1.5rem 0;">
+            <h3 style="color: var(--text-primary); font-size: 1rem; margin-bottom: 1rem;">Font Size</h3>
+            <input type="range" id="fontSizeSlider" min="12" max="32" value="16" onchange="App.setFontSize(this.value)" style="width: 100%;">
+            <span style="color: var(--text-secondary); font-size: 0.85rem;" id="fontSizeValue">16px</span>
+        </div>
+
+        <div style="margin: 1.5rem 0;">
+            <h3 style="color: var(--text-primary); font-size: 1rem; margin-bottom: 1rem;">Line Height</h3>
+            <input type="range" id="lineHeightSlider" min="1.2" max="2.4" step="0.2" value="1.6" onchange="App.setLineHeight(this.value)" style="width: 100%;">
+            <span style="color: var(--text-secondary); font-size: 0.85rem;" id="lineHeightValue">1.6x</span>
+        </div>
+
+        <div style="margin: 1.5rem 0;">
+            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                <input type="checkbox" id="darkModeToggle" onchange="App.toggleDarkMode()">
+                <span style="color: var(--text-primary);">Dark Mode</span>
+            </label>
+        </div>
+
+        <div style="margin: 1.5rem 0;">
+            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                <input type="checkbox" id="translationToggle" checked onchange="App.toggleTranslation()">
+                <span style="color: var(--text-primary);">Show English Translation</span>
+            </label>
+        </div>
+
+        <div style="margin: 1.5rem 0;">
+            <h3 style="color: var(--text-primary); font-size: 1rem; margin-bottom: 0.5rem;">Script</h3>
+            <select id="scriptSelect" onchange="App.setScript(this.value)" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); color: var(--text-primary);">
+                <option value="standard">Standard (Uthmani)</option>
+                <option value="indopak">Indo-Pakistani</option>
+            </select>
+        </div>
+
+        <button class="btn btn-secondary" onclick="App.toggleSettings()" style="width: 100%; margin-top: 1.5rem;">
+            Close Settings
+        </button>
+    </div>
+</div>
+
+<!-- Bookmarks Modal -->
+<div id="bookmarkModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="App.toggleBookmarks()">✕</button>
+        <h2 style="color: var(--primary); margin-top: 0;">📚 Your Bookmarks</h2>
+        <div id="bookmarks-list">
+            <p style="color: var(--text-secondary);">No bookmarks yet. Click the bookmark icon on any verse to save it.</p>
+        </div>
     </div>
 </div>
 
@@ -167,158 +860,386 @@
 const App = {
     state: {
         chapters: [],
-        xp: parseInt(localStorage.getItem('glass-xp')) || 0,
-        seconds: parseInt(localStorage.getItem('glass-time')) || 0,
-        isIndoPak: false
+        currentSurah: null,
+        xp: parseInt(localStorage.getItem('sanctuary-xp')) || 0,
+        seconds: parseInt(localStorage.getItem('sanctuary-time')) || 0,
+        completed: JSON.parse(localStorage.getItem('sanctuary-completed')) || [],
+        bookmarks: JSON.parse(localStorage.getItem('sanctuary-bookmarks')) || [],
+        theme: localStorage.getItem('sanctuary-theme') || 'theme-emerald',
+        memoryMode: false,
+        showTranslation: localStorage.getItem('sanctuary-translation') !== 'false',
+        fontSize: parseInt(localStorage.getItem('sanctuary-fontSize')) || 16,
+        lineHeight: parseFloat(localStorage.getItem('sanctuary-lineHeight')) || 1.6,
+        script: localStorage.getItem('sanctuary-script') || 'standard',
+        lastReadDate: localStorage.getItem('sanctuary-lastReadDate') || null,
+        streak: parseInt(localStorage.getItem('sanctuary-streak')) || 0,
+        searchQuery: ''
+    },
+
+    themes: [
+        { id: 'theme-emerald', name: 'Emerald Sanctuary', colors: ['#10b981', '#059669', '#fbbf24'] },
+        { id: 'theme-dark', name: 'Dark Mode', colors: ['#fbbf24', '#ec4899', '#64748b'] },
+        { id: 'theme-midnight', name: 'Midnight', colors: ['#6366f1', '#4f46e5', '#ec4899'] },
+        { id: 'theme-ocean', name: 'Ocean', colors: ['#0ea5e9', '#0284c7', '#06b6d4'] },
+        { id: 'theme-sunset', name: 'Sunset', colors: ['#f97316', '#ea580c', '#fbbf24'] },
+        { id: 'theme-forest', name: 'Forest', colors: ['#16a34a', '#15803d', '#84cc16'] },
+        { id: 'theme-rose', name: 'Rose', colors: ['#ec4899', '#db2777', '#fcd34d'] },
+        { id: 'theme-lavender', name: 'Lavender', colors: ['#a855f7', '#9333ea', '#fbbf24'] },
+        { id: 'theme-teal', name: 'Teal', colors: ['#14b8a6', '#0d9488', '#fbbf24'] },
+        { id: 'theme-copper', name: 'Copper', colors: ['#b45309', '#92400e', '#fcd34d'] },
+        { id: 'theme-sapphire', name: 'Sapphire', colors: ['#3b82f6', '#2563eb', '#fbbf24'] },
+        { id: 'theme-lime', name: 'Lime', colors: ['#84cc16', '#65a30d', '#06b6d4'] },
+        { id: 'theme-crimson', name: 'Crimson', colors: ['#dc2626', '#b91c1c', '#fbbf24'] },
+        { id: 'theme-indigo', name: 'Indigo', colors: ['#4f46e5', '#4338ca', '#fbbf24'] },
+        { id: 'theme-mint', name: 'Mint', colors: ['#06b6d4', '#0891b2', '#fbbf24'] },
+        { id: 'theme-peach', name: 'Peach', colors: ['#f43f5e', '#e11d48', '#fbbf24'] },
+        { id: 'theme-slate', name: 'Slate', colors: ['#64748b', '#475569', '#fbbf24'] },
+        { id: 'theme-amber', name: 'Amber', colors: ['#f59e0b', '#d97706', '#ec4899'] },
+        { id: 'theme-violet', name: 'Violet', colors: ['#7c3aed', '#6d28d9', '#fbbf24'] },
+        { id: 'theme-emerald-light', name: 'Light Sanctuary', colors: ['#10b981', '#f0fdf4', '#1e3a1f'] },
+        { id: 'theme-midnight-light', name: 'Light Midnight', colors: ['#6366f1', '#f0f4ff', '#1e1b4b'] }
+    ],
+
+    // Sample data - API will override this if available
+    sampleData: {
+        1: { name: 'Al-Fatiha', englishName: 'The Opening', numberOfAyahs: 7, revelationType: 'Meccan' },
+        2: { name: 'Al-Baqarah', englishName: 'The Cow', numberOfAyahs: 286, revelationType: 'Medinan' },
+        3: { name: 'Aal-i-Imran', englishName: 'Family of Imran', numberOfAyahs: 200, revelationType: 'Medinan' },
     },
 
     init() {
-        this.clock();
-        setInterval(() => this.clock(), 1000);
+        this.applyTheme();
+        this.renderThemeSelector();
         this.fetchSurahs();
         this.startTracking();
-        this.updateUI();
-        lucide.createIcons();
+        this.updateStats();
+        this.loadDailyVerse();
+        this.updateStreak();
     },
 
-    clock() {
-        const now = new Date();
-        document.getElementById('clock').innerText = now.toTimeString().split(' ')[0];
+    applyTheme() {
+        document.body.className = this.state.theme;
     },
 
-    startTracking() {
-        setInterval(() => {
-            if (document.getElementById('reader').style.display === "block" && !document.hidden) {
-                this.state.seconds++;
-                if (this.state.seconds % 10 === 0) {
-                    this.state.xp += 5;
-                    this.updateUI();
-                    this.save();
-                }
-            }
-        }, 1000);
+    renderThemeSelector() {
+        const grid = document.getElementById('theme-grid');
+        grid.innerHTML = this.themes.map(theme => `
+            <div class="theme-option ${this.state.theme === theme.id ? 'active' : ''}" 
+                 onclick="App.setTheme('${theme.id}')">
+                <div class="theme-preview" style="background: linear-gradient(135deg, ${theme.colors[0]}, ${theme.colors[1]});"></div>
+                <div class="theme-name">${theme.name}</div>
+            </div>
+        `).join('');
     },
 
-    updateUI() {
-        document.getElementById('hud-xp').innerText = `${this.state.xp} XP`;
-        document.getElementById('modal-xp').innerText = this.state.xp;
-        document.getElementById('modal-time').innerText = `${Math.floor(this.state.seconds / 60)}m`;
-        
-        let rank = "Initiate Seeker";
-        if(this.state.xp > 500) rank = "Scholar Level I";
-        if(this.state.xp > 2000) rank = "Sovereign Guardian";
-        document.getElementById('user-rank').innerText = rank;
-    },
-
-    save() {
-        localStorage.setItem('glass-xp', this.state.xp);
-        localStorage.setItem('glass-time', this.state.seconds);
+    setTheme(themeId) {
+        this.state.theme = themeId;
+        localStorage.setItem('sanctuary-theme', themeId);
+        this.applyTheme();
+        this.renderThemeSelector();
     },
 
     async fetchSurahs() {
-        const grid = document.getElementById('grid');
+        const grid = document.getElementById('grid-view');
+        grid.innerHTML = '<div class="loading"><div class="spinner"></div> Loading surahs...</div>';
+        
         try {
             const res = await fetch("https://api.alquran.cloud/v1/surah");
+            if (!res.ok) throw new Error('API Error');
             const json = await res.json();
             this.state.chapters = json.data;
             this.renderGrid(json.data);
-        } catch {
-            grid.innerHTML = "<div class='error'>Connection to Library failed.</div>";
+        } catch (error) {
+            console.error('Fetch error:', error);
+            grid.innerHTML = `
+                <div class="error-message">
+                    <strong>⚠️ Connection Error</strong><br>
+                    Unable to load surahs from the API. Please check your internet connection and reload the page.
+                    <br><br>
+                    <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 1rem;">
+                        Reload Page
+                    </button>
+                </div>
+            `;
         }
     },
 
     renderGrid(list) {
-        const grid = document.getElementById('grid');
-        grid.innerHTML = list.map(s => `
+        const grid = document.getElementById('grid-view');
+        const filtered = list.filter(s => 
+            this.state.searchQuery === '' || 
+            s.englishName.toLowerCase().includes(this.state.searchQuery.toLowerCase())
+        );
+
+        grid.innerHTML = filtered.map(s => `
             <div class="card" onclick="App.loadSurah(${s.number})">
-                <div style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 10px;">NODE ${s.number}</div>
-                <h3 style="margin: 0; color: var(--gold)">${s.englishName}</h3>
-                <div style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">${s.numberOfAyahs} Verses</div>
+                <div class="card-number">Surah ${s.number}</div>
+                <h3 class="card-title">${s.englishName}</h3>
+                <p class="card-subtitle">${s.name}</p>
+                <p class="card-subtitle">${s.numberOfAyahs} verses • ${s.revelationType}</p>
             </div>
         `).join('');
     },
 
     async loadSurah(id) {
         const reader = document.getElementById('reader');
-        const grid = document.getElementById('grid');
+        const grid = document.getElementById('grid-view');
         
         grid.style.display = "none";
         reader.style.display = "block";
-        reader.innerHTML = "<div class='loading-overlay'>Extracting Sacred Text...</div>";
+        reader.innerHTML = '<div class="loading"><div class="spinner"></div> Loading surah...</div>';
 
         try {
-            const [ar, en] = await Promise.all([
-                fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-tajweed`).then(r => r.json()),
-                fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
+            const [arRes, enRes] = await Promise.all([
+                fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-tajweed`),
+                fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`)
             ]);
 
-            let html = `<div style="text-align:center; margin-bottom: 80px;">
-                            <h1 style="font-family:Amiri; font-size:4rem; color:var(--gold); margin:0;">${ar.data.name}</h1>
-                            <p style="opacity:0.5; letter-spacing:2px;">SURAH ${ar.data.englishName}</p>
+            if (!arRes.ok || !enRes.ok) throw new Error('API Error');
+
+            const ar = await arRes.json();
+            const en = await enRes.json();
+
+            this.state.currentSurah = ar.data;
+            let html = `<div class="reader-header">
+                            <h1 class="surah-name">${ar.data.name}</h1>
+                            <p class="surah-info">${ar.data.englishName} • ${ar.data.numberOfAyahs} Verses • ${ar.data.revelationType}</p>
                         </div>`;
 
             ar.data.ayahs.forEach((ayah, i) => {
                 let text = ayah.text;
-                // Smart Bismillah strip
                 if(id !== 1 && id !== 9 && i === 0) {
-                    text = text.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "").trim();
+                    text = text.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "").trim();
                 }
 
-                // Greedy Tajweed Parser
-                text = text.replace(/\[h:([^\]]+)\]/g, '<span class="taj-ghunnah">$1</span>')
-                           .replace(/\[q:([^\]]+)\]/g, '<span class="taj-qalqalah">$1</span>')
-                           .replace(/\[m:([^\]]+)\]/g, '<span class="taj-madd">$1</span>')
-                           .replace(/\[i:([^\]]+)\]/g, '<span class="taj-ikfa">$1</span>')
-                           .replace(/\[\w:([^\]]+)\]/g, '$1'); // Cleans any other markers
+                text = text
+                    .replace(/\[h:([^\]]+)\]/g, '<span class="taj-ghunnah">$1</span>')
+                    .replace(/\[q:([^\]]+)\]/g, '<span class="taj-qalqalah">$1</span>')
+                    .replace(/\[m:([^\]]+)\]/g, '<span class="taj-madd">$1</span>')
+                    .replace(/\[i:([^\]]+)\]/g, '<span class="taj-ikfa">$1</span>')
+                    .replace(/\[\w:([^\]]+)\]/g, '$1');
 
                 html += `
-                    <div class="ayah-container" onclick="App.getInsight(${i+1})" style="margin-bottom:70px; cursor:pointer">
-                        <div class="q-text">${text}</div>
-                        <div style="color:#9ca3af; line-height:1.8; max-width: 80%; margin-left: auto; text-align:right;">
-                            ${en.data.ayahs[i].text}
+                    <div class="ayah-container" onclick="App.bookmarkVerse(${id}, ${i+1})" title="Click to bookmark">
+                        <div style="text-align: center; margin-bottom: 1rem;">
+                            <span class="ayah-number">${ayah.numberInSurah}</span>
                         </div>
+                        <div class="ayah-text">${text}</div>
+                        ${this.state.showTranslation ? `<div class="ayah-translation">${en.data.ayahs[i].text}</div>` : ''}
                     </div>`;
             });
 
             reader.innerHTML = html;
-        } catch {
-            reader.innerHTML = "Error loading surah.";
+            reader.classList.add('active');
+            this.updateStats();
+        } catch (error) {
+            console.error('Load error:', error);
+            reader.innerHTML = `
+                <div class="error-message">
+                    <strong>⚠️ Error Loading Surah</strong><br>
+                    The surah could not be loaded. Please check your connection and try again.
+                </div>
+            `;
         }
     },
 
     showGrid() {
         document.getElementById('reader').style.display = "none";
-        document.getElementById('grid').style.display = "grid";
+        document.getElementById('reader').classList.remove('active');
+        document.getElementById('grid-view').style.display = "grid";
+    },
+
+    filter(query) {
+        this.state.searchQuery = query;
+        this.renderGrid(this.state.chapters);
+    },
+
+    startTracking() {
+        setInterval(() => {
+            if (document.getElementById('reader').style.display !== "none") {
+                this.state.seconds++;
+                if (this.state.seconds % 30 === 0) {
+                    this.state.xp += 10;
+                    this.updateStats();
+                    this.save();
+                }
+            }
+        }, 1000);
+    },
+
+    updateStats() {
+        const hours = Math.floor(this.state.seconds / 3600);
+        const minutes = Math.floor((this.state.seconds % 3600) / 60);
+        
+        document.getElementById('stat-chapters').textContent = this.state.completed.length;
+        document.getElementById('stat-ayahs').textContent = this.state.completed.reduce((a, b) => a + b, 0);
+        document.getElementById('stat-time').textContent = hours > 0 ? hours + 'h' : minutes + 'm';
+        document.getElementById('stat-streak').textContent = this.state.streak;
+
+        document.getElementById('modal-chapters').textContent = this.state.completed.length;
+        document.getElementById('modal-ayahs').textContent = this.state.completed.reduce((a, b) => a + b, 0);
+        document.getElementById('modal-time-full').textContent = `${hours}h ${minutes}m`;
+        document.getElementById('modal-streak').textContent = this.state.streak;
+    },
+
+    updateStreak() {
+        const today = new Date().toDateString();
+        const lastDate = this.state.lastReadDate;
+        
+        if (lastDate !== today) {
+            const lastDay = lastDate ? new Date(lastDate) : new Date();
+            const currentDay = new Date();
+            const diffDays = Math.floor((currentDay - lastDay) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) {
+                this.state.streak++;
+            } else if (diffDays > 1) {
+                this.state.streak = 1;
+            }
+            
+            this.state.lastReadDate = today;
+            this.save();
+        }
+    },
+
+    loadDailyVerse() {
+        if (this.state.chapters.length > 0) {
+            const surahIndex = Math.floor(Math.random() * this.state.chapters.length);
+            const surah = this.state.chapters[surahIndex];
+            const verseIndex = Math.floor(Math.random() * surah.numberOfAyahs);
+            document.getElementById('daily-verse').innerHTML = `
+                <strong>${surah.englishName}</strong><br>
+                Verse ${verseIndex + 1}
+            `;
+        }
+    },
+
+    toggleThemeModal() {
+        document.getElementById('themeModal').classList.toggle('active');
     },
 
     toggleStats() {
-        const modal = document.getElementById('stats-modal');
-        modal.classList.toggle('open');
+        document.getElementById('statsModal').classList.toggle('active');
     },
 
-    toggleScript() {
-        this.state.isIndoPak = !this.state.isIndoPak;
-        document.getElementById('main-content').classList.toggle('script-indopak', this.state.isIndoPak);
+    toggleSettings() {
+        document.getElementById('settingsModal').classList.toggle('active');
+        document.getElementById('fontSizeValue').textContent = this.state.fontSize + 'px';
+        document.getElementById('lineHeightValue').textContent = this.state.lineHeight.toFixed(1) + 'x';
     },
 
-    filter(q) {
-        const filtered = this.state.chapters.filter(c => 
-            c.englishName.toLowerCase().includes(q.toLowerCase())
-        );
-        this.renderGrid(filtered);
+    toggleBookmarks() {
+        const modal = document.getElementById('bookmarkModal');
+        modal.classList.toggle('active');
+        this.renderBookmarks();
     },
 
-    getInsight(num) {
-        document.getElementById("insight").innerHTML = `
-            <div class="card" style="border-color:var(--gold)">
-                <b style="color:var(--gold)">Sign ${num} Analysis:</b><br><br>
-                Sequence complete. Linguistic depth suggests a Meccan origin with focus on ontological stability.
-            </div>
-        `;
+    toggleMemoryMode() {
+        this.state.memoryMode = !this.state.memoryMode;
+        alert(this.state.memoryMode ? '✅ Memory Mode enabled - Test your memorization!' : '❌ Memory Mode disabled');
+    },
+
+    toggleDarkMode() {
+        // Theme already handles this
+    },
+
+    toggleTranslation() {
+        this.state.showTranslation = !this.state.showTranslation;
+        localStorage.setItem('sanctuary-translation', this.state.showTranslation);
+        if (this.state.currentSurah) {
+            this.loadSurah(this.state.currentSurah.number);
+        }
+    },
+
+    setScript(script) {
+        this.state.script = script;
+        localStorage.setItem('sanctuary-script', script);
+    },
+
+    setFontSize(size) {
+        this.state.fontSize = parseInt(size);
+        localStorage.setItem('sanctuary-fontSize', size);
+        document.documentElement.style.setProperty('--font-size', size + 'px');
+        document.getElementById('fontSizeValue').textContent = size + 'px';
+    },
+
+    setLineHeight(height) {
+        this.state.lineHeight = parseFloat(height);
+        localStorage.setItem('sanctuary-lineHeight', height);
+        document.documentElement.style.setProperty('--line-height', height);
+        document.getElementById('lineHeightValue').textContent = height.toFixed(1) + 'x';
+    },
+
+    bookmarkVerse(surahNumber, verseNumber) {
+        const bookmark = `${surahNumber}-${verseNumber}`;
+        const index = this.state.bookmarks.indexOf(bookmark);
+        
+        if (index > -1) {
+            this.state.bookmarks.splice(index, 1);
+        } else {
+            this.state.bookmarks.push(bookmark);
+        }
+        
+        this.save();
+    },
+
+    renderBookmarks() {
+        const list = document.getElementById('bookmarks-list');
+        if (this.state.bookmarks.length === 0) {
+            list.innerHTML = '<p style="color: var(--text-secondary);">No bookmarks yet.</p>';
+        } else {
+            list.innerHTML = this.state.bookmarks.map(bookmark => {
+                const [surah, verse] = bookmark.split('-');
+                const surahName = this.state.chapters[parseInt(surah) - 1]?.englishName || 'Unknown';
+                return `
+                    <div class="card" style="margin-bottom: 1rem; cursor: pointer;" onclick="App.loadSurah(${surah})">
+                        <strong>${surahName}</strong> - Verse ${verse}
+                    </div>
+                `;
+            }).join('');
+        }
+    },
+
+    resetStats() {
+        if (confirm('Are you sure you want to reset all statistics?')) {
+            this.state.xp = 0;
+            this.state.seconds = 0;
+            this.state.completed = [];
+            this.state.streak = 0;
+            this.save();
+            this.updateStats();
+            alert('✅ Statistics reset!');
+        }
+    },
+
+    downloadQuran() {
+        alert('💾 Download feature: Use your browser\'s print function (Ctrl+P or Cmd+P) to save as PDF.');
+    },
+
+    save() {
+        localStorage.setItem('sanctuary-xp', this.state.xp);
+        localStorage.setItem('sanctuary-time', this.state.seconds);
+        localStorage.setItem('sanctuary-completed', JSON.stringify(this.state.completed));
+        localStorage.setItem('sanctuary-bookmarks', JSON.stringify(this.state.bookmarks));
+        localStorage.setItem('sanctuary-streak', this.state.streak);
+        localStorage.setItem('sanctuary-lastReadDate', this.state.lastReadDate);
     }
 };
 
-window.onload = () => App.init();
+// Close modals on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        document.getElementById('themeModal').classList.remove('active');
+        document.getElementById('statsModal').classList.remove('active');
+        document.getElementById('settingsModal').classList.remove('active');
+        document.getElementById('bookmarkModal').classList.remove('active');
+    }
+});
+
+// Initialize on page load
+window.addEventListener('load', () => {
+    App.init();
+});
 </script>
 
 </body>
