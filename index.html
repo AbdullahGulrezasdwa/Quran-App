@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Sanctuary | v6.1 Stable</title>
+    <title>Sovereign Sanctuary | v6.3 Apex</title>
     
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Plus+Jakarta+Sans:wght@300;600;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -25,19 +25,20 @@
             height: 100vh; display: flex; transition: background 0.8s ease;
         }
 
-        /* 🖋️ SUBLIME TYPOGRAPHY */
         .ar { 
             font-size: 2.8rem; color: var(--text); font-family: var(--f-ar); 
             direction: rtl; line-height: 2.5; transition: color 0.4s ease;
         }
         .ayah-card:hover .ar { color: var(--p); }
 
+        nav, header, .settings-card { user-select: none; }
+
         #view-port::-webkit-scrollbar { width: 4px; }
         #view-port::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
         #view-port::-webkit-scrollbar-thumb:hover { background: var(--p); }
 
         .ayah-card {
-            padding: 40px; border-radius: 0px; border-bottom: 1px solid var(--border);
+            padding: 40px; border-bottom: 1px solid var(--border);
             border-left: 2px solid transparent; transition: all 0.5s ease;
             animation: fadeIn 0.8s ease forwards; opacity: 0;
         }
@@ -58,7 +59,7 @@
         #breadcrumb { font-family: 'Fira Code'; color: var(--p); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; }
 
         #settings-layer { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
-        .settings-card { width: 380px; padding: 40px; border: 1px solid var(--border); background: var(--bg); }
+        .settings-card { width: 380px; padding: 40px; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -67,16 +68,16 @@
         <div class="settings-card">
             <h4 style="font-family:'Fira Code'; color:var(--p); margin-top:0;">ENVIRONMENT_ADJUST</h4>
             <div style="display:flex; gap:10px; margin-top:20px;">
-                <button onclick="App.themes.set(false)" style="flex:1; padding:15px; background:#111; color:#fff; border:1px solid #333; cursor:pointer;">OBSIDIAN</button>
-                <button onclick="App.themes.set(true)" style="flex:1; padding:15px; background:#eee; color:#111; border:1px solid #ccc; cursor:pointer;">IVORY</button>
+                <button onclick="App.themes.set(false)" style="flex:1; padding:15px; background:#111; color:#fff; border:1px solid #333; cursor:pointer; font-family:'Fira Code';">OBSIDIAN</button>
+                <button onclick="App.themes.set(true)" style="flex:1; padding:15px; background:#eee; color:#111; border:1px solid #ccc; cursor:pointer; font-family:'Fira Code';">IVORY</button>
             </div>
-            <button onclick="App.ui.toggleSettings()" style="width:100%; margin-top:30px; background:none; border:1px solid var(--p); color:var(--p); padding:10px; cursor:pointer;">EXIT_TERMINAL</button>
+            <button onclick="App.ui.toggleSettings()" style="width:100%; margin-top:30px; background:none; border:1px solid var(--p); color:var(--p); padding:10px; cursor:pointer; font-family:'Fira Code';">EXIT_TERMINAL</button>
         </div>
     </div>
 
     <nav>
-        <button onclick="App.renderHome()" class="nav-btn active"><i data-lucide="book-open"></i></button>
-        <button onclick="App.ui.toggleSettings()" class="nav-btn"><i data-lucide="sliders"></i></button>
+        <button onclick="App.renderHome()" class="nav-btn active" aria-label="Library Home"><i data-lucide="book-open"></i></button>
+        <button onclick="App.ui.toggleSettings()" class="nav-btn" aria-label="Settings"><i data-lucide="sliders"></i></button>
         <div style="flex:1"></div>
         <div id="progress-indicator" style="font-family:'Fira Code'; font-size:0.6rem; color:var(--p); transform: rotate(-90deg);">00%</div>
     </nav>
@@ -92,24 +93,27 @@
     <script>
         const App = {
             state: { chapters: [], isLight: false },
+            activeRequest: 0, // Fix 1: Track concurrent requests
 
             init() {
+                // Keyboard Listener for ESC
+                window.onkeydown = (e) => { if(e.key === "Escape") this.ui.toggleSettings(); }
+
                 const cv = document.createElement('canvas'); const ctx = cv.getContext('2d'); document.body.appendChild(cv);
                 cv.style = "position:fixed; inset:0; z-index:-1;";
                 let pts = []; window.onresize = () => { cv.width = innerWidth; cv.height = innerHeight; }; window.onresize();
                 
                 class P { 
                     constructor() { this.reset(); } 
-                    reset() { this.x = Math.random()*cv.width; this.y = Math.random()*cv.height; this.v = 0.1 + Math.random()*0.2; }
+                    reset() { this.x = Math.random()*cv.width; this.y = Math.random()*cv.height; this.v = 0.08 + Math.random()*0.12; }
                     draw() { 
                         this.y -= this.v; if(this.y < 0) this.reset(); 
-                        // Fix 2: Live color fetching
                         ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
-                        ctx.globalAlpha = App.state.isLight ? 0.08 : 0.15; 
+                        ctx.globalAlpha = App.state.isLight ? 0.05 : 0.1; 
                         ctx.fillRect(this.x, this.y, 1, 1); 
                     } 
                 }
-                for(let i=0; i<50; i++) pts.push(new P());
+                for(let i=0; i<40; i++) pts.push(new P());
                 const loop = () => { ctx.clearRect(0,0,cv.width,cv.height); pts.forEach(p => p.draw()); requestAnimationFrame(loop); }; loop();
 
                 this.renderHome();
@@ -121,14 +125,17 @@
                 this.state.chapters = json.data;
                 document.getElementById('breadcrumb').innerText = "SYSTEM // REPOSITORY";
                 this.ui.drawDirectory(this.state.chapters);
-                lucide.createIcons(); // Fix 1: Icon re-rendering
+                lucide.createIcons();
             },
 
             async loadSurah(id) {
-                // Fix 3: Clear search input on selection
+                const currentReq = ++this.activeRequest; // Increment local request ID
+                const vp = document.getElementById('view-port');
+                
+                vp.scrollTop = 0;
+                document.getElementById('progress-indicator').innerText = '00%';
                 document.querySelector('header input').value = '';
                 
-                const vp = document.getElementById('view-port');
                 vp.innerHTML = `<div style="padding:100px; text-align:center; font-family:'Fira Code'; color:var(--p);">SYNCING_SURAH_${id}...</div>`;
                 
                 const [ar, en] = await Promise.all([
@@ -136,27 +143,36 @@
                     fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
                 ]);
 
+                // Fix 1: Check if this request is still the latest one
+                if (currentReq !== this.activeRequest) return;
+
                 document.getElementById('breadcrumb').innerText = `NODE // SURAH.${id} // ${ar.data.englishName.toUpperCase()}`;
 
+                const bismillahText = "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ";
+                let bismillahHeader = "";
+
                 vp.innerHTML = `
-                    <div style="max-width: 1000px; margin: 0 auto; padding-top: 60px;">
+                    <div style="max-width: 1000px; margin: 0 auto; padding: 60px 0 200px 0;">
                         ${ar.data.ayahs.map((v, i) => {
-                            // Fix 4: Handled Bismillah logic
                             let text = v.text;
                             if (id != 1 && id != 9 && i === 0) {
-                                text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "<span style='display:block; text-align:center; font-size:2rem; margin-bottom:40px; opacity:0.8;'>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>");
+                                if (text.startsWith(bismillahText)) {
+                                    text = text.replace(bismillahText, "").trim();
+                                    bismillahHeader = `<div style='text-align:center; font-size:2.5rem; padding-bottom:60px; font-family:var(--f-ar); opacity:0.8;'>${bismillahText}</div>`;
+                                }
                             }
                             return `
-                            <div class="ayah-card" style="animation-delay: ${i*0.02}s">
+                            ${i === 0 ? bismillahHeader : ''}
+                            <div class="ayah-card" style="animation-delay: ${i*0.01}s">
                                 <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 20px;">
                                     <span style="font-family:'Fira Code'; font-size:0.7rem; color:var(--p); opacity:0.5;">[ ${v.numberInSurah} ]</span>
                                     <div class="ar">${text}</div>
                                 </div>
-                                <div style="color:var(--text-dim); font-size:1.1rem; line-height:1.8; font-weight:300; max-width: 800px;">${en.data.ayahs[i].text}</div>
+                                <div style="color:var(--text-dim); font-size:1.15rem; line-height:1.9; font-weight:300; max-width: 800px;">${en.data.ayahs[i].text}</div>
                             </div>`;
                         }).join('')}
                     </div>`;
-                lucide.createIcons(); // Fix 1: Icon re-rendering
+                lucide.createIcons();
             },
 
             ui: {
@@ -171,7 +187,7 @@
                 updateScroll() {
                     const vp = document.getElementById('view-port');
                     const total = vp.scrollHeight - vp.clientHeight;
-                    if (total <= 0) return; // Prevent NaN
+                    if (total <= 0) return; 
                     const pct = Math.min(100, Math.max(0, Math.round((vp.scrollTop / total) * 100)));
                     document.getElementById('progress-indicator').innerText = pct.toString().padStart(2, '0') + '%';
                 },
