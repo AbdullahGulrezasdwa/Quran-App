@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sovereign Singularity | v25.0</title>
+    
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Plus+Jakarta+Sans:wght@300;800&family=Amiri&display=swap" rel="stylesheet">
@@ -22,7 +23,7 @@
         /* --- UI ELEMENTS --- */
         #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--p); width: 0%; z-index: 9999; box-shadow: 0 0 10px var(--p); transition: width 0.1s; }
 
-        nav { width: 70px; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 25px; background: #050505; }
+        nav { width: 70px; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 25px; background: #050505; z-index: 50; }
         
         .nav-btn { background: none; border: none; color: #64748b; cursor: pointer; padding: 10px; border-radius: 12px; transition: 0.3s; }
         .nav-btn:hover { color: var(--p); background: var(--p-dim); }
@@ -65,7 +66,6 @@
 
         .ar { font-family: 'Amiri', serif; font-size: 2.2rem; text-align: right; direction: rtl; line-height: 2.2; }
         .en { color: #94a3b8; font-size: 1.05rem; line-height: 1.6; margin-top: 20px; }
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -73,13 +73,13 @@
     <div id="scroll-progress"></div>
 
     <div id="cli-layer">
-        <div style="color:var(--p); margin-bottom: 20px; font-size: 0.9rem;">[ SYSTEM_TERMINAL_ACTIVE ] TYPE 'GOTO [NUM]' OR 'BACK'</div>
+        <div style="color:var(--p); margin-bottom: 20px; font-size: 0.9rem;">[ SYSTEM_TERMINAL_ACTIVE ] TYPE 'GOTO [NUM]:[AYAH]' OR 'CLEAR'</div>
         <input type="text" id="cli-input" autofocus spellcheck="false" autocomplete="off">
     </div>
 
     <main style="display:flex; height:100vh;">
         <nav>
-            <button onclick="App.renderHome()" class="nav-btn" title="Home"><i data-lucide="home"></i></button>
+            <button onclick="App.renderHome()" class="nav-btn" title="Home Directory"><i data-lucide="home"></i></button>
             <button onclick="App.ui.toggleDualPane()" class="nav-btn" title="Dual Pane"><i data-lucide="columns-2"></i></button>
             <button onclick="App.voice.start()" class="nav-btn" title="Voice Search"><i data-lucide="mic"></i></button>
             <button onclick="App.sys.toggleWakeLock()" id="wake-btn" class="nav-btn" title="Stay Awake"><i data-lucide="sun"></i></button>
@@ -87,11 +87,17 @@
         </nav>
 
         <section style="flex:1; display:flex; flex-direction:column;">
-            <header style="height:70px; border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 30px; justify-content:space-between; background: #030303;">
-                <div id="zen-timer">ZEN_SESSION: 00:00</div>
-                <div style="display:flex; gap:10px; align-items: center;">
-                    <span id="status-tag" style="font-size: 0.6rem; color: #4ade80;">● STABLE</span>
-                    <button class="nav-btn" onclick="App.cli.toggle()" style="font-family:'Fira Code'; font-size:0.7rem;">CONSOLE [ ` ]</button>
+            <header style="height:70px; border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 30px; justify-content:space-between; background: #030303; z-index: 40;">
+                <div style="display:flex; align-items:center; gap:20px;">
+                    <div id="zen-timer">ZEN_SESSION: 00:00</div>
+                    <input type="text" id="main-search" placeholder="Search Surah or '18:10'..." 
+                           style="background:var(--surf); border:1px solid var(--border); color:#fff; padding:8px 15px; border-radius:10px; outline:none; width:250px; font-size:0.8rem; font-family:'Plus Jakarta Sans';"
+                           oninput="App.ui.filterSurahs(this.value)"
+                           onkeydown="if(event.key === 'Enter') App.ui.handleSearchEnter(this.value)">
+                </div>
+                <div style="display:flex; gap:15px; align-items: center;">
+                    <span id="status-tag" style="font-size: 0.6rem; color: #4ade80; font-family:'Fira Code';">● STABLE</span>
+                    <button class="nav-btn" onclick="App.cli.toggle()" style="font-family:'Fira Code'; font-size:0.7rem; padding: 5px 10px;">CONSOLE [ ` ]</button>
                 </div>
             </header>
 
@@ -100,15 +106,19 @@
     </main>
 
     <script>
-        // --- 2. DATABASE (DEXIE) FIX ---
+        // --- DATABASE INIT ---
         const db = new Dexie("Sovereignv25");
         db.version(1).stores({
-            surahs: 'id', // Stores full Surah data
-            meta: 'key'   // Stores general settings and home list
+            surahs: 'id', // Stores full Surah arrays
+            meta: 'key'   // Stores general directory info
         });
 
         const App = {
-            state: { wakeLock: null, dualPane: localStorage.getItem('dualPane') === 'true' },
+            state: { 
+                wakeLock: null, 
+                dualPane: localStorage.getItem('dualPane') === 'true',
+                chapters: [] 
+            },
 
             async init() {
                 this.cli.init();
@@ -116,11 +126,10 @@
                 this.router.init();
                 lucide.createIcons();
                 
-                // Set initial Dual Pane state from storage
                 if(this.state.dualPane) document.body.classList.add('dual-pane-active');
             },
 
-            // --- 3. URL & ROUTING FIX ---
+            // --- ROUTER ---
             router: {
                 init() {
                     window.onpopstate = () => this.handleURL();
@@ -138,9 +147,11 @@
                 }
             },
 
+            // --- RENDER HOME ---
             async renderHome() {
                 const vp = document.getElementById('view-port');
-                vp.innerHTML = `<div style="color:var(--p)">SCANNING_ARCHIVES...</div>`;
+                vp.innerHTML = `<div style="color:var(--p); font-family:'Fira Code';">SCANNING_ARCHIVES...</div>`;
+                document.getElementById('main-search').value = ''; // Clear search
                 
                 let chapters;
                 const cached = await db.meta.get('chapters');
@@ -148,34 +159,27 @@
                 if (cached) {
                     chapters = cached.data;
                 } else {
-                    const res = await fetch('https://api.alquran.cloud/v1/surah');
-                    const json = await res.json();
-                    chapters = json.data;
-                    await db.meta.put({key: 'chapters', data: chapters});
+                    try {
+                        const res = await fetch('https://api.alquran.cloud/v1/surah');
+                        const json = await res.json();
+                        chapters = json.data;
+                        await db.meta.put({key: 'chapters', data: chapters});
+                    } catch (e) {
+                        vp.innerHTML = `<div style="color:#ef4444;">NETWORK_ERROR: UNABLE TO FETCH ARCHIVES.</div>`;
+                        return;
+                    }
                 }
 
-                vp.innerHTML = `
-                    <h2 style="font-weight:800; letter-spacing:-1px; margin-bottom:30px;">SURAH_DIRECTORY</h2>
-                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
-                        ${chapters.map(s => `
-                            <div class="surah-card" onclick="App.router.push(${s.number}); App.loadSurah(${s.number})">
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <span style="font-family:'Fira Code'; color:var(--p); font-size:0.7rem;">ID_${s.number.toString().padStart(3,'0')}</span>
-                                    <span style="font-family:'Amiri'; color:var(--p);">${s.name}</span>
-                                </div>
-                                <div style="font-weight:800; font-size:1.1rem; margin:10px 0;">${s.englishName}</div>
-                                <div style="font-size:0.7rem; color:#64748b;">${s.numberOfAyahs} AYHS | ${s.revelationType.toUpperCase()}</div>
-                            </div>
-                        `).join('')}
-                    </div>`;
+                this.state.chapters = chapters;
+                this.ui.displaySurahs(chapters);
                 this.router.push(null);
             },
 
-            async loadSurah(id) {
+            // --- LOAD SURAH ---
+            async loadSurah(id, ayahNum = null) {
                 const vp = document.getElementById('view-port');
                 vp.scrollTop = 0;
 
-                // Check Cache
                 const cached = await db.surahs.get(parseInt(id));
                 let arData, enData;
 
@@ -183,7 +187,7 @@
                     arData = cached.ar;
                     enData = cached.en;
                 } else {
-                    vp.innerHTML = `<div style="color:var(--p)">ESTABLISHING_NEURAL_LINK...</div>`;
+                    vp.innerHTML = `<div style="color:var(--p); font-family:'Fira Code';">ESTABLISHING_NEURAL_LINK...</div>`;
                     try {
                         const [ar, en] = await Promise.all([
                             fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
@@ -192,60 +196,89 @@
                         arData = ar.data; enData = en.data;
                         await db.surahs.put({id: parseInt(id), ar: arData, en: enData});
                     } catch(e) { 
-                        vp.innerHTML = `<div style="color:#ef4444">LINK_FAILED. CHECK_NETWORK.</div>`;
+                        vp.innerHTML = `<div style="color:#ef4444; font-family:'Fira Code';">LINK_FAILED. CHECK_NETWORK.</div>`;
                         return;
                     }
                 }
 
                 vp.innerHTML = `
                     <div style="margin-bottom:40px; border-bottom:1px solid var(--border); padding-bottom:20px;">
-                        <h1 style="margin:0; font-weight:800;">${arData.englishName}</h1>
-                        <p style="color:var(--p); font-family:'Fira Code'; font-size:0.8rem;">${arData.englishNameTranslation} | ${arData.revelationType}</p>
+                        <h1 style="margin:0; font-weight:800; font-size:2rem;">${arData.englishName}</h1>
+                        <p style="color:var(--p); font-family:'Fira Code'; font-size:0.8rem; margin-top:5px;">${arData.englishNameTranslation} | ${arData.revelationType.toUpperCase()}</p>
                     </div>
                     <div id="reader-grid" class="reader-grid ${this.state.dualPane ? 'dual-pane' : ''}">
                         ${arData.ayahs.map((v, i) => `
                             <div class="ayah-card" id="v-${v.numberInSurah}">
                                 <div class="ar">${v.text}</div>
-                                <div class="en"><span style="color:var(--p); font-family:'Fira Code'; margin-right:10px;">${v.numberInSurah}</span>${enData.ayahs[i].text}</div>
+                                <div class="en"><span style="color:var(--p); font-family:'Fira Code'; margin-right:10px;">[${id}:${v.numberInSurah}]</span>${enData.ayahs[i].text}</div>
                             </div>
                         `).join('')}
                     </div>`;
-            },
 
-            // --- CLI ---
-            cli: {
-                toggle() {
-                    const el = document.getElementById('cli-layer');
-                    el.style.display = (el.style.display === 'flex') ? 'none' : 'flex';
-                    if(el.style.display === 'flex') document.getElementById('cli-input').focus();
-                },
-                init() {
-                    document.getElementById('cli-input').onkeydown = (e) => {
-                        if (e.key === 'Enter') {
-                            const val = e.target.value.toLowerCase().trim();
-                            if (val.startsWith('goto ')) {
-                                const id = val.split(' ')[1];
-                                App.router.push(id); App.loadSurah(id);
-                            } else if (val === 'back' || val === 'home') {
-                                App.renderHome();
-                            } else if (val === 'clear') {
-                                db.delete().then(() => location.reload());
-                            }
-                            this.toggle();
-                            e.target.value = '';
+                // Quick Jump Scroll Logic
+                if (ayahNum) {
+                    setTimeout(() => {
+                        const target = document.getElementById(`v-${ayahNum}`);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            target.style.borderColor = 'var(--p)';
+                            target.style.boxShadow = '0 0 20px var(--p-dim)';
                         }
-                    };
-                    window.onkeydown = (e) => { if (e.key === '`') this.toggle(); };
+                    }, 100);
                 }
             },
 
-            // --- UTILS ---
+            // --- UI & SEARCH LOGIC ---
             ui: {
+                filterSurahs(query) {
+                    const q = query.toLowerCase();
+                    // Do not filter if user is typing a deep link
+                    if (q.includes(':')) return;
+
+                    const filtered = App.state.chapters.filter(s => 
+                        s.englishName.toLowerCase().includes(q) || 
+                        s.number.toString() === q ||
+                        s.englishNameTranslation.toLowerCase().includes(q)
+                    );
+                    this.displaySurahs(filtered);
+                },
+
+                handleSearchEnter(query) {
+                    // Trigger deep link (e.g. 18:10) on Enter key
+                    if (query.includes(':')) {
+                        const [s, a] = query.split(':');
+                        if (s && a) {
+                            App.router.push(s);
+                            App.loadSurah(s, a);
+                            document.getElementById('main-search').blur();
+                        }
+                    }
+                },
+
+                displaySurahs(list) {
+                    const vp = document.getElementById('view-port');
+                    vp.innerHTML = `
+                        <h2 style="font-weight:800; letter-spacing:-1px; margin-bottom:30px;">SURAH_DIRECTORY</h2>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
+                            ${list.map(s => `
+                                <div class="surah-card" onclick="App.router.push(${s.number}); App.loadSurah(${s.number})">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span style="font-family:'Fira Code'; color:var(--p); font-size:0.7rem;">ID_${s.number.toString().padStart(3,'0')}</span>
+                                        <span style="font-family:'Amiri'; color:var(--p); font-size:1.2rem;">${s.name}</span>
+                                    </div>
+                                    <div style="font-weight:800; font-size:1.1rem; margin:10px 0;">${s.englishName}</div>
+                                    <div style="font-size:0.7rem; color:#64748b;">${s.numberOfAyahs} AYHS | ${s.revelationType.toUpperCase()}</div>
+                                </div>
+                            `).join('')}
+                        </div>`;
+                },
+
                 updateScrollProgress() {
                     const vp = document.getElementById('view-port');
                     const pct = (vp.scrollTop / (vp.scrollHeight - vp.offsetHeight)) * 100;
                     document.getElementById('scroll-progress').style.width = pct + '%';
                 },
+
                 toggleDualPane() {
                     App.state.dualPane = !App.state.dualPane;
                     localStorage.setItem('dualPane', App.state.dualPane);
@@ -254,12 +287,49 @@
                 }
             },
 
+            // --- CLI ---
+            cli: {
+                toggle() {
+                    const el = document.getElementById('cli-layer');
+                    el.style.display = (el.style.display === 'flex') ? 'none' : 'flex';
+                    if(el.style.display === 'flex') {
+                        document.getElementById('cli-input').focus();
+                        document.getElementById('cli-input').value = '';
+                    }
+                },
+                init() {
+                    document.getElementById('cli-input').onkeydown = (e) => {
+                        if (e.key === 'Enter') {
+                            const val = e.target.value.toLowerCase().trim();
+                            if (val.startsWith('goto ')) {
+                                const target = val.split(' ')[1]; // "18" or "18:10"
+                                if (target.includes(':')) {
+                                    const [s, a] = target.split(':');
+                                    App.router.push(s); App.loadSurah(s, a);
+                                } else {
+                                    App.router.push(target); App.loadSurah(target);
+                                }
+                            } else if (val === 'back' || val === 'home') {
+                                App.renderHome();
+                            } else if (val === 'clear') {
+                                db.delete().then(() => location.reload());
+                            }
+                            this.toggle();
+                        }
+                    };
+                    window.onkeydown = (e) => { 
+                        if (e.key === '`') { e.preventDefault(); this.toggle(); }
+                    };
+                }
+            },
+
+            // --- SYSTEM API ---
             sys: {
                 async toggleWakeLock() {
                     if (App.state.wakeLock) {
                         App.state.wakeLock.release();
                         App.state.wakeLock = null;
-                        document.getElementById('wake-btn').style.color = '';
+                        document.getElementById('wake-btn').style.color = '#64748b';
                     } else {
                         try {
                             App.state.wakeLock = await navigator.wakeLock.request('screen');
@@ -269,12 +339,13 @@
                 }
             },
 
+            // --- VOICE SEARCH ---
             voice: {
                 start() {
                     const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    if (!Speech) return alert("Browser not supported");
+                    if (!Speech) return alert("Voice API not supported in this browser.");
                     const rec = new Speech();
-                    rec.onstart = () => document.getElementById('status-tag').innerText = '● LISTENING';
+                    rec.onstart = () => document.getElementById('status-tag').innerText = '● LISTENING...';
                     rec.onresult = (e) => {
                         const cmd = e.results[0][0].transcript.toLowerCase();
                         const num = cmd.match(/\d+/);
@@ -285,6 +356,7 @@
                 }
             },
 
+            // --- ZEN TIMER ---
             zen: {
                 start() {
                     let start = Date.now();
@@ -298,6 +370,7 @@
             }
         };
 
+        // Boot
         window.onload = () => App.init();
     </script>
 </body>
