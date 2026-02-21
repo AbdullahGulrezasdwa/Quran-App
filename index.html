@@ -3,108 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Singularity | v4.0 Prism</title>
+    <title>Sovereign Singularity | v4.1 Scholar</title>
     
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Plus+Jakarta+Sans:wght@300;600;800&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic&family=Scheherazade+New&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Plus+Jakarta+Sans:wght@300;600;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root { 
             --p: #00f2ff; --p-dim: rgba(0, 242, 255, 0.1); --bg: #050505; --surf: rgba(255, 255, 255, 0.03); 
             --border: rgba(255,255,255,0.08); --radius: 28px; --f-ar: 'Amiri', serif; --fs-ar: 2.2rem;
+            --ar-opacity: 1;
         }
         
-        /* THEME MATRIX */
+        /* Theme Matrix - Expanded v4.1 */
         body.theme-bloodline { --p: #ff003c; --p-dim: rgba(255, 0, 60, 0.1); --bg: #080000; }
         body.theme-gold { --p: #ffcc00; --p-dim: rgba(255, 204, 0, 0.1); --bg: #080700; }
-        body.theme-nord { --p: #88c0d0; --p-dim: rgba(136, 192, 208, 0.1); --bg: #2e3440; }
-        body.theme-rose { --p: #f472b6; --p-dim: rgba(244, 114, 182, 0.1); --bg: #1c0d15; }
-        body.theme-emerald { --p: #10b981; --p-dim: rgba(16, 185, 129, 0.1); --bg: #020d0a; }
-        body.theme-monochrome { --p: #ffffff; --p-dim: rgba(255, 255, 255, 0.1); --bg: #000000; }
-        body.theme-slate { --p: #94a3b8; --p-dim: rgba(148, 163, 184, 0.1); --bg: #0f172a; }
-        body.theme-ocean { --p: #3b82f6; --p-dim: rgba(59, 130, 246, 0.1); --bg: #020617; }
-        body.theme-amoled { --p: #00f2ff; --p-dim: rgba(0, 242, 255, 0.05); --bg: #000000; }
-        body.theme-white { --p: #000000; --p-dim: rgba(0, 0, 0, 0.05); --bg: #ffffff; --surf: rgba(0,0,0,0.02); --border: rgba(0,0,0,0.1); }
-        body.theme-white .en-ver, body.theme-white h1, body.theme-white .ar { color: #222 !important; }
+        body.theme-monochrome { --p: #ffffff; --p-dim: rgba(255, 255, 255, 0.1); --bg: #000; }
+        body.theme-amoled { --p: #00f2ff; --p-dim: rgba(0, 242, 255, 0.05); --bg: #000; }
 
-        body { background: var(--bg); color: #fff; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        body { background: var(--bg); color: #fff; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; transition: all 0.4s ease; }
         
-        /* Glass UI Components */
         nav { width: 85px; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; gap: 20px; background: rgba(0,0,0,0.2); backdrop-filter: blur(20px); z-index: 100; }
         #view-port { flex: 1; overflow-y: auto; padding: 40px; scroll-behavior: smooth; }
 
-        .nav-btn { background: none; border: none; color: #64748b; cursor: pointer; padding: 15px; border-radius: 20px; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
-        .nav-btn:hover, .nav-btn.active { color: var(--p); background: var(--surf); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .nav-btn { background: none; border: none; color: #64748b; cursor: pointer; padding: 15px; border-radius: 20px; transition: 0.3s; }
+        .nav-btn:hover, .nav-btn.active { color: var(--p); background: var(--surf); }
         
         .ayah-card { padding: 40px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surf); margin-bottom: 30px; backdrop-filter: blur(10px); transition: 0.4s ease; }
-        .ayah-card:hover { border-color: var(--p); transform: translateY(-4px); }
-
-        .ar { font-family: var(--f-ar); font-size: var(--fs-ar); text-align: right; direction: rtl; line-height: 2.2; margin-bottom: 20px; }
+        
+        .ar { 
+            font-family: var(--f-ar); font-size: var(--fs-ar); text-align: right; direction: rtl; line-height: 2.2; 
+            margin-bottom: 20px; transition: 0.3s; opacity: var(--ar-opacity); 
+        }
+        .ar:hover { opacity: 1 !important; } /* Reveals on hover in Ghost Mode */
+        
         .en-ver { color: #94a3b8; font-size: 1.1rem; line-height: 1.7; font-weight: 300; }
+        .highlight { color: var(--p); font-weight: 800; text-decoration: underline; }
 
         /* Settings Overlay */
         #settings-layer { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); z-index: 500; display: none; align-items: center; justify-content: center; }
-        .settings-card { background: #0a0a0c; border: 1px solid var(--border); border-radius: 32px; width: 500px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        .settings-row { margin-bottom: 25px; }
-        .settings-row label { display: block; font-size: 0.7rem; color: #64748b; margin-bottom: 10px; font-family: 'Fira Code'; }
+        .settings-card { background: #0a0a0c; border: 1px solid var(--border); border-radius: 32px; width: 450px; padding: 40px; }
+        .settings-row { margin-bottom: 20px; }
+        .settings-row label { display: block; font-size: 0.65rem; color: #64748b; margin-bottom: 8px; font-family: 'Fira Code'; }
         
         select, input[type="range"] { width: 100%; background: #1a1a1e; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 12px; outline: none; }
 
         #audio-hud { position: fixed; bottom: 30px; right: 30px; background: rgba(10,10,12,0.8); backdrop-filter: blur(20px); border: 1px solid var(--p); padding: 20px; border-radius: 24px; display: none; align-items: center; gap: 20px; z-index: 200; }
-        #scroll-progress { position: fixed; top: 0; left: 0; height: 4px; background: var(--p); width: 0%; z-index: 9999; }
     </style>
 </head>
 <body>
 
-    <div id="scroll-progress"></div>
-
     <div id="settings-layer" onclick="if(event.target===this) App.ui.toggleSettings()">
         <div class="settings-card">
-            <h2 style="margin-top:0; font-weight:800; display:flex; justify-content:space-between;">SETTINGS <button onclick="App.ui.toggleSettings()" style="background:none; border:none; color:#64748b; cursor:pointer;">&times;</button></h2>
+            <h2 style="margin-top:0; font-weight:800;">INTERFACE_CONFIG</h2>
             
             <div class="settings-row">
-                <label>CORE_THEME</label>
-                <select onchange="App.themes.apply(this.value)" id="theme-select">
-                    <option value="singularity">Singularity (Default)</option>
-                    <option value="amoled">Amoled (Pure Black)</option>
-                    <option value="monochrome">Monochrome (White/Black)</option>
-                    <option value="white">Paper (Light Mode)</option>
-                    <option value="bloodline">Bloodline (Red)</option>
+                <label>GHOST_MODE (HIFZ)</label>
+                <select onchange="App.ui.setGhostMode(this.value)">
+                    <option value="1">Off (Full Visibility)</option>
+                    <option value="0.1">On (Reveal on Hover)</option>
+                </select>
+            </div>
+
+            <div class="settings-row">
+                <label>PLAYBACK_RATE</label>
+                <input type="range" min="0.5" max="2" step="0.1" value="1" id="speed-slider" oninput="App.audio.setSpeed(this.value)">
+                <div id="speed-val" style="font-size:0.7rem; color:var(--p); text-align:right;">1.0x</div>
+            </div>
+
+            <div class="settings-row">
+                <label>THEME_SELECTION</label>
+                <select onchange="App.themes.apply(this.value)">
+                    <option value="singularity">Singularity</option>
+                    <option value="bloodline">Bloodline</option>
                     <option value="gold">Royal Gold</option>
-                    <option value="nord">Nordic Frost</option>
-                    <option value="rose">Rose Quartz</option>
-                    <option value="emerald">Emerald Forest</option>
-                    <option value="slate">Deep Slate</option>
-                    <option value="ocean">Midnight Ocean</option>
+                    <option value="monochrome">Monochrome</option>
                 </select>
             </div>
 
-            <div class="settings-row">
-                <label>ARABIC_FONT_FAMILY</label>
-                <select onchange="App.ui.setFont(this.value)">
-                    <option value="'Amiri', serif">Amiri (Classic)</option>
-                    <option value="'Noto Naskh Arabic', serif">Noto Naskh</option>
-                    <option value="'Scheherazade New', serif">Scheherazade</option>
-                </select>
-            </div>
-
-            <div class="settings-row">
-                <label>FONT_SIZE_SCALE</label>
-                <input type="range" min="1.5" max="4" step="0.1" value="2.2" oninput="App.ui.setFontSize(this.value)">
-            </div>
-
-            <div class="settings-row">
-                <label>RECITER_NODE</label>
-                <select onchange="App.state.reciter = this.value">
-                    <option value="ar.alafasy">Mishary Al-Afasy</option>
-                    <option value="ar.abdulsamad">Abdul Basit</option>
-                    <option value="ar.husary">Al-Husary</option>
-                    <option value="ar.minshawi">Al-Minshawi</option>
-                </select>
-            </div>
-            
-            <button class="nav-btn" style="width:100%; background:var(--p-dim); color:var(--p)" onclick="App.ui.toggleSettings()">SAVE_AND_EXIT</button>
+            <button class="nav-btn" style="width:100%; background:var(--p-dim); color:var(--p)" onclick="App.ui.toggleSettings()">CLOSE</button>
         </div>
     </div>
 
@@ -123,8 +101,6 @@
         <nav>
             <button onclick="App.renderHome()" class="nav-btn"><i data-lucide="home"></i></button>
             <button onclick="App.themes.cycle()" class="nav-btn"><i data-lucide="palette"></i></button>
-            <button onclick="App.audio.showHUD()" class="nav-btn"><i data-lucide="headphones"></i></button>
-            <button onclick="App.user.export()" class="nav-btn"><i data-lucide="download"></i></button>
             <div style="flex:1"></div>
             <button onclick="App.ui.toggleSettings()" class="nav-btn"><i data-lucide="settings"></i></button>
         </nav>
@@ -137,25 +113,18 @@
                            style="background:var(--surf); border:1px solid var(--border); color:#fff; padding:12px 25px; border-radius:18px; width:350px; outline:none;"
                            oninput="App.ui.masterSearch(this.value)">
                 </div>
-                <div id="goal-tag" style="font-size: 0.6rem; font-family:'Fira Code'; color:var(--p); background:var(--p-dim); padding:6px 12px; border-radius:10px;">v4.0_PRISM_GLASS</div>
+                <div class="tag" style="font-size:0.6rem; font-family:'Fira Code'; color:var(--p);">v4.1_SCHOLAR_EDGE</div>
             </header>
-
-            <div id="view-port" onscroll="App.ui.handleScroll()"></div>
+            <div id="view-port"></div>
         </section>
     </main>
 
     <script>
-        const db = new Dexie("PrismCoreDB");
-        db.version(1).stores({ surahs: 'id', userdata: 'id', meta: 'key' });
+        const db = new Dexie("ScholarDB");
+        db.version(1).stores({ meta: 'key' });
 
         const App = {
-            state: {
-                theme: localStorage.getItem('p-theme') || 'singularity',
-                reciter: 'ar.alafasy',
-                chapters: [],
-                fontSize: 2.2,
-                fontFamily: "'Amiri', serif"
-            },
+            state: { theme: 'singularity', reciter: 'ar.alafasy', chapters: [] },
 
             async init() {
                 this.themes.apply(this.state.theme);
@@ -175,47 +144,36 @@
 
             async renderHome() {
                 const vp = document.getElementById('view-port');
-                vp.innerHTML = `<div style="color:var(--p); font-family:'Fira Code';">LOADING_NODES...</div>`;
-                const cached = await db.meta.get('chapters');
-                if(cached) this.state.chapters = cached.data;
-                else {
-                    const res = await fetch('https://api.alquran.cloud/v1/surah');
-                    const json = await res.json();
-                    this.state.chapters = json.data;
-                    await db.meta.put({key: 'chapters', data: this.state.chapters});
-                }
+                vp.innerHTML = `<div style="color:var(--p); font-family:'Fira Code';">SYNCING_INDEX...</div>`;
+                const res = await fetch('https://api.alquran.cloud/v1/surah');
+                const json = await res.json();
+                this.state.chapters = json.data;
                 this.ui.drawDirectory(this.state.chapters);
             },
 
             async loadSurah(id) {
                 const vp = document.getElementById('view-port');
-                vp.innerHTML = `<div style="color:var(--p); font-family:'Fira Code';">SYNCING_CORE_${id}...</div>`;
-                
-                try {
-                    const [ar, en] = await Promise.all([
-                        fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
-                        fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
-                    ]);
+                vp.innerHTML = `<div style="color:var(--p); font-family:'Fira Code';">FETCHING_SURAH_${id}...</div>`;
+                const [ar, en] = await Promise.all([
+                    fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
+                    fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
+                ]);
 
-                    vp.innerHTML = `
-                        <div style="margin-bottom:60px; text-align:center;">
-                            <h1 style="font-size:4rem; margin:0; font-family:var(--f-ar); color:var(--p);">${ar.data.name}</h1>
-                            <p style="opacity:0.5; font-family:'Fira Code';">${ar.data.englishName.toUpperCase()}</p>
+                vp.innerHTML = `
+                    <div style="text-align:center; margin-bottom:50px;">
+                        <h1 style="font-size:4rem; font-family:var(--f-ar); color:var(--p); margin:0;">${ar.data.name}</h1>
+                        <p style="opacity:0.4;">${ar.data.englishName}</p>
+                    </div>
+                    ${ar.data.ayahs.map((v, i) => `
+                        <div class="ayah-card" id="a-${v.numberInSurah}">
+                            <div class="ar">${v.text}</div>
+                            <div class="en-ver">${en.data.ayahs[i].text}</div>
+                            <button class="nav-btn" style="margin-top:20px" onclick="App.audio.play('${v.number}', '${id}:${v.numberInSurah}')">
+                                <i data-lucide="play" style="width:14px"></i>
+                            </button>
                         </div>
-                        <div id="reader-grid">
-                            ${ar.data.ayahs.map((v, i) => `
-                                <div class="ayah-card" id="a-${v.numberInSurah}">
-                                    <div class="ar">${v.text}</div>
-                                    <div class="en-ver">${en.data.ayahs[i].text}</div>
-                                    <div style="margin-top:25px; display:flex; gap:10px;">
-                                        <button class="nav-btn" onclick="App.audio.play('${v.number}', '${id}:${v.numberInSurah}')"><i data-lucide="play" style="width:16px"></i></button>
-                                        <button class="nav-btn" onclick="App.user.toggleHifz('${id}:${v.numberInSurah}')"><i data-lucide="bookmark" style="width:16px"></i></button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>`;
-                    lucide.createIcons();
-                } catch(e) { vp.innerHTML = `<div style="color:red">ERROR_PULLING_SURAH</div>`; }
+                    `).join('')}`;
+                lucide.createIcons();
             },
 
             ui: {
@@ -223,34 +181,31 @@
                     const el = document.getElementById('settings-layer');
                     el.style.display = (el.style.display === 'flex') ? 'none' : 'flex';
                 },
-                setFontSize(s) {
-                    document.documentElement.style.setProperty('--fs-ar', s + 'rem');
+                setGhostMode(val) {
+                    document.documentElement.style.setProperty('--ar-opacity', val);
                 },
-                setFont(f) {
-                    document.documentElement.style.setProperty('--f-ar', f);
-                },
-                drawDirectory(list) {
+                drawDirectory(list, query = "") {
                     const vp = document.getElementById('view-port');
-                    vp.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:30px;">
-                        ${list.map(s => `
-                            <div class="ayah-card" style="margin:0; cursor:pointer;" onclick="App.router.push(${s.number}); App.loadSurah(${s.number})">
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <span style="font-family:'Fira Code'; font-size:0.6rem; color:var(--p);">NODE_${s.number}</span>
-                                    <span style="font-family:'Amiri'; font-size:1.4rem; color:var(--p);">${s.name}</span>
+                    vp.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:25px;">
+                        ${list.map(s => {
+                            let name = s.englishName;
+                            if(query) name = name.replace(new RegExp(query, 'gi'), m => `<span class="highlight">${m}</span>`);
+                            return `
+                                <div class="ayah-card" style="margin:0; cursor:pointer;" onclick="App.router.push(${s.number}); App.loadSurah(${s.number})">
+                                    <div style="display:flex; justify-content:space-between; color:var(--p); font-family:'Fira Code'; font-size:0.6rem;">
+                                        <span>ID_${s.number}</span>
+                                        <span style="font-family:'Amiri'; font-size:1.2rem;">${s.name}</span>
+                                    </div>
+                                    <h3 style="margin:10px 0 5px 0;">${name}</h3>
+                                    <div style="font-size:0.7rem; opacity:0.5;">${s.numberOfAyahs} VERSES</div>
                                 </div>
-                                <h3 style="margin:15px 0 5px 0; font-weight:800;">${s.englishName}</h3>
-                                <div style="font-size:0.7rem; color:#64748b; font-family:'Fira Code';">${s.numberOfAyahs} AYHS | ${s.revelationType}</div>
-                            </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>`;
-                },
-                handleScroll() {
-                    const vp = document.getElementById('view-port');
-                    document.getElementById('scroll-progress').style.width = (vp.scrollTop / (vp.scrollHeight - vp.offsetHeight)) * 100 + '%';
                 },
                 masterSearch(q) {
                     const filtered = App.state.chapters.filter(c => c.englishName.toLowerCase().includes(q.toLowerCase()));
-                    this.drawDirectory(filtered);
+                    this.drawDirectory(filtered, q);
                 }
             },
 
@@ -259,29 +214,44 @@
                     const player = document.getElementById('global-audio');
                     document.getElementById('ayah-coord').innerText = coord;
                     document.getElementById('audio-hud').style.display = 'flex';
+                    player.dataset.currentGlobalId = globalId; 
                     player.src = `https://cdn.islamic.network/quran/audio/128/${App.state.reciter}/${globalId}.mp3`;
                     player.play();
+                    
+                    document.querySelectorAll('.ayah-card').forEach(c => c.style.borderColor = 'var(--border)');
+                    const activeCard = document.getElementById(`a-${coord.split(':')[1]}`);
+                    if(activeCard) {
+                        activeCard.style.borderColor = 'var(--p)';
+                        activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 },
-                next() { /* Auto-next logic same as v3.6 */ },
+                next() {
+                    const player = document.getElementById('global-audio');
+                    let nextId = parseInt(player.dataset.currentGlobalId) + 1;
+                    if (nextId <= 6236) {
+                        const [surahId, ayahInSurah] = document.getElementById('ayah-coord').innerText.split(':');
+                        const newAyahNum = parseInt(ayahInSurah) + 1;
+                        this.play(nextId, `${surahId}:${newAyahNum}`);
+                    }
+                },
+                setSpeed(val) {
+                    document.getElementById('global-audio').playbackRate = val;
+                    document.getElementById('speed-val').innerText = val + 'x';
+                },
                 togglePlay() {
                     const p = document.getElementById('global-audio');
-                    if(p.paused) p.play(); else p.pause();
+                    p.paused ? p.play() : p.pause();
                 },
-                showHUD() { document.getElementById('audio-hud').style.display = 'flex'; },
                 hideHUD() { document.getElementById('audio-hud').style.display = 'none'; document.getElementById('global-audio').pause(); }
-            },
-
-            user: {
-                export() { /* Export logic */ }
             },
 
             themes: {
                 apply(n) {
                     document.body.className = n === 'singularity' ? '' : `theme-${n}`;
-                    App.state.theme = n; localStorage.setItem('p-theme', n);
+                    App.state.theme = n;
                 },
                 cycle() {
-                    const l = ['singularity','bloodline','gold','nord','rose','emerald','slate','ocean','amoled','monochrome','white'];
+                    const l = ['singularity','bloodline','gold','monochrome'];
                     this.apply(l[(l.indexOf(App.state.theme)+1)%l.length]);
                 }
             },
