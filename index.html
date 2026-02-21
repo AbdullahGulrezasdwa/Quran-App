@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emerald Sanctuary | v1.2 Sentinel</title>
+    <title>Emerald Sanctuary | v1.4 s</title>
     
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -11,231 +11,234 @@
     <style>
         :root {
             --emerald-p: #10b981;
-            --emerald-d: #064e3b;
-            --glass: rgba(6, 78, 59, 0.7);
-            --glass-border: rgba(16, 185, 129, 0.3);
-            --bg-gradient: radial-gradient(circle at top right, #064e3b, #022c22);
-            --text: #ecfdf5;
-            --card-radius: 30px;
+            --glass: rgba(6, 40, 30, 0.75);
+            --glass-bright: rgba(255, 255, 255, 0.05);
+            --border: rgba(16, 185, 129, 0.4);
+            --bg: #020f0c;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 20px rgba(16, 185, 129, 0.1);
+            --ar-size: 2.8rem;
         }
 
-        * { box-sizing: border-box; transition: all 0.3s ease; }
+        * { box-sizing: border-box; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         body { 
             margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--bg-gradient); color: var(--text); 
-            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            background: var(--bg); color: #ecfdf5; 
+            height: 100vh; overflow: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #064e3b 0%, #020f0c 100%);
         }
 
-        .glass {
+        /* 💎 Extreme Glass Panels */
+        .deep-glass {
             background: var(--glass);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255,255,255,0.2); /* Specular highlight */
+            border-radius: 32px;
+            box-shadow: var(--shadow);
         }
 
-        /* 🤖 AI Sidebar Hub */
-        #ai-sidebar {
-            width: 350px; padding: 25px; display: flex; flex-direction: column; gap: 20px;
-            border-left: 1px solid var(--glass-border);
-        }
-
-        .ai-chat-box {
-            flex: 1; background: rgba(0,0,0,0.2); border-radius: 20px;
-            padding: 15px; font-size: 0.9rem; line-height: 1.6; overflow-y: auto;
-            border: 1px inset var(--glass-border);
-        }
-
-        .ai-status {
-            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px;
-            color: var(--emerald-p); display: flex; align-items: center; gap: 5px;
-        }
-
-        /* 🕋 Content Core */
-        main { display: flex; flex: 1; padding: 20px; gap: 20px; overflow: hidden; }
+        /* Layout */
+        main { display: grid; grid-template-columns: 320px 1fr 350px; gap: 20px; padding: 20px; height: calc(100vh - 100px); }
         
-        aside { width: 300px; display: flex; flex-direction: column; gap: 15px; }
-        
-        .surah-list { flex: 1; overflow-y: auto; scrollbar-width: none; }
-        .surah-item {
-            padding: 15px 20px; margin-bottom: 10px; border-radius: 20px;
-            cursor: pointer; display: flex; justify-content: space-between;
+        /* Sidebars & Lists */
+        .list-container { overflow-y: auto; padding: 15px; scrollbar-width: none; }
+        .surah-card {
+            padding: 16px; margin-bottom: 12px; border-radius: 20px; cursor: pointer;
+            background: var(--glass-bright); border: 1px solid transparent;
         }
-        .surah-item:hover, .surah-item.active { background: var(--emerald-p); transform: translateX(5px); }
-
-        #viewport { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: thin; }
-
-        .ayah-card {
-            padding: 30px; margin-bottom: 25px; position: relative;
-        }
-        .q-text { font-family: 'Amiri'; font-size: 2.8rem; text-align: right; line-height: 2; margin-bottom: 15px; }
-        .hifz-blur { filter: blur(10px); }
-
-        /* 🎮 Control Center */
-        .floating-player {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            width: 85%; padding: 15px 40px; display: flex; align-items: center; justify-content: space-between;
+        .surah-card:hover, .surah-card.active {
+            background: var(--emerald-p); border-color: white; transform: scale(1.02);
         }
 
-        .btn-action {
+        /* Settings Toggle Switch */
+        .switch {
+            position: relative; display: inline-block; width: 40px; height: 20px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; inset: 0; background-color: #333;
+            transition: .4s; border-radius: 34px;
+        }
+        input:checked + .slider { background-color: var(--emerald-p); }
+
+        /* Settings Drawer */
+        .drawer {
+            position: fixed; top: 0; right: -450px; width: 400px; height: 100%;
+            z-index: 9999; padding: 40px; border-radius: 40px 0 0 40px;
+        }
+        .drawer.open { right: 0; }
+
+        /* Reader Area */
+        #viewport { overflow-y: auto; padding: 30px; position: relative; }
+        .ayah-block {
+            padding: 40px; margin-bottom: 30px; border-radius: 24px;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .q-text { 
+            font-family: 'Amiri'; font-size: var(--ar-size); text-align: right; 
+            line-height: 2.2; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Player bar */
+        .player-bar {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 95%; max-width: 1200px; padding: 15px 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            z-index: 5000;
+        }
+
+        .btn-round {
             width: 50px; height: 50px; border-radius: 50%; background: var(--emerald-p);
-            border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            border: none; color: white; cursor: pointer; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.4);
         }
-
-        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <header class="glass" style="margin: 20px; height: 70px; display: flex; align-items: center; padding: 0 30px; justify-content: space-between;">
-        <div style="font-weight: 800; color: var(--emerald-p); font-size: 1.4rem; display: flex; align-items: center; gap: 10px;">
-            <i data-lucide="brain-circuit"></i> SENTINEL v1.3
-        </div>
-        <div style="display:flex; gap:20px;">
-            <i data-lucide="user" style="cursor:pointer;"></i>
-            <i data-lucide="settings" style="cursor:pointer;"></i>
+    <header style="height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px;">
+        <h2 style="color: var(--emerald-p); letter-spacing: 2px;">SANCTUARY <span style="font-weight: 200; color:white;">DEEP GLASS</span></h2>
+        <div style="display:flex; gap:15px;">
+            <button class="btn-round" style="background: var(--glass);" onclick="App.ui.toggle('account')"><i data-lucide="user"></i></button>
+            <button class="btn-round" style="background: var(--glass);" onclick="App.ui.toggle('settings')"><i data-lucide="sliders"></i></button>
         </div>
     </header>
 
-    <main>
-        <aside>
-            <div class="glass" style="padding: 15px;"><input type="text" placeholder="Jump to..." style="width:100%; background:none; border:none; color:white; outline:none;"></div>
-            <div class="surah-list" id="surah-target"></div>
-        </aside>
-
-        <section id="viewport" class="glass">
-            <div id="reader-target"></div>
-        </section>
-
-        <div class="glass" id="ai-sidebar">
-            <div class="ai-status"><span style="width:8px; height:8px; background:var(--emerald-p); border-radius:50%;"></span> Local Model Active</div>
-            <h3 style="margin:0;">Tafsir Assistant</h3>
-            <div class="ai-chat-box" id="ai-response">
-                Greetings. Select a verse and tap the brain icon to analyze the linguistic and spiritual depths of the text.
+    <div id="settings-drawer" class="deep-glass drawer">
+        <div style="display:flex; justify-content:space-between; margin-bottom:40px;">
+            <h3>System Preferences</h3>
+            <i data-lucide="x" onclick="App.ui.toggle('settings')" style="cursor:pointer;"></i>
+        </div>
+        
+        <div style="display:flex; flex-direction:column; gap:25px;">
+            <div style="display:flex; justify-content:space-between;">
+                <span>Auto-play Next Ayah</span>
+                <label class="switch"><input type="checkbox" id="pref-autoplay"><span class="slider"></span></label>
             </div>
-            <div style="font-size: 0.7rem; opacity: 0.5;">
-                <i data-lucide="info" style="width:12px;"></i> Using Sentinel-L (On-Device Inference)
+            <div style="display:flex; justify-content:space-between;">
+                <span>Smooth Scroll Sync</span>
+                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
             </div>
-        </div>
-    </main>
-
-    <div class="glass floating-player">
-        <div id="playing-info">
-            <div id="surah-name">Select Surah</div>
-            <div style="font-size:0.7rem; opacity:0.5;">Mishary Alafasy</div>
-        </div>
-        <div style="display:flex; gap:30px; align-items:center;">
-            <i data-lucide="shuffle" style="cursor:pointer; width:18px;"></i>
-            <button class="btn-action" onclick="App.audio.toggle()"><i data-lucide="play" id="play-icon"></i></button>
-            <i data-lucide="repeat-1" style="cursor:pointer; width:18px;"></i>
-        </div>
-        <div style="display:flex; gap:15px;">
-            <i data-lucide="eye-off" onclick="App.ui.hifz()" style="cursor:pointer;"></i>
-            <i data-lucide="message-square" style="cursor:pointer;"></i>
+            <div style="display:flex; justify-content:space-between;">
+                <span>Tajweed Coloring</span>
+                <label class="switch"><input type="checkbox" id="pref-tajweed"><span class="slider"></span></label>
+            </div>
+            <hr style="border:0; border-top:1px solid var(--border);">
+            <div>
+                <label>Audio Speed</label>
+                <select class="surah-card" style="width:100%; margin-top:10px; background:rgba(0,0,0,0.5);">
+                    <option>0.5x</option><option selected>1.0x (Normal)</option><option>1.5x</option><option>2.0x</option>
+                </select>
+            </div>
+            <div>
+                <label>Arabic Font</label>
+                <select class="surah-card" style="width:100%; margin-top:10px; background:rgba(0,0,0,0.5);">
+                    <option>Uthmani</option><option>Indopak</option><option>Amiri Bold</option>
+                </select>
+            </div>
         </div>
     </div>
 
-    <audio id="main-audio"></audio>
+    <main>
+        <aside class="deep-glass list-container" id="surah-target"></aside>
+
+        <section id="viewport" class="deep-glass">
+            <div id="reader-target"></div>
+        </section>
+
+        <aside class="deep-glass list-container">
+            <div style="padding: 10px;">
+                <h4 style="color:var(--emerald-p); margin-top:0;">SENTINEL AI v1.4</h4>
+                <div id="ai-output" style="font-size: 0.9rem; line-height: 1.6; opacity: 0.8;">
+                    Deep glass engine engaged. Ready for Tafsir analysis.
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <div class="deep-glass player-bar">
+        <div id="np-surah" style="width:200px;"><b>Select Surah</b></div>
+        <div style="display:flex; gap:30px; align-items:center;">
+            <i data-lucide="skip-back"></i>
+            <button class="btn-round" onclick="App.audio.toggle()"><i data-lucide="play" id="play-icon"></i></button>
+            <i data-lucide="skip-forward"></i>
+        </div>
+        <div style="width:200px; text-align:right;">
+            <i data-lucide="volume-2"></i>
+        </div>
+    </div>
+
+    <audio id="core-audio"></audio>
 
     <script>
         const App = {
-            state: { chapters: [], currentId: 1, hifzMode: false },
+            state: { chapters: [], currentId: 1 },
 
             async init() {
                 const res = await fetch('https://api.alquran.cloud/v1/surah');
                 const json = await res.json();
                 this.state.chapters = json.data;
-                this.ui.drawList(this.state.chapters);
+                this.ui.renderList(this.state.chapters);
                 lucide.createIcons();
             },
 
             ui: {
-                drawList(list) {
+                renderList(list) {
                     document.getElementById('surah-target').innerHTML = list.map(s => `
-                        <div class="surah-item glass" id="s-${s.number}" onclick="App.logic.load(${s.number})">
-                            <span><b>${s.number}</b> ${s.englishName}</span>
-                            <span style="font-family:Amiri;">${s.name.split(' ').pop()}</span>
+                        <div class="surah-card" id="s-${s.number}" onclick="App.logic.load(${s.number})">
+                            <div style="font-size:0.8rem; opacity:0.5;">#${s.number}</div>
+                            <b>${s.englishName}</b>
                         </div>
                     `).join('');
                 },
-                hifz() {
-                    this.hifzMode = !this.hifzMode;
-                    document.querySelectorAll('.q-text').forEach(el => el.classList.toggle('hifz-blur', this.hifzMode));
-                }
-            },
-
-            ai: {
-                async explain(verse, ref) {
-                    const box = document.getElementById('ai-response');
-                    box.innerHTML = `<div style="color:var(--emerald-p)">Analyzing ${ref}...</div>`;
-                    
-                    // The "Local AI Model" Logic
-                    // In a production environment, you would hook this to WebLLM
-                    setTimeout(() => {
-                        const response = `
-                            <b>Linguistic Depth (${ref}):</b><br>
-                            The root of this verse suggests a profound "opening". 
-                            <br><br><b>Tafsir Note:</b><br>
-                            Classic commentators note that this specific phrasing is intended to provide solace to the heart during times of constriction.
-                            <br><br><b>Sentinel AI Suggestion:</b><br>
-                            Try reciting this 3 times in your Hifz session to lock the phonetic rhythm.
-                        `;
-                        box.innerHTML = response;
-                    }, 1200);
+                toggle(id) {
+                    document.getElementById(`${id}-drawer`).classList.toggle('open');
                 }
             },
 
             logic: {
                 async load(id) {
                     App.state.currentId = id;
-                    document.querySelectorAll('.surah-item').forEach(el => el.classList.remove('active'));
-                    document.getElementById(`s-${id}`).classList.add('active');
+                    document.getElementById('np-surah').innerHTML = `<b>${App.state.chapters[id-1].englishName}</b>`;
+                    document.getElementById('core-audio').src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${id}.mp3`;
 
                     const [ar, en] = await Promise.all([
                         fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
                         fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
                     ]);
 
-                    document.getElementById('surah-name').innerText = ar.data.englishName;
-                    document.getElementById('main-audio').src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${id}.mp3`;
-
-                    let html = `<h1 style="text-align:center; font-family:Amiri; font-size:4rem; color:var(--emerald-p);">${ar.data.name}</h1>`;
-                    
-                    html += ar.data.ayahs.map((v, i) => `
-                        <div class="ayah-card glass">
+                    let h = `<h1 style="text-align:center; font-family:Amiri; font-size:4rem; color:var(--emerald-p);">${ar.data.name}</h1>`;
+                    h += ar.data.ayahs.map((v, i) => `
+                        <div class="ayah-block">
                             <div class="q-text">${v.text}</div>
-                            <div style="opacity:0.7; font-weight:300;">${en.data.ayahs[i].text}</div>
-                            <div style="margin-top:20px; display:flex; gap:20px; color:var(--emerald-p); font-size:0.8rem;">
+                            <div style="opacity:0.7;">${en.data.ayahs[i].text}</div>
+                            <div style="margin-top:20px; color:var(--emerald-p); display:flex; gap:15px; font-size:0.8rem;">
                                 <b>${id}:${v.numberInSurah}</b>
-                                <i data-lucide="play" onclick="App.audio.playAyah(${v.number})" style="cursor:pointer; width:16px;"></i>
-                                <i data-lucide="brain" onclick="App.ai.explain('${v.text}', '${id}:${v.numberInSurah}')" style="cursor:pointer; width:16px;"></i>
+                                <i data-lucide="play" onclick="App.audio.playAyah(${v.number})" style="cursor:pointer; width:14px;"></i>
+                                <i data-lucide="bookmark" style="cursor:pointer; width:14px;"></i>
                             </div>
                         </div>
                     `).join('');
-
-                    document.getElementById('reader-target').innerHTML = html;
-                    document.getElementById('viewport').scrollTop = 0;
+                    document.getElementById('reader-target').innerHTML = h;
                     lucide.createIcons();
                 }
             },
 
             audio: {
                 toggle() {
-                    const a = document.getElementById('main-audio');
+                    const a = document.getElementById('core-audio');
                     if(a.paused) { a.play(); document.getElementById('play-icon').setAttribute('data-lucide', 'pause'); }
                     else { a.pause(); document.getElementById('play-icon').setAttribute('data-lucide', 'play'); }
                     lucide.createIcons();
                 },
                 playAyah(n) {
-                    const a = document.getElementById('main-audio');
+                    const a = document.getElementById('core-audio');
                     a.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${n}.mp3`;
                     a.play();
-                    document.getElementById('play-icon').setAttribute('data-lucide', 'pause');
-                    lucide.createIcons();
                 }
             }
         };
-
         window.onload = () => App.init();
     </script>
 </body>
