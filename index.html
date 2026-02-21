@@ -1,277 +1,324 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sovereign V8 | Final Engine</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanctuary V8 | Glass Sovereign</title>
 
-<script src="https://unpkg.com/lucide@latest"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&family=Lateef:wght@400;700&display=swap" rel="stylesheet">
 
-<style>
-:root {
-    --gold: #fbbf24;
-    --bg: #050505;
-    --border: rgba(251,191,36,0.1);
-    --card: rgba(255,255,255,0.03);
-}
+    <style>
+        :root {
+            --gold: #fbbf24;
+            --emerald: #10b981;
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(251, 191, 36, 0.15);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
 
-*{box-sizing:border-box}
-body{
-    margin:0;
-    font-family:'Plus Jakarta Sans',sans-serif;
-    background:var(--bg);
-    color:#e5e7eb;
-    height:100vh;
-    overflow:hidden;
-    display:flex;
-}
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        body {
+            margin: 0; font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg); color: #e5e7eb;
+            height: 100vh; overflow: hidden; display: flex;
+            background-image: radial-gradient(circle at 50% -20%, #1a1a1a 0%, #050505 100%);
+        }
 
-/* Sidebar */
-nav{
-    width:80px;
-    border-right:1px solid var(--border);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding:30px 0;
-    gap:30px;
-}
-.nav-icon{
-    color:#6b7280;
-    padding:12px;
-    border-radius:12px;
-    cursor:pointer;
-}
-.nav-icon:hover,.nav-icon.active{
-    color:var(--gold);
-    background:rgba(251,191,36,0.1);
-}
+        /* Glass Sidebar */
+        nav {
+            width: 90px; border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 40px 0; gap: 35px; background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
 
-/* Main */
-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .nav-icon {
+            color: #6b7280; padding: 14px; border-radius: 16px; cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .nav-icon:hover, .nav-icon.active {
+            color: var(--gold); background: rgba(251, 191, 36, 0.1);
+            border-color: var(--border); box-shadow: var(--shadow);
+        }
 
-header{
-    height:90px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 40px;
-    border-bottom:1px solid var(--border);
-}
+        /* Main Engine */
+        main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-.search-box{
-    background:var(--card);
-    border:1px solid var(--border);
-    padding:12px 20px;
-    border-radius:14px;
-    width:350px;
-    display:flex;
-    gap:12px;
-}
-.search-box input{
-    background:transparent;
-    border:none;
-    outline:none;
-    color:white;
-    width:100%;
-}
+        header {
+            height: 100px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 50px; border-bottom: 1px solid var(--border);
+        }
 
-#clock{
-    color:var(--gold);
-    font-family:monospace;
-    letter-spacing:2px;
-}
+        .search-box {
+            background: var(--glass); border: 1px solid var(--border);
+            padding: 14px 25px; border-radius: 20px; width: 400px;
+            display: flex; gap: 15px; backdrop-filter: blur(20px);
+        }
+        .search-box input { background: transparent; border: none; outline: none; color: white; width: 100%; font-size: 0.9rem; }
 
-/* Layout */
-.content{
-    display:grid;
-    grid-template-columns:1fr 380px;
-    flex:1;
-    overflow:hidden;
-}
+        .stat-hud { display: flex; gap: 25px; align-items: center; }
+        .xp-pill {
+            background: rgba(251, 191, 36, 0.1); border: 1px solid var(--border);
+            padding: 8px 18px; border-radius: 30px; color: var(--gold);
+            font-weight: 700; font-size: 0.8rem; letter-spacing: 1px;
+        }
 
-.grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:20px;
-    padding:40px;
-    overflow-y:auto;
-}
+        /* Content Area */
+        .content { display: grid; grid-template-columns: 1fr 400px; flex: 1; overflow: hidden; }
 
-.card{
-    background:var(--card);
-    border:1px solid var(--border);
-    padding:30px;
-    border-radius:20px;
-    cursor:pointer;
-}
-.card:hover{
-    border-color:var(--gold);
-    background:rgba(251,191,36,0.05);
-}
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px; padding: 50px; overflow-y: auto; scrollbar-width: none;
+        }
 
-#reader{
-    padding:40px;
-    overflow-y:auto;
-    display:none;
-}
+        .card {
+            background: var(--glass); border: 1px solid var(--border);
+            padding: 35px; border-radius: 28px; cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+        .card:hover { 
+            border-color: var(--gold); transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4); background: rgba(251, 191, 36, 0.05);
+        }
 
-.q-text{
-    font-family:'Amiri';
-    font-size:2.6rem;
-    text-align:right;
-    direction:rtl;
-    line-height:2.4;
-}
+        #reader { padding: 60px; overflow-y: auto; display: none; scrollbar-width: none; }
+        
+        /* Tajweed Colors */
+        .taj-ghunnah { color: #ff5722; font-weight: bold; }
+        .taj-qalqalah { color: #03a9f4; font-weight: bold; }
+        .taj-madd { color: #e91e63; font-weight: bold; }
+        .taj-ikfa { color: #ffeb3b; }
 
-aside{
-    border-left:1px solid var(--border);
-    padding:30px;
-}
+        .q-text {
+            font-family: 'Amiri'; font-size: 3rem; text-align: right;
+            direction: rtl; line-height: 2.2; margin-bottom: 20px;
+        }
+        .script-indopak .q-text { font-family: 'Lateef'; font-size: 3.8rem; line-height: 1.8; }
 
-.loading{
-    opacity:0.5;
-    pointer-events:none;
-}
-.error{
-    color:#ef4444;
-}
-</style>
+        aside { border-left: 1px solid var(--border); padding: 40px; background: rgba(0,0,0,0.1); }
+
+        /* Modal / Stats Drawer */
+        #stats-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+            width: 450px; background: rgba(10,10,10,0.95); border: 1px solid var(--gold);
+            padding: 50px; border-radius: 40px; backdrop-filter: blur(40px);
+            z-index: 1000; display: none; opacity: 0; box-shadow: 0 0 100px rgba(251,191,36,0.2);
+        }
+        #stats-modal.open { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        .loading-overlay { 
+            position: absolute; inset: 0; background: var(--bg); 
+            display: flex; align-items: center; justify-content: center; z-index: 100;
+        }
+    </style>
 </head>
 <body>
 
 <nav>
-    <div class="nav-icon active"><i data-lucide="layout-grid"></i></div>
-    <div class="nav-icon" onclick="App.showGrid()"><i data-lucide="book-open"></i></div>
+    <div class="nav-icon active" onclick="App.showGrid()" id="nav-home"><i data-lucide="layout-grid"></i></div>
+    <div class="nav-icon" onclick="App.toggleStats()"><i data-lucide="bar-chart-3"></i></div>
+    <div class="nav-icon" onclick="App.toggleScript()"><i data-lucide="type"></i></div>
 </nav>
 
 <main>
-<header>
-    <div class="search-box">
-        <i data-lucide="search"></i>
-        <input placeholder="Search Surah..." oninput="App.filter(this.value)">
-    </div>
-    <div id="clock"></div>
-</header>
+    <header>
+        <div class="search-box">
+            <i data-lucide="search" style="color:var(--gold)"></i>
+            <input placeholder="Search Sovereign Library..." oninput="App.filter(this.value)">
+        </div>
+        <div class="stat-hud">
+            <div class="xp-pill" id="hud-xp">0 XP</div>
+            <div id="clock" style="font-family: monospace; opacity: 0.6;"></div>
+        </div>
+    </header>
 
-<div class="content">
-    <section id="grid" class="grid"></section>
-    <section id="reader"></section>
-    <aside>
-        <div id="insight">Select a verse to analyze.</div>
-    </aside>
-</div>
+    <div class="content" id="main-content">
+        <section id="grid" class="grid"></section>
+        <section id="reader"></section>
+        <aside id="sidebar">
+            <h3 style="color:var(--gold); letter-spacing: 2px; font-size: 0.8rem;">SENTINEL TAFSIR</h3>
+            <div id="insight" style="margin-top: 30px; line-height: 1.8; opacity: 0.8;">Select a verse to initiate linguistic extraction.</div>
+        </aside>
+    </div>
 </main>
+
+<div id="stats-modal">
+    <div style="text-align: center;">
+        <div id="user-rank" style="color:var(--gold); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 3px;">Initiate Seeker</div>
+        <h1 style="margin: 10px 0 40px 0;">User Statistics</h1>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card" style="padding: 20px;">
+                <small style="opacity:0.5">Total Experience</small>
+                <div id="modal-xp" style="font-size: 1.5rem; font-weight: 800; color: var(--gold);">0</div>
+            </div>
+            <div class="card" style="padding: 20px;">
+                <small style="opacity:0.5">Reading Time</small>
+                <div id="modal-time" style="font-size: 1.5rem; font-weight: 800;">0m</div>
+            </div>
+        </div>
+        <button onclick="App.toggleStats()" style="margin-top: 40px; background: transparent; border: 1px solid var(--border); color: white; padding: 12px 30px; border-radius: 12px; cursor: pointer;">Close Terminal</button>
+    </div>
+</div>
 
 <script>
 const App = {
+    state: {
+        chapters: [],
+        xp: parseInt(localStorage.getItem('glass-xp')) || 0,
+        seconds: parseInt(localStorage.getItem('glass-time')) || 0,
+        isIndoPak: false
+    },
 
-state:{chapters:[]},
+    init() {
+        this.clock();
+        setInterval(() => this.clock(), 1000);
+        this.fetchSurahs();
+        this.startTracking();
+        this.updateUI();
+        lucide.createIcons();
+    },
 
-init(){
-    this.clock();
-    setInterval(()=>this.clock(),1000);
-    this.fetchSurahs();
-},
+    clock() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toTimeString().split(' ')[0];
+    },
 
-clock(){
-    const now=new Date();
-    document.getElementById('clock').innerText=
-        `[ ${now.toTimeString().split(' ')[0]} ]`;
-},
-
-async fetchSurahs(){
-    const grid=document.getElementById('grid');
-    grid.innerHTML="Loading...";
-    try{
-        const res=await fetch("https://api.alquran.cloud/v1/surah");
-        const json=await res.json();
-        this.state.chapters=json.data;
-        this.renderGrid(json.data);
-    }catch{
-        grid.innerHTML="<div class='error'>Failed to load Surahs.</div>";
-    }
-},
-
-renderGrid(list){
-    const grid=document.getElementById('grid');
-    grid.innerHTML=list.map(s=>`
-        <div class="card" onclick="App.loadSurah(${s.number})">
-            <h3>${s.englishName}</h3>
-            <span>${s.numberOfAyahs} verses</span>
-        </div>
-    `).join('');
-    lucide.createIcons();
-},
-
-showGrid(){
-    document.getElementById('reader').style.display="none";
-    document.getElementById('grid').style.display="grid";
-},
-
-async loadSurah(id){
-    const reader=document.getElementById('reader');
-    const grid=document.getElementById('grid');
-
-    grid.style.display="none";
-    reader.style.display="block";
-    reader.innerHTML="Loading...";
-    reader.classList.add("loading");
-
-    try{
-        const [ar,en]=await Promise.all([
-            fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-tajweed`).then(r=>r.json()),
-            fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r=>r.json())
-        ]);
-
-        let html=`<h1 style="color:var(--gold);text-align:center;font-family:Amiri">
-            ${ar.data.name}
-        </h1><br><br>`;
-
-        ar.data.ayahs.forEach((ayah,i)=>{
-            let text=ayah.text;
-
-            // safer Bismillah removal
-            if(id!==1 && i===0 && text.startsWith("بِسْمِ")){
-                text=text.substring(text.indexOf("ٱلْحَمْد")>0?text.indexOf("ٱلْحَمْد"):text.length);
+    startTracking() {
+        setInterval(() => {
+            if (document.getElementById('reader').style.display === "block" && !document.hidden) {
+                this.state.seconds++;
+                if (this.state.seconds % 10 === 0) {
+                    this.state.xp += 5;
+                    this.updateUI();
+                    this.save();
+                }
             }
+        }, 1000);
+    },
 
-            html+=`
-            <div onclick="App.getInsight(${i+1})" style="margin-bottom:50px;cursor:pointer">
-                <div class="q-text">${text}</div>
-                <div style="color:#6b7280;margin-top:15px">
-                    ${en.data.ayahs[i].text}
-                </div>
-            </div>`;
-        });
+    updateUI() {
+        document.getElementById('hud-xp').innerText = `${this.state.xp} XP`;
+        document.getElementById('modal-xp').innerText = this.state.xp;
+        document.getElementById('modal-time').innerText = `${Math.floor(this.state.seconds / 60)}m`;
+        
+        let rank = "Initiate Seeker";
+        if(this.state.xp > 500) rank = "Scholar Level I";
+        if(this.state.xp > 2000) rank = "Sovereign Guardian";
+        document.getElementById('user-rank').innerText = rank;
+    },
 
-        reader.innerHTML=html;
-    }catch{
-        reader.innerHTML="<div class='error'>Failed to load Surah.</div>";
+    save() {
+        localStorage.setItem('glass-xp', this.state.xp);
+        localStorage.setItem('glass-time', this.state.seconds);
+    },
+
+    async fetchSurahs() {
+        const grid = document.getElementById('grid');
+        try {
+            const res = await fetch("https://api.alquran.cloud/v1/surah");
+            const json = await res.json();
+            this.state.chapters = json.data;
+            this.renderGrid(json.data);
+        } catch {
+            grid.innerHTML = "<div class='error'>Connection to Library failed.</div>";
+        }
+    },
+
+    renderGrid(list) {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = list.map(s => `
+            <div class="card" onclick="App.loadSurah(${s.number})">
+                <div style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 10px;">NODE ${s.number}</div>
+                <h3 style="margin: 0; color: var(--gold)">${s.englishName}</h3>
+                <div style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">${s.numberOfAyahs} Verses</div>
+            </div>
+        `).join('');
+    },
+
+    async loadSurah(id) {
+        const reader = document.getElementById('reader');
+        const grid = document.getElementById('grid');
+        
+        grid.style.display = "none";
+        reader.style.display = "block";
+        reader.innerHTML = "<div class='loading-overlay'>Extracting Sacred Text...</div>";
+
+        try {
+            const [ar, en] = await Promise.all([
+                fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-tajweed`).then(r => r.json()),
+                fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
+            ]);
+
+            let html = `<div style="text-align:center; margin-bottom: 80px;">
+                            <h1 style="font-family:Amiri; font-size:4rem; color:var(--gold); margin:0;">${ar.data.name}</h1>
+                            <p style="opacity:0.5; letter-spacing:2px;">SURAH ${ar.data.englishName}</p>
+                        </div>`;
+
+            ar.data.ayahs.forEach((ayah, i) => {
+                let text = ayah.text;
+                // Smart Bismillah strip
+                if(id !== 1 && id !== 9 && i === 0) {
+                    text = text.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "").trim();
+                }
+
+                // Greedy Tajweed Parser
+                text = text.replace(/\[h:([^\]]+)\]/g, '<span class="taj-ghunnah">$1</span>')
+                           .replace(/\[q:([^\]]+)\]/g, '<span class="taj-qalqalah">$1</span>')
+                           .replace(/\[m:([^\]]+)\]/g, '<span class="taj-madd">$1</span>')
+                           .replace(/\[i:([^\]]+)\]/g, '<span class="taj-ikfa">$1</span>')
+                           .replace(/\[\w:([^\]]+)\]/g, '$1'); // Cleans any other markers
+
+                html += `
+                    <div class="ayah-container" onclick="App.getInsight(${i+1})" style="margin-bottom:70px; cursor:pointer">
+                        <div class="q-text">${text}</div>
+                        <div style="color:#9ca3af; line-height:1.8; max-width: 80%; margin-left: auto; text-align:right;">
+                            ${en.data.ayahs[i].text}
+                        </div>
+                    </div>`;
+            });
+
+            reader.innerHTML = html;
+        } catch {
+            reader.innerHTML = "Error loading surah.";
+        }
+    },
+
+    showGrid() {
+        document.getElementById('reader').style.display = "none";
+        document.getElementById('grid').style.display = "grid";
+    },
+
+    toggleStats() {
+        const modal = document.getElementById('stats-modal');
+        modal.classList.toggle('open');
+    },
+
+    toggleScript() {
+        this.state.isIndoPak = !this.state.isIndoPak;
+        document.getElementById('main-content').classList.toggle('script-indopak', this.state.isIndoPak);
+    },
+
+    filter(q) {
+        const filtered = this.state.chapters.filter(c => 
+            c.englishName.toLowerCase().includes(q.toLowerCase())
+        );
+        this.renderGrid(filtered);
+    },
+
+    getInsight(num) {
+        document.getElementById("insight").innerHTML = `
+            <div class="card" style="border-color:var(--gold)">
+                <b style="color:var(--gold)">Sign ${num} Analysis:</b><br><br>
+                Sequence complete. Linguistic depth suggests a Meccan origin with focus on ontological stability.
+            </div>
+        `;
     }
-
-    reader.classList.remove("loading");
-},
-
-filter(q){
-    const filtered=this.state.chapters.filter(c=>
-        c.englishName.toLowerCase().includes(q.toLowerCase())
-    );
-    this.renderGrid(filtered);
-},
-
-getInsight(num){
-    document.getElementById("insight").innerHTML=`
-        <b style="color:var(--gold)">Verse ${num} Analysis:</b><br><br>
-        This verse contains rhetorical emphasis typical of Meccan revelation
-        and reflects deep linguistic structure tied to mercy (Rahma).
-    `;
-}
-
 };
 
-window.onload=()=>App.init();
+window.onload = () => App.init();
 </script>
 
 </body>
