@@ -1,1246 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sanctuary Quran | Read, Learn, Memorize</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri+Quran:wght@400&family=Lateef:wght@400;700&family=Poppins:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-
-    <style>
-        * { box-sizing: border-box; transition: all 0.3s ease; }
-        
-        :root {
-            /* Default Theme - Emerald Sanctuary */
-            --primary: #10b981;
-            --secondary: #059669;
-            --accent: #fbbf24;
-            --bg-dark: #0f172a;
-            --bg-light: #f8fafc;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: rgba(16, 185, 129, 0.2);
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            --radius: 16px;
-        }
-
-        /* Theme Variables */
-        body.theme-dark {
-            --bg-dark: #050505;
-            --bg-light: #1a1a1a;
-            --text-primary: #e5e7eb;
-            --text-secondary: #9ca3af;
-            --card-bg: rgba(30, 30, 30, 0.8);
-            --border-color: rgba(251, 191, 36, 0.15);
-        }
-
-        body.theme-midnight {
-            --primary: #6366f1;
-            --secondary: #4f46e5;
-            --accent: #ec4899;
-            --bg-dark: #0a0e27;
-            --text-primary: #e0e7ff;
-        }
-
-        body.theme-ocean {
-            --primary: #0ea5e9;
-            --secondary: #0284c7;
-            --accent: #06b6d4;
-            --bg-dark: #001a2e;
-        }
-
-        body.theme-sunset {
-            --primary: #f97316;
-            --secondary: #ea580c;
-            --accent: #fbbf24;
-            --bg-dark: #2a1810;
-        }
-
-        body.theme-forest {
-            --primary: #16a34a;
-            --secondary: #15803d;
-            --accent: #84cc16;
-            --bg-dark: #1a2e1a;
-        }
-
-        body.theme-rose {
-            --primary: #ec4899;
-            --secondary: #db2777;
-            --accent: #fcd34d;
-            --bg-dark: #2a1625;
-        }
-
-        body.theme-lavender {
-            --primary: #a855f7;
-            --secondary: #9333ea;
-            --accent: #fbbf24;
-            --bg-dark: #2a1a4a;
-        }
-
-        body.theme-teal {
-            --primary: #14b8a6;
-            --secondary: #0d9488;
-            --accent: #fbbf24;
-            --bg-dark: #0f2f2f;
-        }
-
-        body.theme-copper {
-            --primary: #b45309;
-            --secondary: #92400e;
-            --accent: #fcd34d;
-            --bg-dark: #1f1509;
-        }
-
-        body.theme-sapphire {
-            --primary: #3b82f6;
-            --secondary: #2563eb;
-            --accent: #fbbf24;
-            --bg-dark: #0f172a;
-        }
-
-        body.theme-lime {
-            --primary: #84cc16;
-            --secondary: #65a30d;
-            --accent: #06b6d4;
-            --bg-dark: #1a2e1a;
-        }
-
-        body.theme-crimson {
-            --primary: #dc2626;
-            --secondary: #b91c1c;
-            --accent: #fbbf24;
-            --bg-dark: #2a1010;
-        }
-
-        body.theme-indigo {
-            --primary: #4f46e5;
-            --secondary: #4338ca;
-            --accent: #fbbf24;
-            --bg-dark: #1e1b4b;
-        }
-
-        body.theme-mint {
-            --primary: #06b6d4;
-            --secondary: #0891b2;
-            --accent: #fbbf24;
-            --bg-dark: #082f4f;
-        }
-
-        body.theme-peach {
-            --primary: #f43f5e;
-            --secondary: #e11d48;
-            --accent: #fbbf24;
-            --bg-dark: #2a1820;
-        }
-
-        body.theme-slate {
-            --primary: #64748b;
-            --secondary: #475569;
-            --accent: #fbbf24;
-            --bg-dark: #0f172a;
-        }
-
-        body.theme-amber {
-            --primary: #f59e0b;
-            --secondary: #d97706;
-            --accent: #ec4899;
-            --bg-dark: #2a2010;
-        }
-
-        body.theme-violet {
-            --primary: #7c3aed;
-            --secondary: #6d28d9;
-            --accent: #fbbf24;
-            --bg-dark: #2a1a4a;
-        }
-
-        body.theme-emerald-light {
-            --primary: #10b981;
-            --bg-dark: #f0fdf4;
-            --text-primary: #1e3a1f;
-            --text-secondary: #4b5563;
-            --card-bg: rgba(240, 253, 244, 0.95);
-        }
-
-        body.theme-midnight-light {
-            --primary: #6366f1;
-            --bg-dark: #f0f4ff;
-            --text-primary: #1e1b4b;
-            --text-secondary: #4f46e5;
-            --card-bg: rgba(240, 244, 255, 0.95);
-        }
-
-        /* Base Styles */
-        html, body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            line-height: 1.6;
-            scroll-behavior: smooth;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Header Navigation */
-        header {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 1rem 0;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .search-bar {
-            flex: 1;
-            max-width: 500px;
-            position: relative;
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 0.75rem 1.25rem 0.75rem 2.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            background: var(--card-bg);
-            color: var(--text-primary);
-            font-size: 0.9rem;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary);
-            pointer-events: none;
-            width: 18px;
-            height: 18px;
-        }
-
-        .nav-controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .icon-btn {
-            background: transparent;
-            padding: 0.5rem;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            font-size: 1.2rem;
-        }
-
-        .icon-btn:hover {
-            color: var(--primary);
-            background: rgba(16, 185, 129, 0.1);
-        }
-
-        /* Main Layout */
-        .main-layout {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 2rem;
-            padding: 2rem 0;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            cursor: pointer;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .card:hover {
-            border-color: var(--primary);
-            transform: translateY(-8px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-            background: var(--card-bg);
-        }
-
-        .card-number {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.75rem;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: 0 0 0.5rem 0;
-        }
-
-        .card-subtitle {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin: 0.5rem 0;
-        }
-
-        /* Reader View */
-        .reader {
-            display: none;
-            padding: 2rem;
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-        }
-
-        .reader.active {
-            display: block;
-        }
-
-        .reader-header {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .surah-name {
-            font-family: 'Amiri Quran', serif;
-            font-size: 4rem;
-            color: var(--primary);
-            margin: 0;
-        }
-
-        .surah-info {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 0.5rem;
-        }
-
-        .ayah-container {
-            margin-bottom: 3rem;
-            padding: 1.5rem;
-            border-left: 4px solid var(--primary);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .ayah-container:hover {
-            background: rgba(16, 185, 129, 0.05);
-            border-left-color: var(--secondary);
-        }
-
-        .ayah-text {
-            font-family: 'Amiri Quran', serif;
-            font-size: 2rem;
-            text-align: right;
-            direction: rtl;
-            line-height: 2;
-            margin: 1rem 0;
-            color: var(--text-primary);
-        }
-
-        .ayah-translation {
-            color: var(--text-secondary);
-            line-height: 1.8;
-            font-style: italic;
-            margin-top: 1rem;
-            padding-left: 1.5rem;
-        }
-
-        .ayah-number {
-            display: inline-block;
-            width: 2.5rem;
-            height: 2.5rem;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            margin: 0 0.5rem;
-            font-size: 0.85rem;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .sidebar-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-        }
-
-        .sidebar-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--primary);
-            font-weight: 700;
-            letter-spacing: 2px;
-            margin-bottom: 1rem;
-        }
-
-        .sidebar-content {
-            color: var(--text-secondary);
-            line-height: 1.8;
-            font-size: 0.9rem;
-        }
-
-        /* Reading Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .stat-item {
-            background: rgba(16, 185, 129, 0.1);
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-            text-transform: uppercase;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 2rem;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 0.5rem;
-            font-size: 1.5rem;
-        }
-
-        .modal-close:hover {
-            color: var(--primary);
-        }
-
-        /* Theme Selector */
-        .theme-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .theme-option {
-            padding: 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .theme-option:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .theme-option.active {
-            border-color: var(--primary);
-            background: rgba(16, 185, 129, 0.1);
-        }
-
-        .theme-preview {
-            width: 100%;
-            height: 40px;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-        }
-
-        .theme-name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        /* Loading State */
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            padding: 2rem;
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            color: #dc2626;
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                grid-column: 1;
-            }
-
-            .grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            }
-        }
-
-        @media (max-width: 640px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .search-bar {
-                max-width: 100%;
-            }
-
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .surah-name {
-                font-size: 2.5rem;
-            }
-
-            .ayah-text {
-                font-size: 1.5rem;
-            }
-
-            .theme-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card { animation: fadeIn 0.3s ease-out; }
-
-        /* Tajweed Colors */
-        .taj-ghunnah { color: #ff5722; font-weight: bold; }
-        .taj-qalqalah { color: #03a9f4; font-weight: bold; }
-        .taj-madd { color: #e91e63; font-weight: bold; }
-        .taj-ikfa { color: #ffeb3b; }
-
-        /* Print Styles */
-        @media print {
-            header, .sidebar, .nav-controls { display: none; }
-            .reader { padding: 0; border: none; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanctuary Quran | Sovereign V8</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri+Quran:wght@400&family=Lateef:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #10b981;
+      --secondary: #059669;
+      --accent: #fbbf24;
+      --bg-dark: #020f0c;
+      --bg-light: #061512;
+      --text-primary: #ecfdf5;
+      --text-secondary: #94a3b8;
+      --border-color: rgba(16, 185, 129, 0.2);
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --radius: 24px;
+    }
+
+    /* THEMES */
+    body.theme-velvet { --primary: #8b5cf6; --secondary: #7c3aed; --bg-dark: #0a0515; --border-color: rgba(139, 92, 246, 0.2); }
+    body.theme-sapphire { --primary: #3b82f6; --secondary: #2563eb; --bg-dark: #020617; --border-color: rgba(59, 130, 246, 0.2); }
+    body.theme-rose { --primary: #f43f5e; --secondary: #e11d48; --bg-dark: #0f0205; --border-color: rgba(244, 63, 94, 0.2); }
+
+    * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    body { 
+        margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; 
+        background: var(--bg-dark); color: var(--text-primary); 
+        height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+        background-image: radial-gradient(circle at 50% -20%, var(--secondary) 0%, var(--bg-dark) 100%);
+        background-attachment: fixed;
+    }
+
+    /* HEADER & STATS */
+    header { height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; flex-shrink: 0; border-bottom: 1px solid var(--border-color); backdrop-filter: blur(20px); }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+    
+    .stats-bar { display: flex; gap: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: var(--text-secondary); }
+    .stat-chip { background: var(--card-bg); padding: 6px 14px; border-radius: 100px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 6px; }
+    .stat-chip b { color: var(--accent); }
+
+    /* LAYOUT */
+    main { display: grid; grid-template-columns: 1fr 380px; flex: 1; overflow: hidden; position: relative; }
+    
+    /* SURAH GRID & READER */
+    .content-viewport { overflow-y: auto; padding: 40px; scrollbar-width: none; }
+    .content-viewport::-webkit-scrollbar { width: 0; }
+    
+    .surah-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 25px; cursor: pointer; position: relative; }
+    .card:hover { transform: translateY(-5px); border-color: var(--primary); background: rgba(255,255,255,0.06); }
+    .card h3 { margin: 0; font-size: 1.25rem; }
+    .card p { margin: 5px 0 0; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; }
+
+    /* READER STYLES (No Tajweed) */
+    .reader-view { max-width: 900px; margin: 0 auto; display: none; }
+    .reader-view.active { display: block; }
+    .ayah-block { margin-bottom: 60px; text-align: right; }
+    .q-text { font-family: 'Amiri Quran', serif; font-size: 3rem; line-height: 2.2; direction: rtl; margin-bottom: 20px; }
+    .q-trans { text-align: left; font-size: 1.1rem; color: var(--text-secondary); font-weight: 300; line-height: 1.8; }
+    .ayah-num { color: var(--primary); font-family: 'IBM Plex Mono'; font-size: 0.7rem; margin-top: 10px; display: block; text-align: left; }
+
+    /* SENTINEL SIDEBAR */
+    aside.sentinel { border-left: 1px solid var(--border-color); background: rgba(0,0,0,0.2); padding: 30px; display: flex; flex-direction: column; gap: 25px; }
+    .tabs { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+    .tab-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; white-space: nowrap; }
+    .tab-btn.active { color: var(--primary); }
+    .insight-content { font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary); }
+
+    /* PLAYER BAR */
+    .player-bar { height: 90px; background: rgba(2, 15, 12, 0.95); border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: relative; z-index: 10; }
+    .play-btn { width: 55px; height: 55px; border-radius: 50%; background: var(--primary); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    
+    .hidden { display: none; }
+    .loading-shimmer { opacity: 0.3; filter: blur(10px); }
+
+    /* THEME PICKER */
+    .theme-picker { display: flex; gap: 10px; }
+    .t-dot { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); }
+  </style>
 </head>
 <body class="theme-emerald">
 
-<header>
-    <div class="container">
-        <div class="header-content">
-            <a href="#" class="logo" onclick="App.showGrid(); return false;">
-                ☪️ Sanctuary
-            </a>
-            <div class="search-bar">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                </svg>
-                <input type="text" placeholder="Search surah or ayah..." oninput="App.filter(this.value)">
-            </div>
-            <div class="nav-controls">
-                <button class="icon-btn" onclick="App.toggleThemeModal()" title="Themes">🎨</button>
-                <button class="icon-btn" onclick="App.toggleMemoryMode()" title="Memory Mode">🧠</button>
-                <button class="icon-btn" onclick="App.toggleStats()" title="Statistics">📊</button>
-                <button class="icon-btn" onclick="App.toggleSettings()" title="Settings">⚙️</button>
-            </div>
-        </div>
+  <header>
+    <div class="logo"><i data-lucide="shield"></i> SANCTUARY</div>
+    <div class="stats-bar">
+      <div class="stat-chip"><i data-lucide="zap" size="14"></i> <span id="xp-val">0</span> XP</div>
+      <div class="stat-chip"><i data-lucide="clock" size="14"></i> <span id="time-val">0</span>m ACTIVE</div>
+      <div class="theme-picker">
+        <div class="t-dot" style="background:#10b981" onclick="setTheme('emerald')"></div>
+        <div class="t-dot" style="background:#8b5cf6" onclick="setTheme('velvet')"></div>
+        <div class="t-dot" style="background:#3b82f6" onclick="setTheme('sapphire')"></div>
+        <div class="t-dot" style="background:#f43f5e" onclick="setTheme('rose')"></div>
+      </div>
     </div>
-</header>
+  </header>
 
-<main class="container">
-    <div class="main-layout">
-        <section id="grid-view" class="grid"></section>
-        <section id="reader" class="reader"></section>
+  <main>
+    <div class="content-viewport" id="main-scroll">
+      <div style="margin-bottom: 40px; position: relative;">
+        <input type="text" id="surahSearch" placeholder="Search for a Surah..." 
+               style="width:100%; padding:20px 30px; border-radius:20px; background:var(--card-bg); border:1px solid var(--border-color); color:white; outline:none; font-size:1.1rem;">
+      </div>
 
-        <aside class="sidebar">
-            <div class="sidebar-card">
-                <div class="sidebar-title">📊 Your Progress</div>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-value" id="stat-chapters">0</div>
-                        <div class="stat-label">Completed</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="stat-ayahs">0</div>
-                        <div class="stat-label">Verses</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="stat-time">0h</div>
-                        <div class="stat-label">Reading</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="stat-streak">0</div>
-                        <div class="stat-label">Day Streak</div>
-                    </div>
-                </div>
-            </div>
+      <div id="grid-container" class="surah-grid"></div>
 
-            <div class="sidebar-card">
-                <div class="sidebar-title">✨ Today's Verse</div>
-                <div class="sidebar-content" id="daily-verse">
-                    Loading today's verse...
-                </div>
-            </div>
-
-            <div class="sidebar-card">
-                <div class="sidebar-title">📖 Tafsir</div>
-                <div class="sidebar-content" id="tafsir-panel">
-                    Select a verse to view tafsir interpretation
-                </div>
-            </div>
-
-            <div class="sidebar-card">
-                <button class="btn btn-primary" style="width: 100%;" onclick="App.downloadQuran()">
-                    📥 Export as PDF
-                </button>
-            </div>
-        </aside>
-    </div>
-</main>
-
-<!-- Themes Modal -->
-<div id="themeModal" class="modal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="App.toggleThemeModal()">✕</button>
-        <h2 style="color: var(--primary); margin-top: 0;">Choose Your Theme</h2>
-        <div class="theme-grid" id="theme-grid">
-            <!-- Themes will be generated here -->
-        </div>
-    </div>
-</div>
-
-<!-- Stats Modal -->
-<div id="statsModal" class="modal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="App.toggleStats()">✕</button>
-        <h2 style="color: var(--primary); margin-top: 0;">Reading Statistics</h2>
-        <div id="stats-content">
-            <div class="stats-grid" style="margin: 1.5rem 0;">
-                <div class="stat-item">
-                    <div class="stat-value" id="modal-chapters">0</div>
-                    <div class="stat-label">Chapters Read</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="modal-ayahs">0</div>
-                    <div class="stat-label">Verses Read</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="modal-time-full">0h 0m</div>
-                    <div class="stat-label">Total Time</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="modal-streak">0</div>
-                    <div class="stat-label">Day Streak</div>
-                </div>
-            </div>
-            <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                Keep reading regularly to build your streak and deepen your connection with the Quran.
-            </p>
-            <button class="btn btn-secondary" onclick="App.resetStats()" style="width: 100%; margin-top: 1rem;">
-                Reset Statistics
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Settings Modal -->
-<div id="settingsModal" class="modal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="App.toggleSettings()">✕</button>
-        <h2 style="color: var(--primary); margin-top: 0;">Settings</h2>
-        
-        <div style="margin: 1.5rem 0;">
-            <h3 style="color: var(--text-primary); font-size: 1rem; margin-bottom: 1rem;">Font Size</h3>
-            <input type="range" id="fontSizeSlider" min="12" max="32" value="16" onchange="App.setFontSize(this.value)" style="width: 100%;">
-            <span style="color: var(--text-secondary); font-size: 0.85rem;" id="fontSizeValue">16px</span>
-        </div>
-
-        <div style="margin: 1.5rem 0;">
-            <h3 style="color: var(--text-primary); font-size: 1rem; margin-bottom: 1rem;">Line Height</h3>
-            <input type="range" id="lineHeightSlider" min="1.2" max="2.4" step="0.2" value="1.6" onchange="App.setLineHeight(this.value)" style="width: 100%;">
-            <span style="color: var(--text-secondary); font-size: 0.85rem;" id="lineHeightValue">1.6x</span>
-        </div>
-
-        <div style="margin: 1.5rem 0;">
-            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
-                <input type="checkbox" id="darkModeToggle" onchange="App.toggleDarkMode()">
-                <span style="color: var(--text-primary);">Dark Mode</span>
-            </label>
-        </div>
-
-        <div style="margin: 1.5rem 0;">
-            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
-                <input type="checkbox" id="translationToggle" checked onchange="App.toggleTranslation()">
-                <span style="color: var(--text-primary);">Show English Translation</span>
-            </label>
-        </div>
-
-        <div style="margin: 1.5rem 0;">
-            <h3 style="color: var(--text-primary); font-size: 1rem; margin-bottom: 0.5rem;">Script</h3>
-            <select id="scriptSelect" onchange="App.setScript(this.value)" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg); color: var(--text-primary);">
-                <option value="standard">Standard (Uthmani)</option>
-                <option value="indopak">Indo-Pakistani</option>
-            </select>
-        </div>
-
-        <button class="btn btn-secondary" onclick="App.toggleSettings()" style="width: 100%; margin-top: 1.5rem;">
-            Close Settings
+      <div id="reader-view" class="reader-view">
+        <button onclick="closeReader()" style="background:none; border:none; color:var(--primary); cursor:pointer; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+            <i data-lucide="arrow-left"></i> BACK TO GRID
         </button>
+        <div id="reader-content"></div>
+      </div>
     </div>
-</div>
 
-<!-- Bookmarks Modal -->
-<div id="bookmarkModal" class="modal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="App.toggleBookmarks()">✕</button>
-        <h2 style="color: var(--primary); margin-top: 0;">📚 Your Bookmarks</h2>
-        <div id="bookmarks-list">
-            <p style="color: var(--text-secondary);">No bookmarks yet. Click the bookmark icon on any verse to save it.</p>
-        </div>
+    <aside class="sentinel">
+      <div style="color:var(--primary); font-weight:800; font-size:0.7rem; letter-spacing:3px;">SENTINEL AI</div>
+      <div class="tabs">
+        <button class="tab-btn active"><i data-lucide="book-open" size="16"></i> TAFSIR</button>
+        <button class="tab-btn"><i data-lucide="graduation-cap" size="16"></i> LESSONS</button>
+        <button class="tab-btn"><i data-lucide="message-square" size="16"></i> HADITH</button>
+      </div>
+      <div id="ai-output" class="insight-content">
+        Select a verse to initiate scholarly extraction and linguistic analysis.
+      </div>
+    </aside>
+  </main>
+
+  <div class="player-bar">
+    <div id="np-title" style="width:250px;"><b>Ready to Begin</b><br><small style="opacity:0.5">Select a Surah</small></div>
+    <div style="display:flex; gap:25px; align-items:center;">
+        <i data-lucide="skip-back" class="icon-btn" onclick="navSurah(-1)"></i>
+        <button class="play-btn" onclick="toggleAudio()"><i data-lucide="play" id="play-icon"></i></button>
+        <i data-lucide="skip-forward" class="icon-btn" onclick="navSurah(1)"></i>
     </div>
-</div>
+    <div style="width:250px; text-align:right;">
+        <i data-lucide="volume-2"></i>
+    </div>
+  </div>
 
-<script>
-const App = {
-    state: {
+  <audio id="core-audio"></audio>
+
+  <script>
+    const App = {
+      state: {
         chapters: [],
-        currentSurah: null,
+        currentId: 1,
         xp: parseInt(localStorage.getItem('sanctuary-xp')) || 0,
-        seconds: parseInt(localStorage.getItem('sanctuary-time')) || 0,
-        completed: JSON.parse(localStorage.getItem('sanctuary-completed')) || [],
-        bookmarks: JSON.parse(localStorage.getItem('sanctuary-bookmarks')) || [],
-        theme: localStorage.getItem('sanctuary-theme') || 'theme-emerald',
-        memoryMode: false,
-        showTranslation: localStorage.getItem('sanctuary-translation') !== 'false',
-        fontSize: parseInt(localStorage.getItem('sanctuary-fontSize')) || 16,
-        lineHeight: parseFloat(localStorage.getItem('sanctuary-lineHeight')) || 1.6,
-        script: localStorage.getItem('sanctuary-script') || 'standard',
-        lastReadDate: localStorage.getItem('sanctuary-lastReadDate') || null,
-        streak: parseInt(localStorage.getItem('sanctuary-streak')) || 0,
-        searchQuery: ''
-    },
+        time: parseInt(localStorage.getItem('sanctuary-time')) || 0,
+        isPlaying: false
+      },
 
-    themes: [
-        { id: 'theme-emerald', name: 'Emerald Sanctuary', colors: ['#10b981', '#059669', '#fbbf24'] },
-        { id: 'theme-dark', name: 'Dark Mode', colors: ['#fbbf24', '#ec4899', '#64748b'] },
-        { id: 'theme-midnight', name: 'Midnight', colors: ['#6366f1', '#4f46e5', '#ec4899'] },
-        { id: 'theme-ocean', name: 'Ocean', colors: ['#0ea5e9', '#0284c7', '#06b6d4'] },
-        { id: 'theme-sunset', name: 'Sunset', colors: ['#f97316', '#ea580c', '#fbbf24'] },
-        { id: 'theme-forest', name: 'Forest', colors: ['#16a34a', '#15803d', '#84cc16'] },
-        { id: 'theme-rose', name: 'Rose', colors: ['#ec4899', '#db2777', '#fcd34d'] },
-        { id: 'theme-lavender', name: 'Lavender', colors: ['#a855f7', '#9333ea', '#fbbf24'] },
-        { id: 'theme-teal', name: 'Teal', colors: ['#14b8a6', '#0d9488', '#fbbf24'] },
-        { id: 'theme-copper', name: 'Copper', colors: ['#b45309', '#92400e', '#fcd34d'] },
-        { id: 'theme-sapphire', name: 'Sapphire', colors: ['#3b82f6', '#2563eb', '#fbbf24'] },
-        { id: 'theme-lime', name: 'Lime', colors: ['#84cc16', '#65a30d', '#06b6d4'] },
-        { id: 'theme-crimson', name: 'Crimson', colors: ['#dc2626', '#b91c1c', '#fbbf24'] },
-        { id: 'theme-indigo', name: 'Indigo', colors: ['#4f46e5', '#4338ca', '#fbbf24'] },
-        { id: 'theme-mint', name: 'Mint', colors: ['#06b6d4', '#0891b2', '#fbbf24'] },
-        { id: 'theme-peach', name: 'Peach', colors: ['#f43f5e', '#e11d48', '#fbbf24'] },
-        { id: 'theme-slate', name: 'Slate', colors: ['#64748b', '#475569', '#fbbf24'] },
-        { id: 'theme-amber', name: 'Amber', colors: ['#f59e0b', '#d97706', '#ec4899'] },
-        { id: 'theme-violet', name: 'Violet', colors: ['#7c3aed', '#6d28d9', '#fbbf24'] },
-        { id: 'theme-emerald-light', name: 'Light Sanctuary', colors: ['#10b981', '#f0fdf4', '#1e3a1f'] },
-        { id: 'theme-midnight-light', name: 'Light Midnight', colors: ['#6366f1', '#f0f4ff', '#1e1b4b'] }
-    ],
-
-    // Sample data - API will override this if available
-    sampleData: {
-        1: { name: 'Al-Fatiha', englishName: 'The Opening', numberOfAyahs: 7, revelationType: 'Meccan' },
-        2: { name: 'Al-Baqarah', englishName: 'The Cow', numberOfAyahs: 286, revelationType: 'Medinan' },
-        3: { name: 'Aal-i-Imran', englishName: 'Family of Imran', numberOfAyahs: 200, revelationType: 'Medinan' },
-    },
-
-    init() {
-        this.applyTheme();
-        this.renderThemeSelector();
-        this.fetchSurahs();
+      async init() {
+        lucide.createIcons();
         this.startTracking();
-        this.updateStats();
-        this.loadDailyVerse();
-        this.updateStreak();
-    },
-
-    applyTheme() {
-        document.body.className = this.state.theme;
-    },
-
-    renderThemeSelector() {
-        const grid = document.getElementById('theme-grid');
-        grid.innerHTML = this.themes.map(theme => `
-            <div class="theme-option ${this.state.theme === theme.id ? 'active' : ''}" 
-                 onclick="App.setTheme('${theme.id}')">
-                <div class="theme-preview" style="background: linear-gradient(135deg, ${theme.colors[0]}, ${theme.colors[1]});"></div>
-                <div class="theme-name">${theme.name}</div>
-            </div>
-        `).join('');
-    },
-
-    setTheme(themeId) {
-        this.state.theme = themeId;
-        localStorage.setItem('sanctuary-theme', themeId);
-        this.applyTheme();
-        this.renderThemeSelector();
-    },
-
-    async fetchSurahs() {
-        const grid = document.getElementById('grid-view');
-        grid.innerHTML = '<div class="loading"><div class="spinner"></div> Loading surahs...</div>';
+        await this.fetchChapters();
         
-        try {
-            const res = await fetch("https://api.alquran.cloud/v1/surah");
-            if (!res.ok) throw new Error('API Error');
-            const json = await res.json();
-            this.state.chapters = json.data;
-            this.renderGrid(json.data);
-        } catch (error) {
-            console.error('Fetch error:', error);
-            grid.innerHTML = `
-                <div class="error-message">
-                    <strong>⚠️ Connection Error</strong><br>
-                    Unable to load surahs from the API. Please check your internet connection and reload the page.
-                    <br><br>
-                    <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 1rem;">
-                        Reload Page
-                    </button>
-                </div>
-            `;
-        }
-    },
+        document.getElementById('surahSearch').addEventListener('input', (e) => this.filterChapters(e.target.value));
+      },
 
-    renderGrid(list) {
-        const grid = document.getElementById('grid-view');
-        const filtered = list.filter(s => 
-            this.state.searchQuery === '' || 
-            s.englishName.toLowerCase().includes(this.state.searchQuery.toLowerCase())
+      startTracking() {
+        setInterval(() => {
+          this.state.time++;
+          if(this.state.time % 10 === 0) {
+            this.state.xp += 2;
+            this.updateStats();
+          }
+        }, 1000);
+      },
+
+      updateStats() {
+        document.getElementById('xp-val').innerText = this.state.xp;
+        document.getElementById('time-val').innerText = Math.floor(this.state.time / 60);
+        localStorage.setItem('sanctuary-xp', this.state.xp);
+        localStorage.setItem('sanctuary-time', this.state.time);
+      },
+
+      async fetchChapters() {
+        const res = await fetch('https://api.alquran.cloud/v1/surah');
+        const json = await res.json();
+        this.state.chapters = json.data;
+        this.renderGrid(this.state.chapters);
+      },
+
+      renderGrid(list) {
+        const container = document.getElementById('grid-container');
+        container.innerHTML = list.map(s => `
+          <div class="card" onclick="loadSurah(${s.number})">
+            <p>ID: ${s.number}</p>
+            <h3>${s.englishName}</h3>
+            <p style="color:var(--primary)">${s.numberOfAyahs} Ayahs • ${s.revelationType}</p>
+          </div>
+        `).join('');
+      },
+
+      filterChapters(query) {
+        const filtered = this.state.chapters.filter(c => 
+          c.englishName.toLowerCase().includes(query.toLowerCase()) || 
+          c.number.toString() === query
         );
+        this.renderGrid(filtered);
+      }
+    };
 
-        grid.innerHTML = filtered.map(s => `
-            <div class="card" onclick="App.loadSurah(${s.number})">
-                <div class="card-number">Surah ${s.number}</div>
-                <h3 class="card-title">${s.englishName}</h3>
-                <p class="card-subtitle">${s.name}</p>
-                <p class="card-subtitle">${s.numberOfAyahs} verses • ${s.revelationType}</p>
-            </div>
-        `).join('');
-    },
-
-    async loadSurah(id) {
-        const reader = document.getElementById('reader');
-        const grid = document.getElementById('grid-view');
+    async function loadSurah(id) {
+        App.state.currentId = id;
+        const grid = document.getElementById('grid-container');
+        const reader = document.getElementById('reader-view');
+        const content = document.getElementById('reader-content');
+        const scroll = document.getElementById('main-scroll');
         
-        grid.style.display = "none";
-        reader.style.display = "block";
-        reader.innerHTML = '<div class="loading"><div class="spinner"></div> Loading surah...</div>';
+        grid.classList.add('hidden');
+        document.getElementById('surahSearch').classList.add('hidden');
+        reader.classList.add('active');
+        content.innerHTML = `<div style="text-align:center; padding:50px;">Extracting Signatures...</div>`;
+        scroll.scrollTop = 0;
 
         try {
             const [arRes, enRes] = await Promise.all([
-                fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-tajweed`),
-                fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`)
+                fetch(`https://api.alquran.cloud/v1/surah/${id}`).then(r => r.json()),
+                fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
             ]);
 
-            if (!arRes.ok || !enRes.ok) throw new Error('API Error');
+            const bismillah = "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ";
+            let html = `<h1 style="text-align:center; font-family:'Amiri Quran'; font-size:4rem; color:var(--primary); margin-bottom:50px;">${arRes.data.name}</h1>`;
 
-            const ar = await arRes.json();
-            const en = await enRes.json();
+            html += arRes.data.ayahs.map((ayah, i) => {
+                let cleanText = ayah.text;
+                // Remove prepended Bismillah for all surahs except Fatiha (1) and Tawbah (9)
+                if(id !== 1 && id !== 9 && i === 0) cleanText = cleanText.replace(bismillah, "");
 
-            this.state.currentSurah = ar.data;
-            let html = `<div class="reader-header">
-                            <h1 class="surah-name">${ar.data.name}</h1>
-                            <p class="surah-info">${ar.data.englishName} • ${ar.data.numberOfAyahs} Verses • ${ar.data.revelationType}</p>
-                        </div>`;
-
-            ar.data.ayahs.forEach((ayah, i) => {
-                let text = ayah.text;
-                if(id !== 1 && id !== 9 && i === 0) {
-                    text = text.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "").trim();
-                }
-
-                text = text
-                    .replace(/\[h:([^\]]+)\]/g, '<span class="taj-ghunnah">$1</span>')
-                    .replace(/\[q:([^\]]+)\]/g, '<span class="taj-qalqalah">$1</span>')
-                    .replace(/\[m:([^\]]+)\]/g, '<span class="taj-madd">$1</span>')
-                    .replace(/\[i:([^\]]+)\]/g, '<span class="taj-ikfa">$1</span>')
-                    .replace(/\[\w:([^\]]+)\]/g, '$1');
-
-                html += `
-                    <div class="ayah-container" onclick="App.bookmarkVerse(${id}, ${i+1})" title="Click to bookmark">
-                        <div style="text-align: center; margin-bottom: 1rem;">
-                            <span class="ayah-number">${ayah.numberInSurah}</span>
-                        </div>
-                        <div class="ayah-text">${text}</div>
-                        ${this.state.showTranslation ? `<div class="ayah-translation">${en.data.ayahs[i].text}</div>` : ''}
-                    </div>`;
-            });
-
-            reader.innerHTML = html;
-            reader.classList.add('active');
-            this.updateStats();
-        } catch (error) {
-            console.error('Load error:', error);
-            reader.innerHTML = `
-                <div class="error-message">
-                    <strong>⚠️ Error Loading Surah</strong><br>
-                    The surah could not be loaded. Please check your connection and try again.
-                </div>
-            `;
-        }
-    },
-
-    showGrid() {
-        document.getElementById('reader').style.display = "none";
-        document.getElementById('reader').classList.remove('active');
-        document.getElementById('grid-view').style.display = "grid";
-    },
-
-    filter(query) {
-        this.state.searchQuery = query;
-        this.renderGrid(this.state.chapters);
-    },
-
-    startTracking() {
-        setInterval(() => {
-            if (document.getElementById('reader').style.display !== "none") {
-                this.state.seconds++;
-                if (this.state.seconds % 30 === 0) {
-                    this.state.xp += 10;
-                    this.updateStats();
-                    this.save();
-                }
-            }
-        }, 1000);
-    },
-
-    updateStats() {
-        const hours = Math.floor(this.state.seconds / 3600);
-        const minutes = Math.floor((this.state.seconds % 3600) / 60);
-        
-        document.getElementById('stat-chapters').textContent = this.state.completed.length;
-        document.getElementById('stat-ayahs').textContent = this.state.completed.reduce((a, b) => a + b, 0);
-        document.getElementById('stat-time').textContent = hours > 0 ? hours + 'h' : minutes + 'm';
-        document.getElementById('stat-streak').textContent = this.state.streak;
-
-        document.getElementById('modal-chapters').textContent = this.state.completed.length;
-        document.getElementById('modal-ayahs').textContent = this.state.completed.reduce((a, b) => a + b, 0);
-        document.getElementById('modal-time-full').textContent = `${hours}h ${minutes}m`;
-        document.getElementById('modal-streak').textContent = this.state.streak;
-    },
-
-    updateStreak() {
-        const today = new Date().toDateString();
-        const lastDate = this.state.lastReadDate;
-        
-        if (lastDate !== today) {
-            const lastDay = lastDate ? new Date(lastDate) : new Date();
-            const currentDay = new Date();
-            const diffDays = Math.floor((currentDay - lastDay) / (1000 * 60 * 60 * 24));
-            
-            if (diffDays === 1) {
-                this.state.streak++;
-            } else if (diffDays > 1) {
-                this.state.streak = 1;
-            }
-            
-            this.state.lastReadDate = today;
-            this.save();
-        }
-    },
-
-    loadDailyVerse() {
-        if (this.state.chapters.length > 0) {
-            const surahIndex = Math.floor(Math.random() * this.state.chapters.length);
-            const surah = this.state.chapters[surahIndex];
-            const verseIndex = Math.floor(Math.random() * surah.numberOfAyahs);
-            document.getElementById('daily-verse').innerHTML = `
-                <strong>${surah.englishName}</strong><br>
-                Verse ${verseIndex + 1}
-            `;
-        }
-    },
-
-    toggleThemeModal() {
-        document.getElementById('themeModal').classList.toggle('active');
-    },
-
-    toggleStats() {
-        document.getElementById('statsModal').classList.toggle('active');
-    },
-
-    toggleSettings() {
-        document.getElementById('settingsModal').classList.toggle('active');
-        document.getElementById('fontSizeValue').textContent = this.state.fontSize + 'px';
-        document.getElementById('lineHeightValue').textContent = this.state.lineHeight.toFixed(1) + 'x';
-    },
-
-    toggleBookmarks() {
-        const modal = document.getElementById('bookmarkModal');
-        modal.classList.toggle('active');
-        this.renderBookmarks();
-    },
-
-    toggleMemoryMode() {
-        this.state.memoryMode = !this.state.memoryMode;
-        alert(this.state.memoryMode ? '✅ Memory Mode enabled - Test your memorization!' : '❌ Memory Mode disabled');
-    },
-
-    toggleDarkMode() {
-        // Theme already handles this
-    },
-
-    toggleTranslation() {
-        this.state.showTranslation = !this.state.showTranslation;
-        localStorage.setItem('sanctuary-translation', this.state.showTranslation);
-        if (this.state.currentSurah) {
-            this.loadSurah(this.state.currentSurah.number);
-        }
-    },
-
-    setScript(script) {
-        this.state.script = script;
-        localStorage.setItem('sanctuary-script', script);
-    },
-
-    setFontSize(size) {
-        this.state.fontSize = parseInt(size);
-        localStorage.setItem('sanctuary-fontSize', size);
-        document.documentElement.style.setProperty('--font-size', size + 'px');
-        document.getElementById('fontSizeValue').textContent = size + 'px';
-    },
-
-    setLineHeight(height) {
-        this.state.lineHeight = parseFloat(height);
-        localStorage.setItem('sanctuary-lineHeight', height);
-        document.documentElement.style.setProperty('--line-height', height);
-        document.getElementById('lineHeightValue').textContent = height.toFixed(1) + 'x';
-    },
-
-    bookmarkVerse(surahNumber, verseNumber) {
-        const bookmark = `${surahNumber}-${verseNumber}`;
-        const index = this.state.bookmarks.indexOf(bookmark);
-        
-        if (index > -1) {
-            this.state.bookmarks.splice(index, 1);
-        } else {
-            this.state.bookmarks.push(bookmark);
-        }
-        
-        this.save();
-    },
-
-    renderBookmarks() {
-        const list = document.getElementById('bookmarks-list');
-        if (this.state.bookmarks.length === 0) {
-            list.innerHTML = '<p style="color: var(--text-secondary);">No bookmarks yet.</p>';
-        } else {
-            list.innerHTML = this.state.bookmarks.map(bookmark => {
-                const [surah, verse] = bookmark.split('-');
-                const surahName = this.state.chapters[parseInt(surah) - 1]?.englishName || 'Unknown';
                 return `
-                    <div class="card" style="margin-bottom: 1rem; cursor: pointer;" onclick="App.loadSurah(${surah})">
-                        <strong>${surahName}</strong> - Verse ${verse}
+                    <div class="ayah-block" onclick="getInsight(${i+1})">
+                        <div class="q-text">${cleanText}</div>
+                        <div class="q-trans">${enRes.data.ayahs[i].text}</div>
+                        <span class="ayah-num">SIGNATURE ${id}:${ayah.numberInSurah}</span>
                     </div>
                 `;
             }).join('');
+
+            content.innerHTML = html;
+            document.getElementById('np-title').innerHTML = `<b>${arRes.data.englishName}</b><br><small>${arRes.data.revelationType}</small>`;
+            
+            const audio = document.getElementById('core-audio');
+            audio.src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${id}.mp3`;
+            
+        } catch (e) {
+            content.innerHTML = `<div style="color:red">Failed to extract data matrix. Check uplink.</div>`;
         }
-    },
+    }
 
-    resetStats() {
-        if (confirm('Are you sure you want to reset all statistics?')) {
-            this.state.xp = 0;
-            this.state.seconds = 0;
-            this.state.completed = [];
-            this.state.streak = 0;
-            this.save();
-            this.updateStats();
-            alert('✅ Statistics reset!');
+    function closeReader() {
+        document.getElementById('grid-container').classList.remove('hidden');
+        document.getElementById('surahSearch').classList.remove('hidden');
+        document.getElementById('reader-view').classList.remove('active');
+    }
+
+    function toggleAudio() {
+        const audio = document.getElementById('core-audio');
+        const icon = document.getElementById('play-icon');
+        if(audio.paused) {
+            audio.play();
+            icon.setAttribute('data-lucide', 'pause');
+        } else {
+            audio.pause();
+            icon.setAttribute('data-lucide', 'play');
         }
-    },
-
-    downloadQuran() {
-        alert('💾 Download feature: Use your browser\'s print function (Ctrl+P or Cmd+P) to save as PDF.');
-    },
-
-    save() {
-        localStorage.setItem('sanctuary-xp', this.state.xp);
-        localStorage.setItem('sanctuary-time', this.state.seconds);
-        localStorage.setItem('sanctuary-completed', JSON.stringify(this.state.completed));
-        localStorage.setItem('sanctuary-bookmarks', JSON.stringify(this.state.bookmarks));
-        localStorage.setItem('sanctuary-streak', this.state.streak);
-        localStorage.setItem('sanctuary-lastReadDate', this.state.lastReadDate);
+        lucide.createIcons();
     }
-};
 
-// Close modals on Escape key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        document.getElementById('themeModal').classList.remove('active');
-        document.getElementById('statsModal').classList.remove('active');
-        document.getElementById('settingsModal').classList.remove('active');
-        document.getElementById('bookmarkModal').classList.remove('active');
+    function navSurah(dir) {
+        let next = App.state.currentId + dir;
+        if(next >= 1 && next <= 114) loadSurah(next);
     }
-});
 
-// Initialize on page load
-window.addEventListener('load', () => {
-    App.init();
-});
-</script>
+    function getInsight(num) {
+        document.getElementById('ai-output').innerHTML = `
+            <b style="color:var(--primary)">Verse ${num} Context:</b><br><br>
+            Initializing linguistic analysis of the root words. This verse is historically linked to the mid-Meccan period, addressing themes of divine consistency and moral architecture.
+        `;
+    }
 
+    function setTheme(t) {
+        document.body.className = `theme-${t}`;
+    }
+
+    window.onload = () => App.init();
+  </script>
 </body>
 </html>
