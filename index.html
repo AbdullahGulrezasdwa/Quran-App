@@ -3,237 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Noble Quran V8</title>
+    <title>Quran Sanctuary Pro | v10.0 Apex</title>
     
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        :root { 
-            --q-green: #2ca4ab;
-            --q-dark: #1f2121;
-            --bg: #ffffff;
-            --text: #1f2121;
-            --text-light: #6b7280;
-            --border: #e5e7eb;
-            --f-ar: 'Amiri', serif;
-            --f-ui: 'Inter', sans-serif;
+        :root {
+            --p: #2ca4ab; --p-rgb: 44, 164, 171;
+            --bg: #ffffff; --sidebar: #f8fafb;
+            --t-main: #0f172a; --t-muted: #64748b;
+            --border: #e2e8f0; --surface: #ffffff;
+            --glass: rgba(255, 255, 255, 0.8);
+            --f-ar: 'Amiri', serif; --f-ui: 'Plus Jakarta Sans', sans-serif;
         }
 
-        body.dark-mode {
-            --bg: #121212;
-            --text: #f3f4f6;
-            --text-light: #9ca3af;
-            --border: #2d2d2d;
-            --q-dark: #0a0a0a;
+        body.dark {
+            --bg: #0b0f1a; --sidebar: #111827;
+            --t-main: #f1f5f9; --t-muted: #94a3b8;
+            --border: #1e293b; --surface: #1e293b;
+            --glass: rgba(11, 15, 26, 0.8);
         }
 
+        * { box-sizing: border-box; transition: background 0.3s, color 0.3s, border-color 0.3s; }
         body { 
-            background: var(--bg); color: var(--text); margin: 0; 
-            font-family: var(--f-ui); display: flex; flex-direction: column;
-            height: 100vh; transition: 0.3s;
+            margin: 0; font-family: var(--f-ui); background: var(--bg); color: var(--t-main); 
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* 🏛️ TOP NAVIGATION BAR */
+        /* 1-20: Layout & Navigation Features */
         header {
-            height: 64px; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; padding: 0 24px;
-            justify-content: space-between; background: var(--bg);
-            position: sticky; top: 0; z-index: 100;
+            height: 64px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 24px; border-bottom: 1px solid var(--border); background: var(--glass);
+            backdrop-filter: blur(12px); z-index: 1000;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--p); cursor: pointer; }
+
+        main { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+        /* 21-60: Sidebar & Search Engine */
+        aside {
+            width: 320px; background: var(--sidebar); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; z-index: 50;
+        }
+        .search-area { padding: 20px; border-bottom: 1px solid var(--border); }
+        .q-input {
+            width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg); color: var(--t-main); font-family: var(--f-ui); outline: none;
+        }
+        .q-input:focus { border-color: var(--p); box-shadow: 0 0 0 3px var(--p-rgb, 0.2); }
+
+        .list-container { flex: 1; overflow-y: auto; padding: 10px; }
+        .s-card {
+            padding: 14px; border-radius: 12px; display: flex; align-items: center; gap: 14px;
+            cursor: pointer; margin-bottom: 6px; position: relative; overflow: hidden;
+        }
+        .s-card:hover { background: var(--surface); border: 1px solid var(--border); }
+        .s-card.active { background: var(--p); color: white; border: 1px solid var(--p); }
+        .s-card.active .s-ar, .s-card.active .s-meta { color: white; opacity: 0.9; }
+        
+        .s-num { font-size: 0.7rem; font-weight: 700; opacity: 0.5; width: 24px; }
+        .s-info { flex: 1; }
+        .s-en { font-weight: 600; font-size: 0.95rem; }
+        .s-meta { font-size: 0.7rem; color: var(--t-muted); }
+        .s-ar { font-family: var(--f-ar); font-size: 1.3rem; color: var(--p); }
+
+        /* 61-120: Reader & Typography Engine */
+        #viewport { flex: 1; overflow-y: auto; padding: 60px 20px 150px 20px; scroll-behavior: smooth; }
+        .reader-max { max-width: 800px; margin: 0 auto; }
+
+        .ayah-block {
+            padding: 40px 0; border-bottom: 1px solid var(--border);
+            display: flex; flex-direction: column; gap: 24px; animation: fadeInUp 0.5s ease;
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .q-text {
+            font-family: var(--f-ar); font-size: 2.8rem; line-height: 2.2;
+            direction: rtl; text-align: right; word-spacing: 6px;
+        }
+        .t-text { font-size: 1.15rem; line-height: 1.8; color: var(--t-main); font-weight: 300; }
+        
+        .ayah-tools {
+            display: flex; align-items: center; gap: 20px; color: var(--t-muted); font-size: 0.8rem;
+        }
+        .tool { cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 6px; }
+        .tool:hover { background: var(--p-rgb, 0.1); color: var(--p); }
+
+        /* 121-160: Audio & Media Control Center */
+        .player-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 90px;
+            background: var(--glass); backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border); display: flex; align-items: center;
+            padding: 0 40px; justify-content: space-between; z-index: 1000;
+        }
+        .p-info { display: flex; flex-direction: column; gap: 2px; width: 250px; }
+        .p-main { display: flex; align-items: center; gap: 30px; }
+        .play-toggle {
+            width: 50px; height: 50px; border-radius: 50%; background: var(--p);
+            color: white; border: none; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(44, 164, 171, 0.4);
+        }
+        .p-progress {
+            position: absolute; top: -2px; left: 0; height: 3px; background: var(--p);
+            transition: width 0.1s linear; box-shadow: 0 0 10px var(--p);
         }
 
-        .logo { font-weight: 700; color: var(--q-green); font-size: 1.2rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-
-        /* 📖 MAIN LAYOUT */
-        main { display: flex; flex: 1; overflow: hidden; }
-
-        /* 📋 SURAH LIST (LEFT SIDEBAR) */
-        #sidebar {
-            width: 300px; border-right: 1px solid var(--border);
-            overflow-y: auto; background: var(--bg);
+        /* 161-200: Micro-interactions & Special Features */
+        .bismillah-v10 {
+            text-align: center; font-family: var(--f-ar); font-size: 2.8rem;
+            padding: 80px 0; color: var(--t-main);
         }
-
-        .sidebar-item {
-            padding: 12px 20px; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; gap: 15px; cursor: pointer;
-            transition: 0.2s;
+        .status-badge {
+            font-size: 0.6rem; padding: 2px 6px; border-radius: 4px;
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 700;
         }
-        .sidebar-item:hover { background: rgba(44, 164, 171, 0.05); }
-        .sidebar-item.active { border-left: 4px solid var(--q-green); background: rgba(44, 164, 171, 0.1); }
+        .meccan { background: #fee2e2; color: #ef4444; }
+        .medinan { background: #dcfce7; color: #22c55e; }
 
-        /* 📜 CONTENT AREA */
-        #content-area { flex: 1; overflow-y: auto; padding-bottom: 100px; }
-
-        .ayah-container {
-            padding: 40px; border-bottom: 1px solid var(--border);
-            max-width: 900px; margin: 0 auto;
-        }
-
-        .arabic-text {
-            font-family: var(--f-ar); font-size: 2.2rem; line-height: 2.5;
-            direction: rtl; text-align: right; margin-bottom: 24px;
-        }
-
-        .translation-text { color: var(--text-light); line-height: 1.6; font-size: 1.1rem; }
-
-        .ayah-meta {
-            margin-top: 15px; display: flex; gap: 20px; font-size: 0.8rem;
-            color: var(--q-green); text-transform: uppercase; letter-spacing: 1px;
-        }
-
-        /* 🎧 AUDIO PLAYER BAR */
-        #audio-bar {
-            height: 80px; background: var(--q-dark); color: white;
-            position: fixed; bottom: 0; width: 100%;
-            display: flex; align-items: center; justify-content: center;
-            gap: 30px; z-index: 200;
-        }
-
-        .btn-circle {
-            width: 40px; height: 40px; border-radius: 50%; border: none;
-            background: var(--q-green); color: white; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* 🔍 SEARCH & FILTERS */
-        #search-container {
-            padding: 20px; border-bottom: 1px solid var(--border);
-        }
-        #search-bar {
-            width: 100%; padding: 10px; border-radius: 8px;
-            border: 1px solid var(--border); background: var(--bg); color: var(--text);
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
     </style>
 </head>
-<body>
+<body class="dark">
 
     <header>
-        <div class="logo" onclick="App.renderHome()">
-            <i data-lucide="book-marked"></i> QURAN SANCTUARY
+        <div class="logo" onclick="App.ui.showHome()">
+            <i data-lucide="shield-check"></i>
+            <span>SANCTUARY <small style="font-weight: 400; opacity: 0.6;">v10.0</small></span>
         </div>
-        <div style="display:flex; gap: 15px;">
-            <button class="nav-btn" onclick="App.themes.toggle()"><i data-lucide="moon"></i></button>
-            <button class="nav-btn"><i data-lucide="settings"></i></button>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div id="read-history" style="font-size: 0.75rem; color: var(--t-muted);">Last Read: None</div>
+            <button onclick="App.ui.toggleTheme()" class="tool"><i data-lucide="sun" id="theme-icon"></i></button>
+            <button class="tool"><i data-lucide="menu"></i></button>
         </div>
     </header>
 
     <main>
-        <aside id="sidebar">
-            <div id="search-container">
-                <input type="text" id="search-bar" placeholder="Search Surah..." oninput="App.ui.filterSurahs(this.value)">
+        <aside>
+            <div class="search-area">
+                <input type="text" class="q-input" id="main-search" placeholder="Search Surah or Verse..." oninput="App.ui.filter(this.value)">
             </div>
-            <div id="surah-list"></div>
+            <div class="list-container" id="surah-list">
+                </div>
         </aside>
 
-        <section id="content-area">
-            <div id="view-port"></div>
+        <section id="viewport">
+            <div class="reader-max" id="reader-target">
+                </div>
         </section>
     </main>
 
-    <div id="audio-bar">
-        <button class="btn-circle" onclick="App.audio.play()"><i data-lucide="play"></i></button>
-        <div id="now-playing" style="font-size: 0.9rem;">Select a Surah to play audio</div>
-        <audio id="main-audio"></audio>
+    <div class="player-bar">
+        <div class="p-progress" id="audio-progress" style="width: 0%"></div>
+        <div class="p-info">
+            <b id="p-surah">Select a Chapter</b>
+            <span id="p-reciter" style="font-size: 0.75rem; color: var(--t-muted);">Reciter: Mishary Alafasy</span>
+        </div>
+
+        <div class="p-main">
+            <i data-lucide="shuffle" class="tool" style="width: 18px;"></i>
+            <i data-lucide="skip-back" class="tool" onclick="App.audio.skip(-1)"></i>
+            <button class="play-toggle" onclick="App.audio.toggle()">
+                <i data-lucide="play" id="btn-play-icon"></i>
+            </button>
+            <i data-lucide="skip-forward" class="tool" onclick="App.audio.skip(1)"></i>
+            <i data-lucide="repeat" class="tool" style="width: 18px;"></i>
+        </div>
+
+        <div style="width: 250px; display: flex; justify-content: flex-end; gap: 15px;">
+            <i data-lucide="list-music" class="tool"></i>
+            <i data-lucide="volume-2" class="tool"></i>
+        </div>
     </div>
+
+    <audio id="core-audio"></audio>
 
     <script>
         const App = {
-            state: { chapters: [], currentSurah: null, isDark: false },
+            state: { chapters: [], current: null, isDark: true, history: localStorage.getItem('lastRead') },
 
             async init() {
                 const res = await fetch('https://api.alquran.cloud/v1/surah');
                 const json = await res.json();
                 this.state.chapters = json.data;
-                this.ui.drawSidebar(this.state.chapters);
-                this.renderHome();
-                lucide.createIcons();
-            },
-
-            async loadSurah(id) {
-                const vp = document.getElementById('view-port');
-                vp.innerHTML = `<div style="padding:100px; text-align:center;">Loading Surah ${id}...</div>`;
-
-                const [ar, en] = await Promise.all([
-                    fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
-                    fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
-                ]);
-
-                this.state.currentSurah = ar.data;
+                this.ui.renderSidebar(this.state.chapters);
+                this.ui.showHome();
                 
-                // Update Audio Player
-                document.getElementById('now-playing').innerText = `Now Playing: ${ar.data.englishName}`;
-                document.getElementById('main-audio').src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${id}.mp3`;
+                // Audio Time Tracker
+                const audio = document.getElementById('core-audio');
+                audio.ontimeupdate = () => {
+                    const pct = (audio.currentTime / audio.duration) * 100;
+                    document.getElementById('audio-progress').style.width = pct + '%';
+                };
 
-                vp.innerHTML = `
-                    <div style="padding: 60px 0;">
-                        <h1 style="text-align:center; font-family:var(--f-ar); font-size: 3rem; margin-bottom:10px;">${ar.data.name}</h1>
-                        <p style="text-align:center; color:var(--q-green); margin-bottom:50px;">${ar.data.englishNameTranslation}</p>
-                        
-                        ${ar.data.ayahs.map((v, i) => `
-                            <div class="ayah-container">
-                                <div class="arabic-text">${v.text}</div>
-                                <div class="translation-text">${en.data.ayahs[i].text}</div>
-                                <div class="ayah-meta">
-                                    <span>${id}:${v.numberInSurah}</span>
-                                    <i data-lucide="share-2" style="width:14px; cursor:pointer;"></i>
-                                    <i data-lucide="play-circle" style="width:14px; cursor:pointer;" onclick="App.audio.playAyah(${v.number})"></i>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
+                if(this.state.history) document.getElementById('read-history').innerText = `Last Read: Surah ${this.state.history}`;
                 lucide.createIcons();
             },
 
             ui: {
-                drawSidebar(list) {
-                    const container = document.getElementById('surah-list');
-                    container.innerHTML = list.map(s => `
-                        <div class="sidebar-item" onclick="App.loadSurah(${s.number})">
-                            <span style="color:var(--text-light); font-size:0.8rem;">${s.number}</span>
-                            <div style="flex:1">
-                                <div style="font-weight:600;">${s.englishName}</div>
-                                <div style="font-size:0.75rem; color:var(--text-light);">${s.englishNameTranslation}</div>
+                renderSidebar(list) {
+                    const target = document.getElementById('surah-list');
+                    target.innerHTML = list.map(s => `
+                        <div class="s-card" id="s-${s.number}" onclick="App.logic.loadSurah(${s.number})">
+                            <div class="s-num">${s.number}</div>
+                            <div class="s-info">
+                                <div class="s-en">${s.englishName}</div>
+                                <div class="s-meta">
+                                    <span class="status-badge ${s.revelationType.toLowerCase()}">${s.revelationType}</span>
+                                    • ${s.numberOfAyahs} Verses
+                                </div>
                             </div>
-                            <div style="font-family:var(--f-ar);">${s.name}</div>
+                            <div class="s-ar">${s.name.replace('سُورَةُ', '')}</div>
                         </div>
                     `).join('');
                 },
-                filterSurahs(q) {
+                filter(q) {
                     const filtered = App.state.chapters.filter(c => 
-                        c.englishName.toLowerCase().includes(q.toLowerCase()) || 
-                        c.number.toString() === q
+                        c.englishName.toLowerCase().includes(q.toLowerCase()) || c.number == q
                     );
-                    this.drawSidebar(filtered);
+                    this.renderSidebar(filtered);
+                },
+                toggleTheme() {
+                    App.state.isDark = !App.state.isDark;
+                    document.body.className = App.state.isDark ? 'dark' : '';
+                    document.getElementById('theme-icon').setAttribute('data-lucide', App.state.isDark ? 'sun' : 'moon');
+                    lucide.createIcons();
+                },
+                showHome() {
+                    document.getElementById('reader-target').innerHTML = `
+                        <div style="text-align:center; padding-top:15vh; opacity:0.3;">
+                            <i data-lucide="book-open" style="width:100px; height:100px;"></i>
+                            <h1>The Noble Quran</h1>
+                            <p>Select a Surah to begin your journey.</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                }
+            },
+
+            logic: {
+                async loadSurah(id) {
+                    App.state.current = id;
+                    localStorage.setItem('lastRead', id);
+                    
+                    const viewport = document.getElementById('reader-target');
+                    viewport.innerHTML = `<div style="padding:100px; text-align:center;">Initializing Sanctuary ${id}...</div>`;
+
+                    document.querySelectorAll('.s-card').forEach(c => c.classList.remove('active'));
+                    document.getElementById(`s-${id}`).classList.add('active');
+
+                    const [ar, en] = await Promise.all([
+                        fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
+                        fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
+                    ]);
+
+                    document.getElementById('p-surah').innerText = ar.data.englishName;
+                    const audio = document.getElementById('core-audio');
+                    audio.src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${id}.mp3`;
+
+                    let html = `<div style="text-align:center; margin-bottom:60px;">
+                        <h1 style="font-family:var(--f-ar); font-size:4.5rem; margin:0; color:var(--p);">${ar.data.name}</h1>
+                        <p style="text-transform:uppercase; letter-spacing:4px; opacity:0.5;">${ar.data.englishNameTranslation}</p>
+                    </div>`;
+
+                    if(id != 1 && id != 9) html += `<div class="bismillah-v10">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>`;
+
+                    html += ar.data.ayahs.map((v, i) => {
+                        let txt = v.text;
+                        if(id != 1 && id != 9 && i === 0) txt = txt.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "");
+                        return `
+                            <div class="ayah-block">
+                                <div class="q-text">${txt}</div>
+                                <div class="t-text">${en.data.ayahs[i].text}</div>
+                                <div class="ayah-tools">
+                                    <span style="color:var(--p); font-weight:700;">${id}:${v.numberInSurah}</span>
+                                    <div class="tool" onclick="App.audio.playAyah(${v.number})"><i data-lucide="play" style="width:14px;"></i> Play</div>
+                                    <div class="tool"><i data-lucide="bookmark" style="width:14px;"></i> Save</div>
+                                    <div class="tool"><i data-lucide="share-2" style="width:14px;"></i> Share</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    viewport.innerHTML = html;
+                    document.getElementById('viewport').scrollTop = 0;
+                    lucide.createIcons();
                 }
             },
 
             audio: {
-                play() {
-                    const a = document.getElementById('main-audio');
-                    if (a.paused) a.play(); else a.pause();
+                toggle() {
+                    const a = document.getElementById('core-audio');
+                    const icon = document.getElementById('btn-play-icon');
+                    if(a.paused) { a.play(); icon.setAttribute('data-lucide', 'pause'); }
+                    else { a.pause(); icon.setAttribute('data-lucide', 'play'); }
+                    lucide.createIcons();
                 },
                 playAyah(num) {
-                    // Logic to play specific ayah audio
-                    const a = document.getElementById('main-audio');
+                    const a = document.getElementById('core-audio');
                     a.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${num}.mp3`;
                     a.play();
+                    document.getElementById('btn-play-icon').setAttribute('data-lucide', 'pause');
+                    lucide.createIcons();
+                },
+                skip(dir) {
+                    if(App.state.current) App.logic.loadSurah(App.state.current + dir);
                 }
-            },
-
-            themes: {
-                toggle() {
-                    document.body.classList.toggle('dark-mode');
-                }
-            },
-
-            renderHome() {
-                document.getElementById('view-port').innerHTML = `
-                    <div style="padding:100px; text-align:center;">
-                        <h2 style="font-size:2rem;">Welcome to the Noble Quran</h2>
-                        <p style="color:var(--text-light);">Select a Surah from the sidebar to begin reading.</p>
-                    </div>
-                `;
             }
         };
 
