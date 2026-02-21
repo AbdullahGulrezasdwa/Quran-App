@@ -1,252 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign V8 | Final Engine</title>
-    
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&family=Lateef:wght@400;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --emerald: #fbbf24; /* Golden accent from image */
-            --glass: rgba(12, 12, 10, 0.95);
-            --bg: #050505;
-            --border: rgba(251, 191, 36, 0.1);
-            --card-bg: rgba(255, 255, 255, 0.03);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sovereign V8 | Final Engine</title>
 
-        * { box-sizing: border-box; transition: all 0.3s ease; }
-        
-        body { 
-            margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--bg); color: #e5e7eb; 
-            height: 100vh; overflow: hidden; display: flex;
-        }
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
-        /* --- SIDE NAVIGATION --- */
-        nav.sidebar {
-            width: 80px; height: 100vh; display: flex; flex-direction: column;
-            align-items: center; padding: 30px 0; gap: 30px;
-            border-right: 1px solid var(--border); background: var(--bg);
-        }
-        .nav-icon { 
-            color: #6b7280; cursor: pointer; padding: 12px; border-radius: 12px;
-        }
-        .nav-icon:hover, .nav-icon.active { 
-            color: var(--emerald); background: rgba(251, 191, 36, 0.1); 
-        }
+<style>
+:root {
+    --gold: #fbbf24;
+    --bg: #050505;
+    --border: rgba(251,191,36,0.1);
+    --card: rgba(255,255,255,0.03);
+}
 
-        /* --- MAIN CONTAINER --- */
-        main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    background:var(--bg);
+    color:#e5e7eb;
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+}
 
-        header { 
-            height: 90px; display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 40px; border-bottom: 1px solid var(--border);
-        }
+/* Sidebar */
+nav{
+    width:80px;
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:30px 0;
+    gap:30px;
+}
+.nav-icon{
+    color:#6b7280;
+    padding:12px;
+    border-radius:12px;
+    cursor:pointer;
+}
+.nav-icon:hover,.nav-icon.active{
+    color:var(--gold);
+    background:rgba(251,191,36,0.1);
+}
 
-        .search-box {
-            background: var(--card-bg); border: 1px solid var(--border);
-            padding: 12px 20px; border-radius: 14px; width: 350px;
-            display: flex; align-items: center; gap: 12px;
-        }
-        .search-box input { 
-            background: transparent; border: none; color: white; outline: none; width: 100%;
-        }
+/* Main */
+main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 
-        #clock { color: var(--emerald); font-family: monospace; font-size: 1.1rem; letter-spacing: 2px; }
+header{
+    height:90px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 40px;
+    border-bottom:1px solid var(--border);
+}
 
-        /* --- CONTENT GRID --- */
-        .content-area { 
-            display: grid; grid-template-columns: 1fr 380px; flex: 1; overflow: hidden; 
-        }
+.search-box{
+    background:var(--card);
+    border:1px solid var(--border);
+    padding:12px 20px;
+    border-radius:14px;
+    width:350px;
+    display:flex;
+    gap:12px;
+}
+.search-box input{
+    background:transparent;
+    border:none;
+    outline:none;
+    color:white;
+    width:100%;
+}
 
-        .surah-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-            padding: 40px; overflow-y: auto; scrollbar-width: none;
-        }
+#clock{
+    color:var(--gold);
+    font-family:monospace;
+    letter-spacing:2px;
+}
 
-        .surah-card {
-            background: var(--card-bg); border: 1px solid var(--border);
-            padding: 30px; border-radius: 24px; cursor: pointer;
-            position: relative; overflow: hidden;
-        }
-        .surah-card:hover { border-color: var(--emerald); background: rgba(251, 191, 36, 0.05); }
-        .surah-card h3 { margin: 0 0 8px 0; font-size: 1.2rem; }
-        .surah-card span { font-size: 0.7rem; color: var(--emerald); text-transform: uppercase; opacity: 0.6; }
+/* Layout */
+.content{
+    display:grid;
+    grid-template-columns:1fr 380px;
+    flex:1;
+    overflow:hidden;
+}
 
-        /* --- READER & SENTINEL --- */
-        #reader-view { padding: 40px; overflow-y: auto; display: none; }
-        .ayah-block { margin-bottom: 50px; }
-        .q-text { font-family: 'Amiri'; font-size: 2.8rem; text-align: right; line-height: 2.5; direction: rtl; }
-        
-        /* Tajweed Colors */
-        .taj-ghunnah { color: #ff5722; } .taj-qalqalah { color: #03a9f4; }
-        .taj-madd { color: #e91e63; } .taj-ikfa { color: #ffeb3b; }
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+    padding:40px;
+    overflow-y:auto;
+}
 
-        aside.sentinel {
-            border-left: 1px solid var(--border); padding: 30px;
-            display: flex; flex-direction: column; gap: 20px;
-        }
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    padding:30px;
+    border-radius:20px;
+    cursor:pointer;
+}
+.card:hover{
+    border-color:var(--gold);
+    background:rgba(251,191,36,0.05);
+}
 
-        /* IMAGE 3: Feature Tabs */
-        .sentinel-tabs {
-            display: flex; overflow-x: auto; gap: 20px; padding-bottom: 15px;
-            border-bottom: 1px solid var(--border); scrollbar-width: none;
-        }
-        .tab-item {
-            display: flex; align-items: center; gap: 8px; font-size: 0.85rem;
-            white-space: nowrap; cursor: pointer; color: #9ca3af;
-        }
-        .tab-item:hover, .tab-item.active { color: var(--emerald); }
+#reader{
+    padding:40px;
+    overflow-y:auto;
+    display:none;
+}
 
-        .hidden { display: none !important; }
-        .loading { filter: blur(10px); opacity: 0.5; }
-    </style>
+.q-text{
+    font-family:'Amiri';
+    font-size:2.6rem;
+    text-align:right;
+    direction:rtl;
+    line-height:2.4;
+}
+
+aside{
+    border-left:1px solid var(--border);
+    padding:30px;
+}
+
+.loading{
+    opacity:0.5;
+    pointer-events:none;
+}
+.error{
+    color:#ef4444;
+}
+</style>
 </head>
 <body>
 
-    <nav class="sidebar">
-        <div class="nav-icon active"><i data-lucide="layout-grid"></i></div>
-        <div class="nav-icon" onclick="App.ui.showList()"><i data-lucide="book-open"></i></div>
-        <div class="nav-icon"><i data-lucide="palette"></i></div>
-        <div style="margin-top: auto;" class="nav-icon"><i data-lucide="sliders-horizontal"></i></div>
-    </nav>
+<nav>
+    <div class="nav-icon active"><i data-lucide="layout-grid"></i></div>
+    <div class="nav-icon" onclick="App.showGrid()"><i data-lucide="book-open"></i></div>
+</nav>
 
-    <main>
-        <header>
-            <div class="search-box">
-                <i data-lucide="search" size="18"></i>
-                <input type="text" id="surahSearch" placeholder="Search Surah..." oninput="App.logic.filter(this.value)">
-            </div>
-            <div id="clock">[ 00:00:00 ]</div>
-        </header>
+<main>
+<header>
+    <div class="search-box">
+        <i data-lucide="search"></i>
+        <input placeholder="Search Surah..." oninput="App.filter(this.value)">
+    </div>
+    <div id="clock"></div>
+</header>
 
-        <div class="content-area">
-            <section id="surah-grid-target" class="surah-grid"></section>
-            
-            <section id="reader-view" class="hidden">
-                <div id="reader-target"></div>
-            </section>
+<div class="content">
+    <section id="grid" class="grid"></section>
+    <section id="reader"></section>
+    <aside>
+        <div id="insight">Select a verse to analyze.</div>
+    </aside>
+</div>
+</main>
 
-            <aside class="sentinel">
-                <div class="sentinel-tabs">
-                    <div class="tab-item active"><i data-lucide="book" size="16"></i> Tafsirs</div>
-                    <div class="tab-item"><i data-lucide="graduation-cap" size="16"></i> Lessons</div>
-                    <div class="tab-item"><i data-lucide="message-square" size="16"></i> Reflections</div>
-                    <div class="tab-item"><i data-lucide="lightbulb" size="16"></i> Answers</div>
-                    <div class="tab-item"><i data-lucide="scroll" size="16"></i> Hadith</div>
-                </div>
-                <div id="ai-context" style="font-size: 0.9rem; line-height: 1.7; color: #9ca3af;">
-                    Select a verse to analyze context and linguistic depth.
-                </div>
-            </aside>
+<script>
+const App = {
+
+state:{chapters:[]},
+
+init(){
+    this.clock();
+    setInterval(()=>this.clock(),1000);
+    this.fetchSurahs();
+},
+
+clock(){
+    const now=new Date();
+    document.getElementById('clock').innerText=
+        `[ ${now.toTimeString().split(' ')[0]} ]`;
+},
+
+async fetchSurahs(){
+    const grid=document.getElementById('grid');
+    grid.innerHTML="Loading...";
+    try{
+        const res=await fetch("https://api.alquran.cloud/v1/surah");
+        const json=await res.json();
+        this.state.chapters=json.data;
+        this.renderGrid(json.data);
+    }catch{
+        grid.innerHTML="<div class='error'>Failed to load Surahs.</div>";
+    }
+},
+
+renderGrid(list){
+    const grid=document.getElementById('grid');
+    grid.innerHTML=list.map(s=>`
+        <div class="card" onclick="App.loadSurah(${s.number})">
+            <h3>${s.englishName}</h3>
+            <span>${s.numberOfAyahs} verses</span>
         </div>
-    </main>
+    `).join('');
+    lucide.createIcons();
+},
 
-    <script>
-        const App = {
-            state: { chapters: [], currentId: 1, loading: false },
+showGrid(){
+    document.getElementById('reader').style.display="none";
+    document.getElementById('grid').style.display="grid";
+},
 
-            init() {
-                this.updateClock();
-                setInterval(() => this.updateClock(), 1000);
-                this.fetchSurahs();
-            },
+async loadSurah(id){
+    const reader=document.getElementById('reader');
+    const grid=document.getElementById('grid');
 
-            updateClock() {
-                const now = new Date();
-                document.getElementById('clock').innerText = `[ ${now.toTimeString().split(' ')[0]} ]`;
-            },
+    grid.style.display="none";
+    reader.style.display="block";
+    reader.innerHTML="Loading...";
+    reader.classList.add("loading");
 
-            async fetchSurahs() {
-                const res = await fetch('https://api.alquran.cloud/v1/surah');
-                const json = await res.json();
-                this.state.chapters = json.data;
-                this.ui.renderGrid(json.data);
-            },
+    try{
+        const [ar,en]=await Promise.all([
+            fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-tajweed`).then(r=>r.json()),
+            fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r=>r.json())
+        ]);
 
-            ui: {
-                renderGrid(list) {
-                    const target = document.getElementById('surah-grid-target');
-                    target.innerHTML = list.map(s => `
-                        <div class="surah-card" onclick="App.logic.loadSurah(${s.number})">
-                            <h3>${s.englishName}</h3>
-                            <span>${s.numberOfAyahs} Verses</span>
-                        </div>
-                    `).join('');
-                    lucide.createIcons();
-                },
-                showReader() {
-                    document.getElementById('surah-grid-target').classList.add('hidden');
-                    document.getElementById('reader-view').classList.remove('hidden');
-                },
-                showList() {
-                    document.getElementById('surah-grid-target').classList.remove('hidden');
-                    document.getElementById('reader-view').classList.add('hidden');
-                }
-            },
+        let html=`<h1 style="color:var(--gold);text-align:center;font-family:Amiri">
+            ${ar.data.name}
+        </h1><br><br>`;
 
-            logic: {
-                filter(query) {
-                    const filtered = App.state.chapters.filter(c => 
-                        c.englishName.toLowerCase().includes(query.toLowerCase())
-                    );
-                    App.ui.renderGrid(filtered);
-                },
+        ar.data.ayahs.forEach((ayah,i)=>{
+            let text=ayah.text;
 
-                async loadSurah(id) {
-                    App.ui.showReader();
-                    const target = document.getElementById('reader-target');
-                    target.classList.add('loading');
-                    
-                    try {
-                        const [arRes, enRes] = await Promise.all([
-                            fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-tajweed`).then(r => r.json()),
-                            fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
-                        ]);
-
-                        const bismillah = "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ";
-                        let html = `<h1 style="color:var(--emerald); margin-bottom:60px; text-align:center; font-family:Amiri;">${arRes.data.name}</h1>`;
-
-                        html += arRes.data.ayahs.map((ayah, i) => {
-                            let text = ayah.text;
-                            // Clean Bismillah from start of surahs (except Fatiha)
-                            if (id !== 1 && i === 0) text = text.replace(bismillah, "");
-
-                            // IMAGE 2: The Bracket Fix (Advanced Regex Parser)
-                            // This replaces [n], [l], [p] etc with colored spans
-                            text = text.replace(/\[h:([^\]]+)\]/g, '<span class="taj-ghunnah">$1</span>')
-                                       .replace(/\[q:([^\]]+)\]/g, '<span class="taj-qalqalah">$1</span>')
-                                       .replace(/\[m:([^\]]+)\]/g, '<span class="taj-madd">$1</span>')
-                                       .replace(/\[i:([^\]]+)\]/g, '<span class="taj-ikfa">$1</span>')
-                                       .replace(/\[\w:([^\]]+)\]/g, '<span style="color:var(--emerald)">$1</span>'); // Universal catch for other codes
-
-                            return `
-                                <div class="ayah-block" onclick="App.logic.getInsight(${i+1})">
-                                    <div class="q-text">${text}</div>
-                                    <div style="color:#6b7280; margin-top:15px; font-weight:300;">${enRes.data.ayahs[i].text}</div>
-                                </div>
-                            `;
-                        }).join('');
-
-                        target.innerHTML = html;
-                        target.classList.remove('loading');
-                    } catch (e) { console.error(e); }
-                },
-
-                getInsight(num) {
-                    document.getElementById('ai-context').innerHTML = `
-                        <b style="color:var(--emerald)">Verse ${num} Analysis:</b><br><br>
-                        This verse utilizes a specific rhetorical emphasis often used in Meccan surahs to denote divine authority. 
-                        The root words here suggest a deep connection to the concept of Mercy (Rahma).
-                    `;
-                }
+            // safer Bismillah removal
+            if(id!==1 && i===0 && text.startsWith("بِسْمِ")){
+                text=text.substring(text.indexOf("ٱلْحَمْد")>0?text.indexOf("ٱلْحَمْد"):text.length);
             }
-        };
 
-        window.onload = () => App.init();
-    </script>
+            html+=`
+            <div onclick="App.getInsight(${i+1})" style="margin-bottom:50px;cursor:pointer">
+                <div class="q-text">${text}</div>
+                <div style="color:#6b7280;margin-top:15px">
+                    ${en.data.ayahs[i].text}
+                </div>
+            </div>`;
+        });
+
+        reader.innerHTML=html;
+    }catch{
+        reader.innerHTML="<div class='error'>Failed to load Surah.</div>";
+    }
+
+    reader.classList.remove("loading");
+},
+
+filter(q){
+    const filtered=this.state.chapters.filter(c=>
+        c.englishName.toLowerCase().includes(q.toLowerCase())
+    );
+    this.renderGrid(filtered);
+},
+
+getInsight(num){
+    document.getElementById("insight").innerHTML=`
+        <b style="color:var(--gold)">Verse ${num} Analysis:</b><br><br>
+        This verse contains rhetorical emphasis typical of Meccan revelation
+        and reflects deep linguistic structure tied to mercy (Rahma).
+    `;
+}
+
+};
+
+window.onload=()=>App.init();
+</script>
+
 </body>
 </html>
