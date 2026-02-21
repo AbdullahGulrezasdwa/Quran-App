@@ -3,102 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Aether | v6.0 Apex</title>
+    <title>Sovereign Sanctuary | v6.1 Stable</title>
     
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Plus+Jakarta+Sans:wght@300;600;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root { 
-            --p: #00f2ff; --bg: #020204; --card-bg: rgba(255,255,255,0.03);
-            --border: rgba(255,255,255,0.08); --text: #e2e8f0; --f-ar: 'Amiri', serif;
-            --x: 50%; --y: 50%; --p-dim: rgba(0, 242, 255, 0.15);
+            --p: #00f2ff; --bg: #020204; --card-bg: rgba(255,255,255,0.02);
+            --border: rgba(255,255,255,0.06); --text: #f1f5f9; --text-dim: #64748b;
+            --f-ar: 'Amiri', serif;
         }
 
-        /* 🌙 LIGHT MODE ADAPTATION */
         body.light-mode {
-            --bg: #f8fafc; --card-bg: rgba(0,0,0,0.03); --border: rgba(0,0,0,0.1); --text: #1e293b;
+            --bg: #ffffff; --card-bg: rgba(0,0,0,0.02); --border: rgba(0,0,0,0.08); --text: #0f172a; --text-dim: #94a3b8;
         }
 
         body { 
             background: var(--bg); color: var(--text); margin: 0; 
             font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden;
-            height: 100vh; display: flex; transition: background 0.6s ease;
+            height: 100vh; display: flex; transition: background 0.8s ease;
         }
 
-        /* 👻 GHOST SCROLLBAR */
-        #view-port::-webkit-scrollbar { width: 5px; }
-        #view-port::-webkit-scrollbar-track { background: transparent; }
-        #view-port::-webkit-scrollbar-thumb { 
-            background: var(--p); border-radius: 10px; 
-            box-shadow: inset 0 0 10px var(--p-dim);
+        /* 🖋️ SUBLIME TYPOGRAPHY */
+        .ar { 
+            font-size: 2.8rem; color: var(--text); font-family: var(--f-ar); 
+            direction: rtl; line-height: 2.5; transition: color 0.4s ease;
         }
+        .ayah-card:hover .ar { color: var(--p); }
 
-        /* 🛰️ SOVEREIGN SETTINGS TRIGGER */
-        .settings-trigger {
-            background: var(--card-bg); border: 1px solid var(--border);
-            color: var(--p); width: 54px; height: 54px; border-radius: 18px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(10px);
-        }
-        .settings-trigger:hover { transform: rotate(45deg) scale(1.1); border-color: var(--p); box-shadow: 0 0 20px var(--p-dim); }
+        #view-port::-webkit-scrollbar { width: 4px; }
+        #view-port::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        #view-port::-webkit-scrollbar-thumb:hover { background: var(--p); }
 
-        /* 🌌 AETHER OVERLAY */
-        body::after {
-            content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 999;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
-            background-size: 100% 3px; opacity: 0.1;
-        }
-
-        /* 🃏 AYAH CARDS */
         .ayah-card {
-            padding: 30px; border-radius: 24px; margin-bottom: 20px;
-            background: var(--card-bg); border: 1px solid var(--border);
-            transition: 0.4s; animation: cardEntry 0.5s ease forwards; opacity: 0;
-            backdrop-filter: blur(5px);
+            padding: 40px; border-radius: 0px; border-bottom: 1px solid var(--border);
+            border-left: 2px solid transparent; transition: all 0.5s ease;
+            animation: fadeIn 0.8s ease forwards; opacity: 0;
         }
-        @keyframes cardEntry { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .ar { font-size: 2.4rem; color: var(--p); font-family: var(--f-ar); direction: rtl; line-height: 1.8; }
-        
-        #view-port { flex: 1; overflow-y: auto; padding: 20px 40px; scroll-behavior: smooth; }
-        nav { width: 90px; height: calc(100vh - 40px); margin: 20px; border-radius: 28px; display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 20px; background: var(--card-bg); border: 1px solid var(--border); backdrop-filter: blur(20px); }
-        .nav-btn { background: none; border: none; color: #64748b; cursor: pointer; padding: 15px; border-radius: 18px; transition: 0.3s; }
-        .nav-btn.active { color: var(--p); background: var(--p-dim); border: 1px solid var(--border); }
+        .ayah-card:hover {
+            border-left: 2px solid var(--p);
+            background: linear-gradient(90deg, var(--card-bg) 0%, transparent 100%);
+        }
 
-        /* 🎛️ MODAL TERMINAL */
-        #settings-layer { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-        .settings-card { width: 400px; padding: 35px; border-radius: 35px; background: #0a0a0c; border: 1px solid var(--border); color: #fff; }
-        .theme-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
-        .swatch { height: 30px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.2s; }
-        .swatch:hover { transform: scale(1.1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #view-port { flex: 1; overflow-y: auto; padding: 0; scroll-behavior: smooth; }
+        
+        nav { width: 80px; height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 30px 0; gap: 25px; border-right: 1px solid var(--border); background: var(--bg); z-index: 10; }
+        .nav-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 12px; transition: 0.3s; }
+        .nav-btn:hover, .nav-btn.active { color: var(--p); }
+
+        header { height: 80px; display: flex; align-items: center; padding: 0 50px; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--bg); }
+        #breadcrumb { font-family: 'Fira Code'; color: var(--p); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; }
+
+        #settings-layer { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
+        .settings-card { width: 380px; padding: 40px; border: 1px solid var(--border); background: var(--bg); }
     </style>
 </head>
 <body>
 
     <div id="settings-layer" onclick="if(event.target===this) App.ui.toggleSettings()">
         <div class="settings-card">
-            <h3 style="font-family:'Fira Code'; color:var(--p);">CORE_ENGINE_CONFIG</h3>
-            <label style="font-size:0.7rem; opacity:0.6;">DIVERSE_THEME_MATRIX</label>
-            <div class="theme-grid" id="theme-matrix"></div>
-            <button onclick="App.ui.toggleSettings()" class="nav-btn" style="width:100%; margin-top:30px; border:1px solid var(--p); color:var(--p);">CLOSE_CONSOLE</button>
+            <h4 style="font-family:'Fira Code'; color:var(--p); margin-top:0;">ENVIRONMENT_ADJUST</h4>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="App.themes.set(false)" style="flex:1; padding:15px; background:#111; color:#fff; border:1px solid #333; cursor:pointer;">OBSIDIAN</button>
+                <button onclick="App.themes.set(true)" style="flex:1; padding:15px; background:#eee; color:#111; border:1px solid #ccc; cursor:pointer;">IVORY</button>
+            </div>
+            <button onclick="App.ui.toggleSettings()" style="width:100%; margin-top:30px; background:none; border:1px solid var(--p); color:var(--p); padding:10px; cursor:pointer;">EXIT_TERMINAL</button>
         </div>
     </div>
 
     <nav>
-        <button onclick="App.renderHome()" class="nav-btn active"><i data-lucide="layout-grid"></i></button>
-        <button onclick="App.themes.cycle()" class="nav-btn"><i data-lucide="palette"></i></button>
+        <button onclick="App.renderHome()" class="nav-btn active"><i data-lucide="book-open"></i></button>
+        <button onclick="App.ui.toggleSettings()" class="nav-btn"><i data-lucide="sliders"></i></button>
         <div style="flex:1"></div>
-        <button onclick="App.ui.toggleSettings()" class="settings-trigger"><i data-lucide="settings"></i></button>
+        <div id="progress-indicator" style="font-family:'Fira Code'; font-size:0.6rem; color:var(--p); transform: rotate(-90deg);">00%</div>
     </nav>
 
     <section style="flex:1; display:flex; flex-direction:column;">
-        <header style="height:100px; display:flex; align-items:center; padding:0 40px; justify-content:space-between;">
-            <input type="text" placeholder="Jump to Surah..." style="background:var(--card-bg); border:1px solid var(--border); color:var(--text); padding:12px 25px; border-radius:50px; width:300px; outline:none;" oninput="App.ui.search(this.value)">
-            <div id="zen-timer" style="font-family:'Fira Code'; color:var(--p); font-size:0.85rem;">[ 00:00:00 ]</div>
+        <header>
+            <div id="breadcrumb">SYSTEM // IDLE</div>
+            <input type="text" placeholder="QUERY SURAH..." style="background:none; border:none; color:var(--text); font-family:'Fira Code'; outline:none; font-size:0.8rem; width:200px;" oninput="App.ui.search(this.value)">
         </header>
-        <div id="view-port"></div>
+        <div id="view-port" onscroll="App.ui.updateScroll()"></div>
     </section>
 
     <script>
@@ -106,61 +94,98 @@
             state: { chapters: [], isLight: false },
 
             init() {
-                // Aether Particles
                 const cv = document.createElement('canvas'); const ctx = cv.getContext('2d'); document.body.appendChild(cv);
                 cv.style = "position:fixed; inset:0; z-index:-1;";
                 let pts = []; window.onresize = () => { cv.width = innerWidth; cv.height = innerHeight; }; window.onresize();
-                class P { constructor() { this.reset(); } reset() { this.x = Math.random()*cv.width; this.y = Math.random()*cv.height; this.v = 0.2 + Math.random()*0.4; }
-                    draw() { this.y -= this.v; if(this.y < 0) this.reset(); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--p'); ctx.globalAlpha = App.state.isLight ? 0.05 : 0.2; ctx.fillRect(this.x, this.y, 2, 2); } }
-                for(let i=0; i<80; i++) pts.push(new P());
+                
+                class P { 
+                    constructor() { this.reset(); } 
+                    reset() { this.x = Math.random()*cv.width; this.y = Math.random()*cv.height; this.v = 0.1 + Math.random()*0.2; }
+                    draw() { 
+                        this.y -= this.v; if(this.y < 0) this.reset(); 
+                        // Fix 2: Live color fetching
+                        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
+                        ctx.globalAlpha = App.state.isLight ? 0.08 : 0.15; 
+                        ctx.fillRect(this.x, this.y, 1, 1); 
+                    } 
+                }
+                for(let i=0; i<50; i++) pts.push(new P());
                 const loop = () => { ctx.clearRect(0,0,cv.width,cv.height); pts.forEach(p => p.draw()); requestAnimationFrame(loop); }; loop();
 
-                this.themes.initMatrix();
                 this.renderHome();
-                this.zen.start();
-                lucide.createIcons();
             },
 
             async renderHome() {
                 const res = await fetch('https://api.alquran.cloud/v1/surah');
                 const json = await res.json();
                 this.state.chapters = json.data;
+                document.getElementById('breadcrumb').innerText = "SYSTEM // REPOSITORY";
                 this.ui.drawDirectory(this.state.chapters);
+                lucide.createIcons(); // Fix 1: Icon re-rendering
+            },
+
+            async loadSurah(id) {
+                // Fix 3: Clear search input on selection
+                document.querySelector('header input').value = '';
+                
+                const vp = document.getElementById('view-port');
+                vp.innerHTML = `<div style="padding:100px; text-align:center; font-family:'Fira Code'; color:var(--p);">SYNCING_SURAH_${id}...</div>`;
+                
+                const [ar, en] = await Promise.all([
+                    fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
+                    fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
+                ]);
+
+                document.getElementById('breadcrumb').innerText = `NODE // SURAH.${id} // ${ar.data.englishName.toUpperCase()}`;
+
+                vp.innerHTML = `
+                    <div style="max-width: 1000px; margin: 0 auto; padding-top: 60px;">
+                        ${ar.data.ayahs.map((v, i) => {
+                            // Fix 4: Handled Bismillah logic
+                            let text = v.text;
+                            if (id != 1 && id != 9 && i === 0) {
+                                text = text.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "<span style='display:block; text-align:center; font-size:2rem; margin-bottom:40px; opacity:0.8;'>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>");
+                            }
+                            return `
+                            <div class="ayah-card" style="animation-delay: ${i*0.02}s">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 20px;">
+                                    <span style="font-family:'Fira Code'; font-size:0.7rem; color:var(--p); opacity:0.5;">[ ${v.numberInSurah} ]</span>
+                                    <div class="ar">${text}</div>
+                                </div>
+                                <div style="color:var(--text-dim); font-size:1.1rem; line-height:1.8; font-weight:300; max-width: 800px;">${en.data.ayahs[i].text}</div>
+                            </div>`;
+                        }).join('')}
+                    </div>`;
+                lucide.createIcons(); // Fix 1: Icon re-rendering
             },
 
             ui: {
                 toggleSettings() { const el = document.getElementById('settings-layer'); el.style.display = el.style.display==='flex' ? 'none' : 'flex'; },
                 drawDirectory(list) {
-                    document.getElementById('view-port').innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:20px;">
-                        ${list.map((s, i) => `<div class="ayah-card" style="animation-delay:${i*0.01}s" onclick="App.loadSurah(${s.number})">
-                            <h3 style="margin:0;">${s.englishName}</h3><p style="font-size:0.7rem; color:var(--p); opacity:0.6;">${s.numberOfAyahs} AYAS</p>
+                    document.getElementById('view-port').innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));">
+                        ${list.map((s, i) => `<div class="ayah-card" style="animation-delay:${i*0.01}s; cursor:pointer;" onclick="App.loadSurah(${s.number})">
+                            <h3 style="margin:0; font-weight:600;">${s.englishName}</h3>
+                            <p style="font-family:'Fira Code'; font-size:0.65rem; color:var(--p); margin-top:10px;">NODE_${s.number} // ${s.numberOfAyahs}_VERSES</p>
                         </div>`).join('')}</div>`;
+                },
+                updateScroll() {
+                    const vp = document.getElementById('view-port');
+                    const total = vp.scrollHeight - vp.clientHeight;
+                    if (total <= 0) return; // Prevent NaN
+                    const pct = Math.min(100, Math.max(0, Math.round((vp.scrollTop / total) * 100)));
+                    document.getElementById('progress-indicator').innerText = pct.toString().padStart(2, '0') + '%';
                 },
                 search(q) { this.drawDirectory(App.state.chapters.filter(c => c.englishName.toLowerCase().includes(q.toLowerCase()))); }
             },
 
             themes: {
-                seeds: [
-                    ['#00f2ff', '#020204'], ['#ff003c', '#050000'], ['#ffcc00', '#080700'], ['#a855f7', '#030008'], ['#22c55e', '#010502'],
-                    ['#007aff', '#ffffff'], ['#ff2d55', '#fffafa'], ['#34c759', '#f2fff5'], ['#af52de', '#fdf2ff'], ['#ff9500', '#fffaf2']
-                ],
-                initMatrix() {
-                    const m = document.getElementById('theme-matrix');
-                    this.seeds.forEach((s, i) => {
-                        const b = document.createElement('div'); b.className = 'swatch'; b.style.background = s[0];
-                        b.onclick = () => {
-                            App.state.isLight = i >= 5;
-                            document.body.className = App.state.isLight ? 'light-mode' : '';
-                            document.documentElement.style.setProperty('--p', s[0]);
-                            document.documentElement.style.setProperty('--bg', s[1]);
-                            document.documentElement.style.setProperty('--p-dim', s[0] + '33');
-                        };
-                        m.appendChild(b);
-                    });
+                set(isLight) {
+                    App.state.isLight = isLight;
+                    document.body.className = isLight ? 'light-mode' : '';
+                    document.documentElement.style.setProperty('--p', isLight ? '#007aff' : '#00f2ff');
+                    App.ui.toggleSettings();
                 }
-            },
-
-            zen: { start() { let s = Date.now(); setInterval(() => { let d = new Date(Date.now() - s); document.getElementById('zen-timer').innerText = `[ ${d.toISOString().substr(11, 8)} ]`; }, 1000); } }
+            }
         };
 
         window.onload = () => App.init();
