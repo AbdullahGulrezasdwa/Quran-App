@@ -17,109 +17,91 @@
     body.b-gold { --bg: #000; --card: #0a0a0a; --text: #fff; --primary: #fbbf24; }
     body.neon { --bg: #000; --card: #050505; --text: #fff; --primary: #00ff41; --border: #00ff4133; }
 
-    * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    /* CUSTOM SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+    * { box-sizing: border-box; transition: all 0.25s ease; }
     body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
     
-    /* SIDEBARS */
-    nav { width: var(--nav-w); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; gap: 20px; background: var(--bg); z-index: 100; }
-    nav.collapsed { margin-left: calc(var(--nav-w) * -1); }
+    /* PROGRESS BAR */
+    #progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 4px; z-index: 1000; display: none; }
+    #progress-bar { height: 100%; width: 0%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
 
+    nav { width: var(--nav-w); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; gap: 20px; z-index: 100; }
     aside { width: var(--side-w); border-left: 1px solid var(--border); background: var(--card); padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
     aside.collapsed { margin-right: calc(var(--side-w) * -1); }
 
-    /* FOCUS MODE */
-    body.focus-active nav, body.focus-active aside, body.focus-active .player-bar { display: none !important; }
-    body.focus-active main { padding-bottom: 0; }
-    .focus-exit { position: fixed; top: 20px; right: 20px; z-index: 200; display: none; }
-    body.focus-active .focus-exit { display: block; }
-
-    /* CONTENT AREA */
     main { flex: 1; overflow-y: auto; scroll-behavior: smooth; position: relative; }
-    .container { max-width: 800px; margin: 0 auto; padding: 60px 20px 150px 20px; }
+    .container { max-width: 850px; margin: 0 auto; padding: 60px 20px 150px 20px; }
 
-    /* BUTTONS */
-    .btn { 
-      background: var(--card); color: var(--text); border: 1px solid var(--border);
-      padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 600;
-      display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;
-    }
-    .btn:hover { border-color: var(--primary); background: rgba(255,255,255,0.05); transform: translateY(-1px); }
-    .btn-primary { background: var(--primary); color: #000; border: none; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.2); }
-    .btn-primary:hover { opacity: 0.9; transform: scale(1.05); }
+    .btn { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+    .btn:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .btn-primary { background: var(--primary); color: #000; border: none; }
 
-    .nav-icon { cursor: pointer; color: var(--muted); padding: 12px; border-radius: 14px; }
-    .nav-icon.active { color: var(--primary); background: rgba(251, 191, 36, 0.1); }
-
-    /* QURAN TEXT */
     .header-bismillah { font-family: var(--arabic-font); font-size: 4.5rem; text-align: center; color: var(--primary); margin: 40px 0; }
-    .ayah-row { padding: 40px 0; border-bottom: 1px solid var(--border); position: relative; }
+    .ayah-row { padding: 40px 0; border-bottom: 1px solid var(--border); }
     .arabic { font-family: var(--arabic-font); font-size: 3rem; direction: rtl; line-height: 2.2; margin-bottom: 15px; }
-    .ornament { color: var(--primary); font-size: 1.3rem; margin-right: 15px; opacity: 0.7; }
     .translation { font-size: 1.1rem; color: var(--muted); line-height: 1.7; }
 
-    /* DASHBOARD */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; }
     .card { background: var(--card); padding: 20px; border-radius: 18px; border: 1px solid var(--border); cursor: pointer; }
-    .card:hover { border-color: var(--primary); }
+    .card:hover { border-color: var(--primary); background: rgba(128,128,128,0.05); }
 
-    .player-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 100px; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; z-index: 50; }
+    .player-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 100px; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; z-index: 50; }
   </style>
 </head>
 <body class="b-gold">
 
-  <button class="btn btn-primary focus-exit" onclick="toggleFocus()">EXIT FOCUS</button>
+  <div id="progress-container"><div id="progress-bar"></div></div>
 
   <nav id="navbar">
-    <div style="color:var(--primary); margin-bottom: 20px;"><i data-lucide="gem"></i></div>
-    <div class="nav-icon active" onclick="updateRoute('home')"><i data-lucide="layout-grid"></i></div>
-    <div class="nav-icon" onclick="toggleNav()"><i data-lucide="panel-left-close"></i></div>
-    <div class="nav-icon" onclick="toggleFocus()"><i data-lucide="maximize-2"></i></div>
+    <div style="color:var(--primary); margin-bottom: 20px;"><i data-lucide="sparkles"></i></div>
+    <div class="nav-icon" onclick="updateRoute('home')"><i data-lucide="home"></i></div>
+    <div class="nav-icon" onclick="toggleFocus()"><i data-lucide="maximize"></i></div>
     <div class="nav-icon" onclick="toggleSettings()"><i data-lucide="palette"></i></div>
   </nav>
 
-  <main>
+  <main id="scroll-main" onscroll="updateProgress()">
     <div class="container" id="view-container"></div>
   </main>
 
   <aside id="sidebar">
     <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 id="side-title">Insights</h3>
-        <button class="btn" style="padding:5px;" onclick="toggleSidebar()"><i data-lucide="x" size="16"></i></button>
+        <h3>Insights</h3>
+        <button class="btn" onclick="toggleSidebar()"><i data-lucide="x" size="16"></i></button>
     </div>
     <div id="side-content">
-        <div class="card" style="margin-top:20px;">
-            <h4 style="color:var(--primary); margin-top:0;">Daily Hadith</h4>
-            <p id="hadith-text">"Verily actions are by intentions..."</p>
-        </div>
-        <div id="bookmark-list" style="margin-top:30px;">
-            <h4>Your Bookmarks</h4>
+        <div id="bookmark-list">
+            <h4>Bookmarks</h4>
             <div id="bookmarks-inner"></div>
         </div>
     </div>
   </aside>
 
   <div class="player-bar">
-    <div>
-        <div id="p-title" style="font-weight:700;">Sanctuary Quran</div>
-        <div id="p-subtitle" style="font-size:0.8rem; color:var(--muted);">Select a verse to begin</div>
+    <div style="width: 250px;">
+        <div id="p-title" style="font-weight:700;">Sanctuary</div>
+        <div id="p-subtitle" style="font-size:0.8rem; color:var(--muted);">Ready to read</div>
     </div>
     <div style="display:flex; gap:20px; align-items:center;">
-        <button class="btn" onclick="toggleNav()"><i data-lucide="sidebar"></i> UI</button>
         <button class="btn-primary" style="width:60px; height:60px; border-radius:50%;" onclick="toggleAudio()"><i data-lucide="play"></i></button>
-        <button class="btn" onclick="toggleSidebar()">INFO <i data-lucide="info"></i></button>
     </div>
-    <div id="last-read-tag" style="font-size:0.7rem; color:var(--primary); font-weight:800;"></div>
+    <div style="width: 250px; text-align: right;">
+        <button class="btn" onclick="toggleSidebar()">Side View</button>
+    </div>
   </div>
 
   <div id="settings-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:1000;">
     <div class="card" style="width:350px; padding:30px;">
         <h3>Themes</h3>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button class="btn" onclick="setTheme('b-gold')">Gold Dark</button>
-            <button class="btn" onclick="setTheme('light-mode')">Light Mode</button>
-            <button class="btn" onclick="setTheme('neon')">Neon RGB</button>
-        </div>
-        <br><button class="btn-primary" style="width:100%" onclick="toggleSettings()">Close</button>
+        <button class="btn" style="width:100%; margin-bottom:10px;" onclick="setTheme('b-gold')">Gold Dark</button>
+        <button class="btn" style="width:100%; margin-bottom:10px;" onclick="setTheme('light-mode')">Pristine Light</button>
+        <button class="btn" style="width:100%" onclick="setTheme('neon')">Neon Matrix</button>
+        <br><br>
+        <button class="btn-primary" style="width:100%" onclick="toggleSettings()">Save</button>
     </div>
   </div>
 
@@ -140,31 +122,49 @@
         if (surahId) this.renderReader(surahId);
         else this.renderHome();
       },
-      renderHome() {
-        let html = `<h1>Explore the Word</h1><div class="grid">`;
+      async renderHome() {
+        document.getElementById('progress-container').style.display = 'none';
+        
+        // Ayah of the Day Logic
+        const randomAyahNum = Math.floor(Math.random() * 6236) + 1;
+        const ayahRes = await fetch(`https://api.alquran.cloud/v1/ayah/${randomAyahNum}/en.sahih`);
+        const ayahData = await ayahRes.json();
+
+        let html = `
+          <div class="card" style="margin-bottom: 40px; border-color: var(--primary);">
+            <h4 style="color:var(--primary); margin-top:0;">AYAH OF THE DAY</h4>
+            <p style="font-size:1.2rem; font-style:italic;">"${ayahData.data.text}"</p>
+            <small>— ${ayahData.data.surah.englishName} (${ayahData.data.numberInSurah})</small>
+          </div>
+          <h1>Surah Library</h1>
+          <div class="grid">`;
+        
         html += this.chapters.map(s => `
           <div class="card" onclick="updateRoute('surah', ${s.number})">
-            <span style="color:var(--primary); font-weight:800;">${s.number}</span>
-            <h3 style="margin:10px 0;">${s.englishName}</h3>
-            <small style="color:var(--muted)">${s.numberOfAyahs} Verses</small>
+            <span style="font-weight:800; color:var(--primary)">${s.number}</span>
+            <h3>${s.englishName}</h3>
           </div>
         `).join('') + `</div>`;
         document.getElementById('view-container').innerHTML = html;
       },
       async renderReader(id) {
+        document.getElementById('progress-container').style.display = 'block';
         const container = document.getElementById('view-container');
-        container.innerHTML = "<h2>Loading Surah...</h2>";
+        container.innerHTML = "<h2>Fetching...</h2>";
+        
         const [ar, en] = await Promise.all([
           fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
           fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
         ]);
-        let html = `<button onclick="updateRoute('home')" class="btn" style="margin-bottom:30px;"><i data-lucide="arrow-left"></i> Library</button>
+
+        let html = `<button onclick="updateRoute('home')" class="btn" style="margin-bottom:30px;">← Library</button>
                     <div class="header-bismillah">${ar.data.name}</div>`;
+        
         ar.data.ayahs.forEach((ayah, i) => {
           html += `<div class="ayah-row">
-            <div class="arabic">${ayah.text} <span class="ornament">○ ${i+1}</span></div>
+            <div class="arabic">${ayah.text} <span style="color:var(--primary); font-size:1.2rem;">○ ${i+1}</span></div>
             <div class="translation">${en.data.ayahs[i].text}</div>
-            <div style="margin-top:15px;"><button class="btn" onclick="App.addBookmark(${id}, ${i+1}, '${ar.data.englishName}')"><i data-lucide="bookmark"></i> Bookmark</button></div>
+            <button class="btn" style="margin-top:15px;" onclick="App.addBookmark(${id}, ${i+1}, '${ar.data.englishName}')">Bookmark</button>
           </div>`;
         });
         container.innerHTML = html;
@@ -174,18 +174,24 @@
         this.bookmarks.push({surah, ayah, name});
         localStorage.setItem('sq_bookmarks', JSON.stringify(this.bookmarks));
         this.renderBookmarks();
-        alert("Verse Bookmarked!");
       },
       renderBookmarks() {
         const bInner = document.getElementById('bookmarks-inner');
-        bInner.innerHTML = this.bookmarks.length ? this.bookmarks.map(b => `
+        bInner.innerHTML = this.bookmarks.map(b => `
             <div class="card" style="margin-top:10px;" onclick="updateRoute('surah', ${b.surah})">
-                <small>${b.name}</small>
-                <div>Verse ${b.ayah}</div>
+                <small>${b.name} - ${b.ayah}</small>
             </div>
-        `).join('') : '<p style="color:var(--muted)">No bookmarks yet</p>';
+        `).join('') || '<p>Empty</p>';
       }
     };
+
+    function updateProgress() {
+      const scrollMain = document.getElementById('scroll-main');
+      const winScroll = scrollMain.scrollTop;
+      const height = scrollMain.scrollHeight - scrollMain.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById("progress-bar").style.width = scrolled + "%";
+    }
 
     function updateRoute(type, val) {
       const url = new URL(window.location);
@@ -195,12 +201,9 @@
       App.router();
     }
 
-    function toggleNav() { document.getElementById('navbar').classList.toggle('collapsed'); }
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
-    function toggleFocus() { document.body.classList.toggle('focus-active'); }
     function toggleSettings() { const m = document.getElementById('settings-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
     function setTheme(t) { document.body.className = t; }
-    function toggleAudio() { alert("Audio Player loading..."); }
 
     window.onload = () => App.init();
   </script>
