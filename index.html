@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Sanctuary Quran</title>
   
-  <link rel="manifest" href="data:application/manifest+json,{'name':'Sanctuary','short_name':'Sanctuary','start_url':'.','display':'standalone','background_color':'#010c09','theme_color':'#10b981','icons':[{'src':'https://cdn-icons-png.flaticon.com/512/2904/2904845.png','sizes':'512x512','type':'image/png'}]}">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  
+  <link rel="manifest" href="data:application/manifest+json,{'name':'Sanctuary','short_name':'Sanctuary','display':'standalone','background_color':'#010c09','theme_color':'#10b981','icons':[{'src':'https://cdn-icons-png.flaticon.com/512/2904/2904845.png','sizes':'512x512','type':'image/png'}]}">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&family=Amiri+Quran&display=swap" rel="stylesheet" />
   
@@ -15,7 +13,7 @@
     :root {
       --bg: #010c09; --card: #021a14; --primary: #10b981; --text: #ecfdf5; --muted: #6ee7b7;
       --border: rgba(16, 185, 129, 0.1); --font-ar: 'Amiri Quran', serif;
-      --gold: #fbbf24; --player-h: 160px;
+      --gold: #fbbf24; --player-h: 180px;
     }
 
     body.theme-sepia {
@@ -23,91 +21,79 @@
       --border: rgba(112, 66, 20, 0.1); --gold: #b8860b;
     }
 
-    body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; display: flex; height: 100vh; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; display: flex; height: 100vh; }
     
-    /* Layout */
     .nav-rail { width: 80px; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; background: var(--bg); z-index: 100; }
-    main { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
-    .content-max { max-width: 850px; margin: 0 auto; padding: 40px 20px 320px 20px; }
+    main { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; } /* Native iOS Scroll */
+    .content-max { max-width: 850px; margin: 0 auto; padding: 40px 20px 350px 20px; }
 
-    /* UI Components */
+    /* Goal Progress Bar */
+    .goal-track { height: 4px; background: var(--border); width: 100%; position: fixed; top: 0; left: 0; z-index: 1000; }
+    #goal-fill { height: 100%; background: var(--gold); width: 0%; transition: 1s ease; box-shadow: 0 0 10px var(--gold); }
+
     .btn-ui { background: none; border: none; color: var(--text); cursor: pointer; padding: 12px; border-radius: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-    .btn-ui:hover, .btn-ui.active { background: var(--border); color: var(--primary); }
+    .btn-ui.active { color: var(--primary); background: var(--border); }
     
-    .resume-banner { background: var(--card); border: 1px solid var(--primary); border-radius: 20px; padding: 25px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; animation: slideIn 0.5s ease; }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    /* Buffering State */
+    body.buffering .play-btn { opacity: 0.4; transform: scale(0.95); pointer-events: none; }
 
-    /* Verse Engine */
-    .ayah-row { padding: 45px 0; border-bottom: 1px solid var(--border); position: relative; transition: 0.3s; cursor: pointer; }
-    .ayah-row.active { background: rgba(16, 185, 129, 0.05); }
-    .ayah-row.mastered { opacity: 0.25; filter: grayscale(1); }
-    body.hide-mastered .mastered { display: none; }
+    .ayah-row { padding: 45px 0; border-bottom: 1px solid var(--border); position: relative; cursor: pointer; }
+    .arabic { font-family: var(--font-ar); font-size: 3.2rem; direction: rtl; line-height: 2.2; text-align: right; }
     
-    .arabic { font-family: var(--font-ar); font-size: 3.2rem; direction: rtl; line-height: 2.2; text-align: right; transition: 0.5s; }
-    .translation { font-size: 1.1rem; color: var(--muted); margin-top: 15px; line-height: 1.6; max-width: 90%; }
-    
-    /* Memorization States */
     body.hint-mode .arabic { filter: blur(8px); }
-    body.hint-mode .arabic::first-letter { filter: blur(0); color: var(--primary); font-size: 1.2em; }
-    body.hint-mode .revealed .arabic { filter: blur(0); }
-    body.hifz-active .translation { display: none; }
-
-    /* Floating Player */
-    .player-dock { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 1000px; height: var(--player-h); background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 28px; display: flex; flex-direction: column; padding: 15px 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); z-index: 1000; }
-    .play-main { display: flex; align-items: center; justify-content: space-between; flex: 1; }
-    .play-center { display: flex; align-items: center; gap: 20px; }
-    .mastery-check { position: absolute; left: -40px; top: 50%; transform: translateY(-50%); transition: 0.2s; color: var(--muted); }
-    .mastery-check.active { color: var(--gold); }
-
-    input[type="number"] { background: var(--bg); border: 1px solid var(--border); color: var(--primary); border-radius: 6px; padding: 4px; text-align: center; font-family: inherit; }
+    body.hint-mode .arabic::first-letter { filter: blur(0); color: var(--primary); }
     
-    body.playing #play-icon { display: none; }
-    body:not(.playing) #pause-icon { display: none; }
+    .player-dock { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 1000px; height: var(--player-h); background: var(--card); backdrop-filter: blur(25px); border: 1px solid var(--border); border-radius: 28px; display: flex; flex-direction: column; padding: 15px 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); z-index: 1000; }
+    
+    select { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px; border-radius: 8px; font-family: inherit; font-size: 0.7rem; }
   </style>
 </head>
-<body class="paused">
+<body>
+
+  <div class="goal-track"><div id="goal-fill"></div></div>
 
   <nav class="nav-rail">
     <button class="btn-ui" onclick="Sanctuary.navigateHome()"><i data-lucide="home"></i></button>
     <button class="btn-ui" id="hifz-btn" onclick="Sanctuary.toggleHifz()"><i data-lucide="brain"></i></button>
-    <button class="btn-ui" id="hide-btn" onclick="Sanctuary.toggleHideMastered()"><i data-lucide="eye-off"></i></button>
     <button class="btn-ui" onclick="Sanctuary.toggleTheme()"><i data-lucide="palette"></i></button>
-    <button class="btn-ui" onclick="Sanctuary.showAnalytics()"><i data-lucide="bar-chart-3"></i></button>
+    <button class="btn-ui" onclick="Sanctuary.showAnalytics()"><i data-lucide="award"></i></button>
   </nav>
 
-  <main id="scroll-container">
+  <main id="main-scroll">
     <div class="content-max" id="app-view"></div>
   </main>
 
   <div class="player-dock">
-    <div class="play-main">
-        <div style="flex:1">
-            <div id="p-surah" style="font-weight:600; font-size: 1.1rem">Noble Sanctuary</div>
-            <div id="p-ayah" style="font-size:0.8rem; opacity:0.6">Select a verse to begin</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex:1">
+        <div>
+            <div id="p-surah" style="font-weight:600">Sanctuary</div>
+            <select id="reciter-select" onchange="Sanctuary.setReciter(this.value)">
+                <option value="ar.alafasy">Mishary Alafasy</option>
+                <option value="ar.husary">Mahmoud Al-Husary</option>
+                <option value="ar.minshawi">Mohamed Al-Minshawi</option>
+                <option value="ar.abdulsamad">Abdul Basit</option>
+            </select>
         </div>
-        <div class="play-center">
+        <div style="display:flex; align-items:center; gap:20px;">
             <button class="btn-ui" onclick="Sanctuary.stepVerse(-1)"><i data-lucide="skip-back"></i></button>
-            <button onclick="Sanctuary.toggleAudio()" style="width:55px; height:55px; border-radius:50%; background:var(--primary); border:none; color:var(--bg); cursor:pointer; display:flex; align-items:center; justify-content:center;">
+            <button class="play-btn" onclick="Sanctuary.toggleAudio()" style="width:55px; height:55px; border-radius:50%; background:var(--primary); border:none; color:var(--bg); cursor:pointer; display:flex; align-items:center; justify-content:center;">
                 <i data-lucide="play" id="play-icon" fill="currentColor"></i>
                 <i data-lucide="pause" id="pause-icon" fill="currentColor"></i>
             </button>
             <button class="btn-ui" onclick="Sanctuary.stepVerse(1)"><i data-lucide="skip-forward"></i></button>
         </div>
-        <div style="flex:1; text-align:right">
-            <span id="active-speed" style="font-weight:bold; color:var(--primary)">1.0x</span>
-        </div>
+        <div id="active-speed" style="font-weight:bold; color:var(--primary); text-align:right; width:50px">1.0x</div>
     </div>
     
-    <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border); padding-top:12px; margin-top:8px; font-size:0.75rem;">
-        <div style="display:flex; gap:10px;">
-            <button class="btn-ui" style="padding:4px 8px; border:1px solid var(--border)" onclick="Sanctuary.setSpeed(0.75)">0.75x</button>
-            <button class="btn-ui" style="padding:4px 8px; border:1px solid var(--border)" onclick="Sanctuary.setSpeed(1)">1x</button>
-            <button class="btn-ui" style="padding:4px 8px; border:1px solid var(--border)" onclick="Sanctuary.setSpeed(1.25)">1.25x</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border); padding-top:10px; margin-top:10px; font-size:0.7rem;">
+        <div style="display:flex; gap:8px;">
+            <button class="btn-ui" style="border:1px solid var(--border); padding:4px 10px" onclick="Sanctuary.setSpeed(0.75)">0.75x</button>
+            <button class="btn-ui" style="border:1px solid var(--border); padding:4px 10px" onclick="Sanctuary.setSpeed(1)">1x</button>
+            <button class="btn-ui" style="border:1px solid var(--border); padding:4px 10px" onclick="Sanctuary.setSpeed(1.25)">1.25x</button>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
-            <i data-lucide="repeat" size="14"></i>
-            Range: <input type="number" id="l-start" value="1" style="width:35px"> to <input type="number" id="l-end" value="7" style="width:35px">
-            <button class="btn-ui" id="loop-btn" onclick="Sanctuary.toggleLoop()" style="border:1px solid var(--primary); padding:2px 10px;">LOOP</button>
+            <i data-lucide="goal" size="14" color="var(--gold)"></i>
+            <span id="goal-text">0 / 15 mins</span>
         </div>
     </div>
   </div>
@@ -117,153 +103,93 @@
   <script>
     const Sanctuary = {
       state: {
-        surahs: [], mastered: JSON.parse(localStorage.getItem('m_v2') || '[]'),
-        minutes: parseInt(localStorage.getItem('mins_v2') || '0'),
-        curIdx: -1, hifz: false, loop: false, theme: 'emerald', arData: null
+        surahs: [], mastered: JSON.parse(localStorage.getItem('m_v3') || '[]'),
+        mins: parseInt(localStorage.getItem('mins_v3') || '0'),
+        reciter: localStorage.getItem('reciter_v3') || 'ar.alafasy',
+        curIdx: -1, goal: 15, arData: null
       },
 
-      async init() {
+      init() {
         this.audio = document.getElementById('core-audio');
-        this.audio.onended = () => this.onAudioEnd();
-        this.setupMediaSession();
+        this.audio.onwaiting = () => document.body.classList.add('buffering');
+        this.audio.onplaying = () => document.body.classList.remove('buffering');
+        this.audio.onended = () => this.stepVerse(1);
         
-        // Accurate Playtime Tracking
-        setInterval(() => { if(!this.audio.paused) { this.state.minutes++; localStorage.setItem('mins_v2', this.state.minutes); }}, 60000);
+        document.getElementById('reciter-select').value = this.state.reciter;
+        this.updateGoalUI();
 
-        const res = await fetch('https://api.alquran.cloud/v1/surah');
-        const data = await res.json();
-        this.state.surahs = data.data;
-        this.router();
+        setInterval(() => { 
+          if(!this.audio.paused) { 
+            this.state.mins++; 
+            localStorage.setItem('mins_v3', this.state.mins);
+            this.updateGoalUI();
+          } 
+        }, 60000);
+
+        fetch('https://api.alquran.cloud/v1/surah').then(r => r.json()).then(d => {
+            this.state.surahs = d.data;
+            this.router();
+        });
         window.onpopstate = () => this.router();
-        lucide.createIcons();
       },
 
-      setupMediaSession() {
-        if ('mediaSession' in navigator) {
-          navigator.mediaSession.setActionHandler('play', () => this.toggleAudio());
-          navigator.mediaSession.setActionHandler('pause', () => this.toggleAudio());
-          navigator.mediaSession.setActionHandler('previoustrack', () => this.stepVerse(-1));
-          navigator.mediaSession.setActionHandler('nexttrack', () => this.stepVerse(1));
-        }
+      updateGoalUI() {
+        const perc = Math.min((this.state.mins / this.state.goal) * 100, 100);
+        document.getElementById('goal-fill').style.width = perc + '%';
+        document.getElementById('goal-text').innerText = `${this.state.mins} / ${this.state.goal} mins`;
       },
 
-      router() {
-        const p = new URLSearchParams(window.location.search);
-        p.get('s') ? this.loadSurah(p.get('s'), p.get('a')) : this.renderHome();
+      setReciter(val) {
+        this.state.reciter = val;
+        localStorage.setItem('reciter_v3', val);
+        if(this.state.curIdx !== -1) this.prepVerse(this.state.arData.ayahs[this.state.curIdx].number, this.state.curIdx);
       },
 
-      async loadSurah(id, startAyah = 0) {
-        const view = document.getElementById('app-view');
-        view.innerHTML = `<div style="text-align:center; padding:100px; opacity:0.5;">Loading Surah...</div>`;
+      async loadSurah(id) {
         const [ar, en] = await Promise.all([
-            fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
-            fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
+          fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
+          fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
         ]);
         this.state.arData = ar.data;
         this.renderVerses(ar.data, en.data);
-        if (startAyah) setTimeout(() => this.prepVerse(ar.data.ayahs[startAyah].number, parseInt(startAyah)), 600);
-      },
-
-      renderHome() {
-        const view = document.getElementById('app-view');
-        const res = JSON.parse(localStorage.getItem('res_v2'));
-        let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:30px"><h1>Library</h1>
-            <input type="text" placeholder="Search..." oninput="Sanctuary.search(this.value)" style="padding:10px 15px; background:var(--card); border:1px solid var(--border); border-radius:10px; color:var(--text); width:200px"></div>`;
-        
-        if(res) html += `<div class="resume-banner" onclick="Sanctuary.navigateSurah(${res.id}, ${res.a})">
-            <div><small style="opacity:0.6; text-transform:uppercase">Resume</small><div style="font-size:1.3rem; font-weight:bold">${res.n}</div><div style="color:var(--primary)">Verse ${res.a + 1}</div></div><i data-lucide="play-circle" size="32"></i></div>`;
-        
-        html += `<div id="grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:15px">` + 
-            this.state.surahs.map(s => `<div class="btn-ui s-card" data-n="${s.englishName}" data-i="${s.number}" onclick="Sanctuary.navigateSurah(${s.number})" style="display:block; text-align:left; border:1px solid var(--border); padding:20px; border-radius:18px">
-            <div style="font-weight:bold">${s.number}. ${s.englishName}</div><small style="opacity:0.5">${s.numberOfAyahs} Verses</small></div>`).join('') + `</div>`;
-        view.innerHTML = html;
-        lucide.createIcons();
       },
 
       renderVerses(ar, en) {
         const view = document.getElementById('app-view');
         document.getElementById('p-surah').innerText = ar.englishName;
-        let html = `<h2 style="text-align:center; font-family:var(--font-ar); font-size:3.5rem; margin-bottom:40px">${ar.name}</h2>`;
+        let html = `<h2 style="text-align:center; font-family:var(--font-ar); font-size:3.5rem;">${ar.name}</h2>`;
         ar.ayahs.forEach((v, i) => {
-          const m = this.state.mastered.includes(v.number);
-          html += `<div class="ayah-row ${m?'mastered':''}" id="v-${i}" onclick="Sanctuary.prepVerse(${v.number}, ${i}, true)">
-            <i data-lucide="check-circle" class="mastery-check ${m?'active':''}" onclick="event.stopPropagation(); Sanctuary.toggleMastery(${v.number}, ${i})"></i>
+          html += `<div class="ayah-row" id="v-${i}" onclick="Sanctuary.prepVerse(${v.number}, ${i})">
             <div class="arabic">${v.text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ/, '').trim()}</div>
-            <div class="translation">${en.ayahs[i].text}</div></div>`;
+            <div class="translation" style="color:var(--muted); font-size:1rem; margin-top:10px;">${en.ayahs[i].text}</div></div>`;
         });
         view.innerHTML = html;
         lucide.createIcons();
       },
 
-      prepVerse(gid, idx, manual = false) {
-        if(!this.state.arData?.ayahs[idx]) return;
-        if(manual && this.state.loop) this.toggleLoop(); // Break loop on manual jump
-        
+      prepVerse(gid, idx) {
         this.state.curIdx = idx;
-        localStorage.setItem('res_v2', JSON.stringify({id: this.state.arData.number, n: this.state.arData.englishName, a: idx}));
-        
-        document.querySelectorAll('.ayah-row').forEach(r => r.classList.remove('active'));
-        const el = document.getElementById(`v-${idx}`);
-        if(el) { el.classList.add('active'); el.scrollIntoView({behavior:'smooth', block:'center'}); if(this.state.hifz) el.classList.add('revealed'); }
-        
-        document.getElementById('p-ayah').innerText = `Verse ${idx + 1}`;
-        this.audio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${gid}.mp3`;
+        this.audio.src = `https://cdn.islamic.network/quran/audio/128/${this.state.reciter}/${gid}.mp3`;
         this.audio.play().then(() => document.body.classList.add('playing'));
-        
-        if('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({ title: `Verse ${idx + 1}`, artist: this.state.arData.englishName, album: 'Sanctuary Quran' });
-        }
+        document.getElementById(`v-${idx}`).scrollIntoView({behavior:'smooth', block:'center'});
       },
 
-      onAudioEnd() {
-        if(this.state.loop) {
-            const s = parseInt(document.getElementById('l-start').value)-1;
-            const e = parseInt(document.getElementById('l-end').value)-1;
-            this.state.curIdx < e ? this.stepVerse(1) : this.prepVerse(this.state.arData.ayahs[s].number, s);
-        } else { this.stepVerse(1); }
-      },
-
-      toggleMastery(gid, idx) {
-        this.state.mastered.includes(gid) ? this.state.mastered = this.state.mastered.filter(x => x !== gid) : this.state.mastered.push(gid);
-        localStorage.setItem('m_v2', JSON.stringify(this.state.mastered));
-        document.getElementById(`v-${idx}`).classList.toggle('mastered');
-        document.getElementById(`v-${idx}`).querySelector('.mastery-check').classList.toggle('active');
-      },
-
-      search(q) {
-        const query = q.toLowerCase();
-        document.querySelectorAll('.s-card').forEach(c => {
-            const match = c.dataset.n.toLowerCase().includes(query) || c.dataset.i === query;
-            c.style.display = match ? 'block' : 'none';
-        });
-      },
-
-      toggleTheme() { document.body.classList.toggle('theme-sepia'); },
-      toggleHifz() { this.state.hifz = !this.state.hifz; document.body.classList.toggle('hint-mode'); document.getElementById('hifz-btn').classList.toggle('active'); },
-      toggleHideMastered() { document.body.classList.toggle('hide-mastered'); document.getElementById('hide-btn').classList.toggle('active'); },
       toggleAudio() { this.audio.paused ? this.audio.play() : this.audio.pause(); document.body.classList.toggle('playing', !this.audio.paused); },
       setSpeed(s) { this.audio.playbackRate = s; document.getElementById('active-speed').innerText = s+'x'; },
-      toggleLoop() { this.state.loop = !this.state.loop; document.getElementById('loop-btn').classList.toggle('active'); },
       stepVerse(d) { const n = this.state.curIdx + d; if(this.state.arData?.ayahs[n]) this.prepVerse(this.state.arData.ayahs[n].number, n); },
+      toggleTheme() { document.body.classList.toggle('theme-sepia'); },
+      toggleHifz() { document.body.classList.toggle('hint-mode'); },
       navigateHome() { window.history.pushState({}, '', window.location.pathname); this.renderHome(); },
-      navigateSurah(id, a=0) { window.history.pushState({}, '', `?s=${id}${a?'&a='+a:''}`); this.loadSurah(id, a); },
-      showAnalytics() {
+      navigateSurah(id) { window.history.pushState({}, '', `?s=${id}`); this.loadSurah(id); },
+      renderHome() {
         const view = document.getElementById('app-view');
-        view.innerHTML = `<h1>Mastery Data</h1><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-top:30px">
-            <div style="background:var(--card); padding:25px; border-radius:20px; text-align:center"><strong>${this.state.minutes}</strong><br><small>Minutes</small></div>
-            <div style="background:var(--card); padding:25px; border-radius:20px; text-align:center"><strong>${this.state.mastered.length}</strong><br><small>Mastered</small></div>
-            <div style="background:var(--card); padding:25px; border-radius:20px; text-align:center"><strong>${Math.round((this.state.mastered.length/6236)*100)}%</strong><br><small>Quran</small></div>
-        </div><button class="btn-ui" onclick="Sanctuary.navigateHome()" style="width:100%; margin-top:20px; border:1px solid var(--border)">Back</button>`;
-      }
+        view.innerHTML = `<h1>Library</h1><div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:15px">` + 
+          this.state.surahs.map(s => `<div class="btn-ui" onclick="Sanctuary.navigateSurah(${s.number})" style="display:block; text-align:left; border:1px solid var(--border); padding:20px; border-radius:18px"><strong>${s.englishName}</strong></div>`).join('') + `</div>`;
+        lucide.createIcons();
+      },
+      router() { const p = new URLSearchParams(window.location.search); p.get('s') ? this.loadSurah(p.get('s')) : this.renderHome(); }
     };
-
     window.onload = () => Sanctuary.init();
-    // PWA Service Worker Registration
-    if ('serviceWorker' in navigator) {
-      const sw = `const C='s-v2';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(['./']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
-      const blob = new Blob([sw], {type: 'text/javascript'});
-      navigator.serviceWorker.register(URL.createObjectURL(blob));
-    }
   </script>
 </body>
 </html>
