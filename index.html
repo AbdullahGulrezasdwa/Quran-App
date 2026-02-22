@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sanctuary Quran</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fbbf24'><path d='M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z'/></svg>">
+  
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Amiri+Quran&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" />
   <style>
@@ -21,16 +23,18 @@
     .indopak { --arabic-font: 'Scheherazade New', serif; }
     .hide-translation .translation-text { display: none; }
     
-    /* READING MODE STYLES */
-    .reading-mode-active .ayah-box { display: inline; border: none; padding: 0; background: none; box-shadow: none; }
-    .reading-mode-active .arabic-text { display: inline; line-height: 2.5; font-size: 2.2rem; }
+    .reading-mode-active .ayah-box { display: inline; border: none; padding: 0; background: none; }
+    .reading-mode-active .arabic-text { display: inline; line-height: 2.5; font-size: 2.2rem; margin-left: 10px; }
     .reading-mode-active .translation-text, .reading-mode-active .bm-btn { display: none; }
 
     * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
     .app-container { display: flex; flex: 1; overflow: hidden; }
-    nav.side-bar { width: 80px; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 30px; }
+    
+    /* SIDEBAR WITH NEW LOGO */
+    nav.side-bar { width: 80px; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 25px; }
+    .logo-container { margin-bottom: 20px; color: var(--primary); }
     .nav-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); }
     .nav-icon.active { background: rgba(251, 191, 36, 0.1); color: var(--primary); }
 
@@ -47,7 +51,7 @@
     .ayah-box.active { border-color: var(--primary); background: rgba(251, 191, 36, 0.05); }
 
     /* COLLAPSIBLE PLAYER */
-    .audio-bar { height: 90px; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: fixed; bottom: 0; width: 100%; z-index: 100; }
+    .audio-bar { height: 90px; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: fixed; bottom: 0; width: 100%; z-index: 100; transition: transform 0.4s; }
     .audio-bar.collapsed { transform: translateY(110%); }
     .player-trigger { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; background: var(--primary); color: black; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 101; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
@@ -62,6 +66,11 @@
 
   <div class="app-container">
     <nav class="side-bar">
+      <div class="logo-container">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"></path>
+        </svg>
+      </div>
       <div class="nav-icon active" onclick="closeReader()"><i data-lucide="home"></i></div>
       <div class="nav-icon" onclick="toggleSettings()"><i data-lucide="settings-2"></i></div>
     </nav>
@@ -70,14 +79,14 @@
       <div class="viewport" id="scroll-root">
         <div id="dashboard">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h1 style="font-family: serif;">Sanctuary Quran</h1>
-            <button class="pill-btn" onclick="toggleSettings()"><i data-lucide="settings"></i> Settings</button>
+            <h1 style="font-family: serif; font-size: 2.2rem; letter-spacing: -1px;">Sanctuary Quran</h1>
+            <button class="pill-btn" onclick="toggleSettings()"><i data-lucide="sliders"></i> Settings</button>
           </div>
 
-          <div id="continue-section" style="display:none; margin-bottom: 40px;">
-            <div class="section-header">Ready to continue?</div>
-            <button class="pill-btn active" style="padding:20px 30px; border-radius:15px;" onclick="resumeReading()">
-              <i data-lucide="play-circle"></i> Resume: <span id="resume-name"></span>
+          <div id="continue-section" style="display:none; margin-top: 20px;">
+            <div class="section-header">Last Visited</div>
+            <button class="pill-btn active" style="padding:22px; border-radius:18px; width: 100%; max-width: 400px; justify-content: flex-start;" onclick="resumeReading()">
+              <i data-lucide="arrow-right-circle"></i> Resume: <span id="resume-name"></span>
             </button>
           </div>
 
@@ -87,7 +96,7 @@
 
         <div id="reader">
           <div style="display:flex; justify-content:space-between; margin-bottom:40px;">
-            <button onclick="closeReader()" class="pill-btn">← LIBRARY</button>
+            <button onclick="closeReader()" class="pill-btn">← BACK</button>
             <div style="display:flex; gap:10px;">
                 <button id="view-toggle" class="pill-btn" onclick="toggleViewMode()">VERSE BY VERSE</button>
                 <button id="trans-toggle" class="pill-btn active" onclick="toggleTranslation()">TRANS: ON</button>
@@ -103,47 +112,63 @@
           <div class="tab" onclick="switchTab('Notes', this)">Notes</div>
         </div>
         <div id="sidebar-content">
-          <div id="insight-text" style="font-size: 0.95rem; line-height: 1.8; color: #cbd5e1;">Select a verse.</div>
+          <div id="insight-text" style="font-size: 0.95rem; line-height: 1.8; color: #cbd5e1;">Select a verse to load metadata.</div>
           <div id="notes-area" style="display:none;">
-            <p style="font-size:0.7rem; color:var(--text-muted);">Notes for Verse <span id="note-ayah-ref">-</span></p>
-            <textarea id="note-input" placeholder="Type your reflections here..." oninput="saveNote()"></textarea>
+            <p style="font-size:0.7rem; color:var(--text-muted); font-weight: 700;">PRIVATE REFLECTIONS - <span id="note-ayah-ref">-</span></p>
+            <textarea id="note-input" placeholder="What does this verse teach you?..." oninput="saveNote()"></textarea>
           </div>
         </div>
       </aside>
     </main>
   </div>
 
-  <div class="player-trigger" id="p-trigger" onclick="expandPlayer()"><i data-lucide="chevron-up"></i></div>
+  <div class="player-trigger" id="p-trigger" onclick="expandPlayer()">
+    <i data-lucide="chevron-up"></i>
+  </div>
+
   <div class="audio-bar" id="audio-bar">
     <div style="width:250px">
-      <div id="audio-title" style="font-weight:700;">Ready</div>
-      <div id="audio-subtitle" style="font-size:0.75rem; color:var(--text-muted);">Select a verse</div>
+      <div id="audio-title" style="font-weight:700;">Silent</div>
+      <div id="audio-subtitle" style="font-size:0.75rem; color:var(--text-muted);">Pick an Ayah</div>
     </div>
     <div style="display:flex; align-items:center; gap:20px;">
       <i data-lucide="skip-back" onclick="changeAyah(-1)" style="cursor:pointer"></i>
       <button class="play-btn" onclick="togglePlayback()"><i data-lucide="play" id="play-icon"></i></button>
       <i data-lucide="skip-forward" onclick="changeAyah(1)" style="cursor:pointer"></i>
     </div>
-    <div style="width:250px; text-align:right;"><i data-lucide="chevron-down" style="cursor:pointer" onclick="collapsePlayer()"></i></div>
+    <div style="width:250px; text-align:right;">
+        <i data-lucide="chevron-down" style="cursor:pointer; color: var(--text-muted);" onclick="collapsePlayer()"></i>
+    </div>
   </div>
 
   <audio id="player"></audio>
 
   <div id="settings-modal" onclick="toggleSettings()" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; z-index:1000;">
-    <div class="modal-content" onclick="event.stopPropagation()" style="background:#0a0a0a; width:400px; padding:30px; border-radius:24px; border:1px solid var(--border);">
-      <h3>Settings</h3>
-      <label class="section-header">Theme</label>
-      <div style="display:flex; gap:10px; margin-bottom:20px;">
-        <div onclick="setTheme('')" style="width:30px; height:30px; border-radius:50%; background:#fbbf24; cursor:pointer;"></div>
-        <div onclick="setTheme('emerald')" style="width:30px; height:30px; border-radius:50%; background:#10b981; cursor:pointer;"></div>
-        <div onclick="setTheme('rose')" style="width:30px; height:30px; border-radius:50%; background:#fb7185; cursor:pointer;"></div>
-        <div onclick="setTheme('slate')" style="width:30px; height:30px; border-radius:50%; background:#94a3b8; cursor:pointer;"></div>
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <h2 style="margin-top:0">Settings</h2>
+      
+      <label class="section-header">Appearance</label>
+      <div style="display:flex; gap:12px; margin-bottom:25px;">
+        <div onclick="setTheme('')" style="width:35px; height:35px; border-radius:10px; background:#fbbf24; cursor:pointer; border: 2px solid white;"></div>
+        <div onclick="setTheme('emerald')" style="width:35px; height:35px; border-radius:10px; background:#10b981; cursor:pointer;"></div>
+        <div onclick="setTheme('rose')" style="width:35px; height:35px; border-radius:10px; background:#fb7185; cursor:pointer;"></div>
+        <div onclick="setTheme('slate')" style="width:35px; height:35px; border-radius:10px; background:#94a3b8; cursor:pointer;"></div>
       </div>
+
       <label class="section-header">Script</label>
-      <select onchange="App.script = this.value; if(App.currentSurah) loadSurah(App.currentSurah);" style="width:100%; padding:10px; background:#181818; color:white; border-radius:8px;">
-        <option value="uthmani">Uthmani</option>
-        <option value="indopak">IndoPak</option>
+      <select onchange="App.script = this.value; if(App.currentSurah) loadSurah(App.currentSurah);" style="width:100%; padding:12px; background:#181818; color:white; border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">
+        <option value="uthmani">Standard Uthmani</option>
+        <option value="indopak">IndoPak Script</option>
       </select>
+
+      <label class="section-header">Reciter</label>
+      <select onchange="App.reciter = this.value" style="width:100%; padding:12px; background:#181818; color:white; border:1px solid var(--border); border-radius:10px;">
+        <option value="ar.alafasy">Mishary Rashid Alafasy</option>
+        <option value="ar.minshawi">Mohamed Siddiq al-Minshawi</option>
+        <option value="ar.abdulsamad">Abdul Basit Abdus Samad</option>
+      </select>
+
+      <button onclick="toggleSettings()" style="width:100%; padding:15px; background:var(--primary); color:black; border:none; border-radius:12px; font-weight:bold; margin-top:30px; cursor:pointer;">SAVE & CLOSE</button>
     </div>
   </div>
 
@@ -166,14 +191,16 @@
       },
 
       renderGrid(list) {
-        document.getElementById('surah-grid').innerHTML = list.map(s => `<div class="surah-card" onclick="loadSurah(${s.number})"><div style="color:var(--primary); font-size:0.7rem; font-weight:700;">${s.number}</div><h3 style="margin:5px 0 0 0;">${s.englishName}</h3></div>`).join('');
+        document.getElementById('surah-grid').innerHTML = list.map(s => `<div class="surah-card" onclick="loadSurah(${s.number})"><div style="color:var(--primary); font-size:0.7rem; font-weight:700;">SURAH ${s.number}</div><h3 style="margin:5px 0 0 0;">${s.englishName}</h3><div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">${s.numberOfAyahs} VERSES</div></div>`).join('');
       },
 
       checkResume() {
         const last = JSON.parse(localStorage.getItem('sq-last-read'));
         if (last) {
           document.getElementById('continue-section').style.display = 'block';
-          document.getElementById('resume-name').innerText = `${last.name} (Verse ${last.aNum})`;
+          document.getElementById('resume-name').innerText = `${last.name} (Ayah ${last.aNum})`;
+        } else {
+          document.getElementById('continue-section').style.display = 'none';
         }
       },
 
@@ -181,7 +208,7 @@
         const st = e.target.scrollTop;
         const bar = document.getElementById('audio-bar');
         const trigger = document.getElementById('p-trigger');
-        if (st > this.lastScroll && st > 100) { bar.classList.add('collapsed'); trigger.style.display = 'flex'; } 
+        if (st > this.lastScroll && st > 150) { bar.classList.add('collapsed'); trigger.style.display = 'flex'; } 
         else if (st < this.lastScroll) { bar.classList.remove('collapsed'); trigger.style.display = 'none'; }
         this.lastScroll = st;
       }
@@ -192,21 +219,26 @@
       document.getElementById('dashboard').style.display = 'none';
       document.getElementById('reader').style.display = 'block';
       const edition = App.script === 'indopak' ? 'quran-indopak' : 'quran-uthmani';
+      
       const [ar, en] = await Promise.all([
         fetch(`https://api.alquran.cloud/v1/surah/${id}/${edition}`).then(r => r.json()),
         fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
       ]);
 
+      const bismillah = edition === 'quran-indopak' ? "بِسۡمِ اللّٰهِ الرَّحۡمٰنِ الرَّحِيۡمِ" : "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ";
       let html = `<h1 style="text-align:center; color:var(--primary); font-family:var(--arabic-font); font-size:4rem; margin-bottom:50px;">${ar.data.name}</h1>`;
+      
       ar.data.ayahs.forEach((ayah, i) => {
+        let text = ayah.text;
+        if (ayah.numberInSurah === 1 && id !== 1 && id !== 9) text = text.replace(bismillah, "").trim();
+
         html += `<div class="ayah-box" id="ayah-${i}" onclick="playAyah(${i})">
-            <div class="arabic-text">${ayah.text}</div>
-            <div class="translation-text" style="color:var(--text-muted); margin-top:10px;">${en.data.ayahs[i].text}</div>
+            <div class="arabic-text">${text}</div>
+            <div class="translation-text" style="color:var(--text-muted); margin-top:10px; line-height:1.6;">${en.data.ayahs[i].text}</div>
           </div>`;
       });
       document.getElementById('reader-body').innerHTML = html;
       if (startIdx > 0) setTimeout(() => playAyah(startIdx), 500);
-      lucide.createIcons();
     }
 
     function playAyah(index) {
@@ -216,18 +248,18 @@
       
       document.querySelectorAll('.ayah-box').forEach(b => b.classList.remove('active'));
       const box = document.getElementById(`ayah-${index}`);
-      box.classList.add('active');
-      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if(box) {
+        box.classList.add('active');
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
 
-      document.getElementById('audio-title').innerText = App.chapters[App.currentSurah-1].englishName;
+      const sName = App.chapters[App.currentSurah-1].englishName;
+      document.getElementById('audio-title').innerText = sName;
       document.getElementById('audio-subtitle').innerText = `Verse ${index + 1}`;
       player.play();
       updatePlayIcon(true);
       
-      const sName = App.chapters[App.currentSurah-1].englishName;
       localStorage.setItem('sq-last-read', JSON.stringify({id: App.currentSurah, aIdx: index, aNum: index+1, name: sName}));
-      
-      // Update Notes Ref
       document.getElementById('note-ayah-ref').innerText = `${sName} ${index+1}`;
       document.getElementById('note-input').value = App.notes[`${App.currentSurah}:${index}`] || '';
     }
@@ -236,6 +268,7 @@
       App.isReadingMode = !App.isReadingMode;
       document.getElementById('reader-body').classList.toggle('reading-mode-active');
       document.getElementById('view-toggle').innerText = App.isReadingMode ? "READING OPTION" : "VERSE BY VERSE";
+      document.getElementById('view-toggle').classList.toggle('active');
     }
 
     function saveNote() {
@@ -251,7 +284,15 @@
       document.getElementById('notes-area').style.display = type === 'Notes' ? 'block' : 'none';
     }
 
-    function setTheme(t) { document.body.className = t; if(App.script === 'indopak') document.body.classList.add('indopak'); }
+    function setTheme(t) { 
+        document.body.className = t; 
+        if(App.script === 'indopak') document.body.classList.add('indopak');
+        // Update favicon color dynamically
+        const color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+        const icon = document.querySelector("link[rel='icon']");
+        icon.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='${encodeURIComponent(color)}'><path d='M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z'/></svg>`;
+    }
+    
     function collapsePlayer() { document.getElementById('audio-bar').classList.add('collapsed'); document.getElementById('p-trigger').style.display = 'flex'; }
     function expandPlayer() { document.getElementById('audio-bar').classList.remove('collapsed'); document.getElementById('p-trigger').style.display = 'none'; }
     function togglePlayback() { const p = document.getElementById('player'); if(p.paused) p.play(); else p.pause(); updatePlayIcon(!p.paused); }
