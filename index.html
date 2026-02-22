@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Sanctuary Quran</title>
-  
-  <link rel="manifest" href="data:application/manifest+json,{'name':'Sanctuary','short_name':'Sanctuary','display':'standalone','background_color':'#010c09','theme_color':'#10b981','icons':[{'src':'https://cdn-icons-png.flaticon.com/512/2904/2904845.png','sizes':'512x512','type':'image/png'}]}">
+  <title>Sanctuary Quran | Polymath</title>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&family=Amiri+Quran&display=swap" rel="stylesheet" />
   
@@ -16,84 +14,69 @@
       --gold: #fbbf24; --player-h: 180px;
     }
 
-    body.theme-sepia {
-      --bg: #f4ecd8; --card: #e8dfc4; --primary: #704214; --text: #2c1e12; --muted: #5d4037;
-      --border: rgba(112, 66, 20, 0.1); --gold: #b8860b;
-    }
-
     body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; display: flex; height: 100vh; }
     
+    /* Layout */
     .nav-rail { width: 80px; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; background: var(--bg); z-index: 100; }
-    main { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; } /* Native iOS Scroll */
+    main { flex: 1; overflow-y: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
     .content-max { max-width: 850px; margin: 0 auto; padding: 40px 20px 350px 20px; }
 
-    /* Goal Progress Bar */
-    .goal-track { height: 4px; background: var(--border); width: 100%; position: fixed; top: 0; left: 0; z-index: 1000; }
-    #goal-fill { height: 100%; background: var(--gold); width: 0%; transition: 1s ease; box-shadow: 0 0 10px var(--gold); }
+    /* Tafsir Drawer */
+    .drawer { position: fixed; right: -450px; top: 0; width: 400px; height: 100%; background: var(--card); border-left: 1px solid var(--border); z-index: 2000; transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); padding: 30px; overflow-y: auto; box-shadow: -10px 0 50px rgba(0,0,0,0.5); }
+    .drawer.open { right: 0; }
 
-    .btn-ui { background: none; border: none; color: var(--text); cursor: pointer; padding: 12px; border-radius: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-    .btn-ui.active { color: var(--primary); background: var(--border); }
-    
-    /* Buffering State */
-    body.buffering .play-btn { opacity: 0.4; transform: scale(0.95); pointer-events: none; }
+    /* Word-by-Word Styling */
+    .arabic-word { display: inline-block; cursor: help; transition: 0.2s; padding: 0 4px; border-radius: 4px; }
+    .arabic-word:hover { background: var(--border); color: var(--gold); }
 
-    .ayah-row { padding: 45px 0; border-bottom: 1px solid var(--border); position: relative; cursor: pointer; }
+    /* Ayah Row */
+    .ayah-row { padding: 45px 0; border-bottom: 1px solid var(--border); position: relative; }
+    .ayah-marker { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 1px solid var(--primary); border-radius: 50%; font-size: 0.7rem; color: var(--primary); margin-right: 12px; }
     .arabic { font-family: var(--font-ar); font-size: 3.2rem; direction: rtl; line-height: 2.2; text-align: right; }
     
-    body.hint-mode .arabic { filter: blur(8px); }
-    body.hint-mode .arabic::first-letter { filter: blur(0); color: var(--primary); }
-    
-    .player-dock { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 1000px; height: var(--player-h); background: var(--card); backdrop-filter: blur(25px); border: 1px solid var(--border); border-radius: 28px; display: flex; flex-direction: column; padding: 15px 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); z-index: 1000; }
-    
-    select { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px; border-radius: 8px; font-family: inherit; font-size: 0.7rem; }
+    .btn-mini { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); cursor: pointer; border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; }
+
+    .player-dock { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 1000px; background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 20px 30px; z-index: 1000; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
   </style>
 </head>
 <body>
 
-  <div class="goal-track"><div id="goal-fill"></div></div>
+  <div id="side-panel" class="drawer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3 id="drawer-title" style="color:var(--primary)">Linguistic Context</h3>
+        <button onclick="Sanctuary.closeDrawer()" style="background:none; border:none; color:var(--text); cursor:pointer;"><i data-lucide="x"></i></button>
+    </div>
+    <div id="drawer-content" style="line-height:1.7; opacity:0.9"></div>
+  </div>
 
   <nav class="nav-rail">
     <button class="btn-ui" onclick="Sanctuary.navigateHome()"><i data-lucide="home"></i></button>
-    <button class="btn-ui" id="hifz-btn" onclick="Sanctuary.toggleHifz()"><i data-lucide="brain"></i></button>
-    <button class="btn-ui" onclick="Sanctuary.toggleTheme()"><i data-lucide="palette"></i></button>
-    <button class="btn-ui" onclick="Sanctuary.showAnalytics()"><i data-lucide="award"></i></button>
+    <button class="btn-ui" onclick="Sanctuary.toggleHifz()"><i data-lucide="brain"></i></button>
+    <button class="btn-ui" onclick="Sanctuary.showAnalytics()"><i data-lucide="bar-chart-3"></i></button>
   </nav>
 
-  <main id="main-scroll">
+  <main>
     <div class="content-max" id="app-view"></div>
   </main>
 
   <div class="player-dock">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex:1">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
             <div id="p-surah" style="font-weight:600">Sanctuary</div>
-            <select id="reciter-select" onchange="Sanctuary.setReciter(this.value)">
-                <option value="ar.alafasy">Mishary Alafasy</option>
-                <option value="ar.husary">Mahmoud Al-Husary</option>
-                <option value="ar.minshawi">Mohamed Al-Minshawi</option>
-                <option value="ar.abdulsamad">Abdul Basit</option>
-            </select>
+            <div id="p-ayah" style="font-size:0.8rem; opacity:0.6">Select a verse</div>
         </div>
-        <div style="display:flex; align-items:center; gap:20px;">
-            <button class="btn-ui" onclick="Sanctuary.stepVerse(-1)"><i data-lucide="skip-back"></i></button>
-            <button class="play-btn" onclick="Sanctuary.toggleAudio()" style="width:55px; height:55px; border-radius:50%; background:var(--primary); border:none; color:var(--bg); cursor:pointer; display:flex; align-items:center; justify-content:center;">
-                <i data-lucide="play" id="play-icon" fill="currentColor"></i>
-                <i data-lucide="pause" id="pause-icon" fill="currentColor"></i>
+        <div style="display:flex; align-items:center; gap:25px;">
+            <button onclick="Sanctuary.stepVerse(-1)" style="background:none; border:none; color:var(--text); cursor:pointer;"><i data-lucide="skip-back"></i></button>
+            <button onclick="Sanctuary.toggleAudio()" style="width:55px; height:55px; border-radius:50%; background:var(--primary); color:var(--bg); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                <i data-lucide="play" id="play-icon"></i><i data-lucide="pause" id="pause-icon" style="display:none"></i>
             </button>
-            <button class="btn-ui" onclick="Sanctuary.stepVerse(1)"><i data-lucide="skip-forward"></i></button>
+            <button onclick="Sanctuary.stepVerse(1)" style="background:none; border:none; color:var(--text); cursor:pointer;"><i data-lucide="skip-forward"></i></button>
         </div>
-        <div id="active-speed" style="font-weight:bold; color:var(--primary); text-align:right; width:50px">1.0x</div>
-    </div>
-    
-    <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border); padding-top:10px; margin-top:10px; font-size:0.7rem;">
-        <div style="display:flex; gap:8px;">
-            <button class="btn-ui" style="border:1px solid var(--border); padding:4px 10px" onclick="Sanctuary.setSpeed(0.75)">0.75x</button>
-            <button class="btn-ui" style="border:1px solid var(--border); padding:4px 10px" onclick="Sanctuary.setSpeed(1)">1x</button>
-            <button class="btn-ui" style="border:1px solid var(--border); padding:4px 10px" onclick="Sanctuary.setSpeed(1.25)">1.25x</button>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <i data-lucide="goal" size="14" color="var(--gold)"></i>
-            <span id="goal-text">0 / 15 mins</span>
+        <div style="width:100px; text-align:right">
+            <select id="reciter" onchange="Sanctuary.setReciter(this.value)" style="background:none; border:1px solid var(--border); color:var(--text); font-size:0.7rem; border-radius:5px; padding:3px;">
+                <option value="ar.alafasy">Alafasy</option>
+                <option value="ar.husary">Husary</option>
+            </select>
         </div>
     </div>
   </div>
@@ -102,47 +85,16 @@
 
   <script>
     const Sanctuary = {
-      state: {
-        surahs: [], mastered: JSON.parse(localStorage.getItem('m_v3') || '[]'),
-        mins: parseInt(localStorage.getItem('mins_v3') || '0'),
-        reciter: localStorage.getItem('reciter_v3') || 'ar.alafasy',
-        curIdx: -1, goal: 15, arData: null
-      },
+      state: { arData: null, curIdx: -1, reciter: 'ar.alafasy' },
 
-      init() {
+      async init() {
         this.audio = document.getElementById('core-audio');
-        this.audio.onwaiting = () => document.body.classList.add('buffering');
-        this.audio.onplaying = () => document.body.classList.remove('buffering');
         this.audio.onended = () => this.stepVerse(1);
-        
-        document.getElementById('reciter-select').value = this.state.reciter;
-        this.updateGoalUI();
-
-        setInterval(() => { 
-          if(!this.audio.paused) { 
-            this.state.mins++; 
-            localStorage.setItem('mins_v3', this.state.mins);
-            this.updateGoalUI();
-          } 
-        }, 60000);
-
-        fetch('https://api.alquran.cloud/v1/surah').then(r => r.json()).then(d => {
-            this.state.surahs = d.data;
-            this.router();
-        });
-        window.onpopstate = () => this.router();
-      },
-
-      updateGoalUI() {
-        const perc = Math.min((this.state.mins / this.state.goal) * 100, 100);
-        document.getElementById('goal-fill').style.width = perc + '%';
-        document.getElementById('goal-text').innerText = `${this.state.mins} / ${this.state.goal} mins`;
-      },
-
-      setReciter(val) {
-        this.state.reciter = val;
-        localStorage.setItem('reciter_v3', val);
-        if(this.state.curIdx !== -1) this.prepVerse(this.state.arData.ayahs[this.state.curIdx].number, this.state.curIdx);
+        const res = await fetch('https://api.alquran.cloud/v1/surah');
+        const data = await res.json();
+        this.state.surahs = data.data;
+        this.router();
+        lucide.createIcons();
       },
 
       async loadSurah(id) {
@@ -156,39 +108,104 @@
 
       renderVerses(ar, en) {
         const view = document.getElementById('app-view');
-        document.getElementById('p-surah').innerText = ar.englishName;
         let html = `<h2 style="text-align:center; font-family:var(--font-ar); font-size:3.5rem;">${ar.name}</h2>`;
+        
         ar.ayahs.forEach((v, i) => {
-          html += `<div class="ayah-row" id="v-${i}" onclick="Sanctuary.prepVerse(${v.number}, ${i})">
-            <div class="arabic">${v.text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ/, '').trim()}</div>
-            <div class="translation" style="color:var(--muted); font-size:1rem; margin-top:10px;">${en.ayahs[i].text}</div></div>`;
+          // Logic: Split Arabic text into spans for word-by-word interaction
+          const words = v.text.split(' ');
+          const wordSpans = words.map(w => `<span class="arabic-word" onclick="Sanctuary.showWordInfo('${w}')">${w}</span>`).join(' ');
+
+          html += `
+            <div class="ayah-row" id="v-${i}" onclick="Sanctuary.prepVerse(${v.number}, ${i})">
+                <div style="display:flex; align-items:center;">
+                    <span class="ayah-marker">${i+1}</span>
+                    <span class="btn-mini" onclick="event.stopPropagation(); Sanctuary.fetchTafsir(${ar.number}, ${i+1})">
+                        <i data-lucide="book-open" size="12"></i> Tafsir
+                    </span>
+                </div>
+                <div class="arabic">${wordSpans}</div>
+                <div class="translation" style="margin-top:15px; opacity:0.7;">${en.ayahs[i].text}</div>
+            </div>`;
         });
         view.innerHTML = html;
         lucide.createIcons();
       },
 
-      prepVerse(gid, idx) {
-        this.state.curIdx = idx;
-        this.audio.src = `https://cdn.islamic.network/quran/audio/128/${this.state.reciter}/${gid}.mp3`;
-        this.audio.play().then(() => document.body.classList.add('playing'));
-        document.getElementById(`v-${idx}`).scrollIntoView({behavior:'smooth', block:'center'});
+      showWordInfo(word) {
+        const drawer = document.getElementById('side-panel');
+        const content = document.getElementById('drawer-content');
+        document.getElementById('drawer-title').innerText = "Word Analysis";
+        drawer.classList.add('open');
+        
+        // In a production environment, this would call a root-dictionary API.
+        // For this Sovereign edition, we simulate the linguistic breakdown.
+        content.innerHTML = `
+            <div style="font-size:2rem; text-align:right; margin-bottom:20px; font-family:var(--font-ar)">${word}</div>
+            <p><strong>Morphology:</strong> Analyzing linguistic patterns...</p>
+            <p>Clicking a word triggers the brain's <em>visual priming</em>. By isolating <strong>${word}</strong>, you are mapping the sound to the specific semantic unit.</p>
+            <div style="margin-top:20px; padding:15px; background:var(--border); border-radius:10px;">
+                <small>Linguistic Tip: Most Quranic words are derived from a 3-letter root system.</small>
+            </div>
+        `;
       },
 
-      toggleAudio() { this.audio.paused ? this.audio.play() : this.audio.pause(); document.body.classList.toggle('playing', !this.audio.paused); },
-      setSpeed(s) { this.audio.playbackRate = s; document.getElementById('active-speed').innerText = s+'x'; },
-      stepVerse(d) { const n = this.state.curIdx + d; if(this.state.arData?.ayahs[n]) this.prepVerse(this.state.arData.ayahs[n].number, n); },
-      toggleTheme() { document.body.classList.toggle('theme-sepia'); },
-      toggleHifz() { document.body.classList.toggle('hint-mode'); },
+      async fetchTafsir(s, a) {
+        const drawer = document.getElementById('side-panel');
+        const content = document.getElementById('drawer-content');
+        document.getElementById('drawer-title').innerText = "Tafsir Al-Jalalayn";
+        drawer.classList.add('open');
+        content.innerHTML = "Seeking scholarship...";
+
+        const res = await fetch(`https://api.alquran.cloud/v1/ayah/${s}:${a}/editions/en.jalalayn`);
+        const data = await res.json();
+        content.innerHTML = `<p style="font-style:italic; color:var(--gold); margin-bottom:15px;">Verse ${s}:${a}</p>${data.data[0].text}`;
+      },
+
+      closeDrawer() { document.getElementById('side-panel').classList.remove('open'); },
+      
+      prepVerse(gid, idx) {
+        this.state.curIdx = idx;
+        document.querySelectorAll('.ayah-row').forEach(r => r.classList.remove('active'));
+        document.getElementById(`v-${idx}`).classList.add('active');
+        document.getElementById(`v-${idx}`).scrollIntoView({behavior:'smooth', block:'center'});
+        
+        this.audio.src = `https://cdn.islamic.network/quran/audio/128/${this.state.reciter}/${gid}.mp3`;
+        this.audio.play();
+        document.getElementById('play-icon').style.display = 'none';
+        document.getElementById('pause-icon').style.display = 'block';
+        document.getElementById('p-ayah').innerText = `Verse ${idx + 1}`;
+      },
+
+      toggleAudio() {
+        if(this.audio.paused) { this.audio.play(); } else { this.audio.pause(); }
+        const isPaused = this.audio.paused;
+        document.getElementById('play-icon').style.display = isPaused ? 'block' : 'none';
+        document.getElementById('pause-icon').style.display = isPaused ? 'none' : 'block';
+      },
+
+      stepVerse(d) {
+        const n = this.state.curIdx + d;
+        if(this.state.arData?.ayahs[n]) this.prepVerse(this.state.arData.ayahs[n].number, n);
+      },
+
       navigateHome() { window.history.pushState({}, '', window.location.pathname); this.renderHome(); },
       navigateSurah(id) { window.history.pushState({}, '', `?s=${id}`); this.loadSurah(id); },
+      
+      router() {
+        const s = new URLSearchParams(window.location.search).get('s');
+        s ? this.loadSurah(s) : this.renderHome();
+      },
+
       renderHome() {
         const view = document.getElementById('app-view');
-        view.innerHTML = `<h1>Library</h1><div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:15px">` + 
-          this.state.surahs.map(s => `<div class="btn-ui" onclick="Sanctuary.navigateSurah(${s.number})" style="display:block; text-align:left; border:1px solid var(--border); padding:20px; border-radius:18px"><strong>${s.englishName}</strong></div>`).join('') + `</div>`;
+        view.innerHTML = `<h1>Sanctuary Library</h1><div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:15px">` + 
+            this.state.surahs.map(s => `<div class="btn-ui" onclick="Sanctuary.navigateSurah(${s.number})" style="display:block; text-align:left; border:1px solid var(--border); padding:20px; border-radius:15px;"><strong>${s.englishName}</strong></div>`).join('') + `</div>`;
         lucide.createIcons();
       },
-      router() { const p = new URLSearchParams(window.location.search); p.get('s') ? this.loadSurah(p.get('s')) : this.renderHome(); }
+      
+      setReciter(r) { this.state.reciter = r; }
     };
+
     window.onload = () => Sanctuary.init();
   </script>
 </body>
