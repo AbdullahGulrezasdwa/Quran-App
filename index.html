@@ -129,6 +129,7 @@
             border: 1px solid transparent;
             transition: all 0.18s;
             position: relative;
+            pointer-events: auto;
         }
         .surah-item:hover { background: rgba(255,255,255,0.03); }
         .surah-item.active {
@@ -556,7 +557,7 @@
 
     <div class="hud-controls">
         <button class="hud-btn" id="btn-prev" title="Previous Ayah"><i data-lucide="skip-back" style="width:16px;height:16px"></i></button>
-        <button class="play-btn" id="masterPlay"><i data-lucide="play" style="width:18px;height:18px"></i></button>
+        <button class="play-btn" id="masterPlay" aria-label="Play or pause current ayah"><i data-lucide="play" style="width:18px;height:18px"></i></button>
         <button class="hud-btn" id="btn-next" title="Next Ayah"><i data-lucide="skip-forward" style="width:16px;height:16px"></i></button>
     </div>
 
@@ -608,7 +609,15 @@ const App = {
             this.renderLastRead();
             await this.renderHero();
             lucide.createIcons();
-        } catch (e) { console.error("Init failed", e); }
+        } catch (e) {
+            console.error("Init failed", e);
+            document.getElementById('view').innerHTML = `
+                <div style="padding:80px 40px;text-align:center;color:var(--text-dim)">
+                    <div style="font-size:2rem;margin-bottom:16px">⚠️</div>
+                    <div style="font-size:1rem;font-weight:700;color:var(--text-main);margin-bottom:8px">Failed to load Quran data</div>
+                    <div style="font-size:0.85rem">Check your internet connection and <button onclick="App.init()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.85rem;text-decoration:underline">try again</button>.</div>
+                </div>`;
+        }
     },
 
     /* ── HERO ── */
@@ -740,7 +749,7 @@ const App = {
                         <span class="ayah-num-badge">AYAH ${ayah.numberInSurah}</span>
                         <div class="ayah-actions">
                             <button class="action-btn ${bm ? 'bookmarked-btn' : ''}" id="bm-btn-${i}" title="Bookmark"
-                                onclick="App.toggleBookmark(${num}, ${ayah.numberInSurah}, '${arAyahs[i].text.substring(0,20).replace(/'/g,"\\'")}...', ${i})">
+                                onclick="App.toggleBookmark(${num}, ${ayah.numberInSurah}, App._safePreview(App.currentAyahs[${i}].text), ${i})">
                                 <i data-lucide="${bm ? 'bookmark-check' : 'bookmark'}" style="width:13px;height:13px"></i>
                             </button>
                             <button class="action-btn" title="Copy" onclick="App.copyAyah(${i})">
@@ -790,9 +799,14 @@ const App = {
     },
 
     playAyah(globalNum, localNum, idx = -1) {
+        this.audio.onerror = () => {
+            this.toast('❌ Audio unavailable for this verse');
+            this.updatePlayIcon(false);
+            document.getElementById('waveform').classList.remove('active');
+        };
         this.audio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${globalNum}.mp3`;
         this.audio.playbackRate = SPEEDS[this.speedIdx];
-        this.audio.play();
+        this.audio.play().catch(() => this.toast('❌ Playback failed'));
         document.getElementById('now-playing').innerText = `${this.currentSurah?.englishName || 'SURAH'} · AYAH ${localNum}`;
         document.getElementById('hud-artwork').textContent = localNum;
         this.updatePlayIcon(true);
@@ -898,6 +912,7 @@ const App = {
     initProgressBar() {
         const bg = document.getElementById('progress-bg');
         bg.addEventListener('click', e => {
+            if (!this.audio.duration || isNaN(this.audio.duration)) return;
             const rect = bg.getBoundingClientRect();
             const pct = (e.clientX - rect.left) / rect.width;
             if (this.audio.duration) this.audio.currentTime = pct * this.audio.duration;
@@ -906,7 +921,31 @@ const App = {
 
     initVolume() {
         const slider = document.getElementById('vol-slider');
-        slider.oninput = () => { this.audio.volume = slider.value; };
+        const updateVolIcon = () => {
+            const v = this.audio.volume;
+            const muted = this.audio.muted || v === 0;
+            const icon = document.querySelector('.vol-wrap i');
+            if (icon) {
+                icon.setAttribute('data-lucide', muted ? 'volume-x' : v < 0.5 ? 'volume-1' : 'volume-2');
+                lucide.createIcons();
+            }
+        };
+        slider.oninput = () => {
+            this.audio.volume = parseFloat(slider.value);
+            updateVolIcon();
+        };
+        this.audio.addEventListener('volumechange', updateVolIcon);
+    },
+
+    _safePreview(text) {
+        if (!text) return '';
+        const words = text.split(' ');
+        let out = '';
+        for (const w of words) {
+            if ((out + w).length > 28) break;
+            out += (out ? ' ' : '') + w;
+        }
+        return out + (text.length > out.length ? '…' : '');
     },
 
     updatePlayIcon(playing) {
@@ -925,11 +964,29 @@ const App = {
         box.dataset.loaded = '1';
         try {
             if (!TAFSIR_CACHE[globalNum]) {
-                const r = await fetch(`https://api.alquran.cloud/v1/ayah/${globalNum}/en.maududi`);
-                const d = await r.json();
-                TAFSIR_CACHE[globalNum] = d.data.text;
+                // Try Maududi first, fall back to Yusuf Ali, then plain translation
+                const editions = ['en.maududi', 'en.yusufali', 'en.sahih'];
+                let loaded = false;
+                for (const ed of editions) {
+                    try {
+                        const r = await fetch(`https://api.alquran.cloud/v1/ayah/${globalNum}/${ed}`);
+                        if (!r.ok) continue;
+                        const d = await r.json();
+                        if (d.data?.text) {
+                            TAFSIR_CACHE[globalNum] = { text: d.data.text, src: ed };
+                            loaded = true;
+                            break;
+                        }
+                    } catch {}
+                }
+                if (!loaded) TAFSIR_CACHE[globalNum] = { text: 'No commentary available for this verse.', src: null };
+                // Trim cache to last 50 entries
+                const keys = Object.keys(TAFSIR_CACHE);
+                if (keys.length > 50) delete TAFSIR_CACHE[keys[0]];
             }
-            box.innerHTML = `<strong style="color:var(--accent);font-size:0.78rem;letter-spacing:0.06em">TAFSIR · AL-MAUDUDI</strong><br><br>${TAFSIR_CACHE[globalNum]}`;
+            const { text, src } = TAFSIR_CACHE[globalNum];
+            const label = src === 'en.maududi' ? 'AL-MAUDUDI' : src === 'en.yusufali' ? 'YUSUF ALI' : 'TRANSLATION';
+            box.innerHTML = `<strong style="color:var(--accent);font-size:0.78rem;letter-spacing:0.06em">TAFSIR · ${label}</strong><br><br>${text}`;
         } catch {
             box.innerHTML = `<em style="color:var(--text-dimmer)">Could not load tafsir. Check connection.</em>`;
         }
@@ -1043,7 +1100,8 @@ const App = {
     /* ── KEYBOARD ── */
     initKeyboard() {
         document.addEventListener('keydown', e => {
-            if (e.target.tagName === 'INPUT') return;
+            if (e.target.id === 'searchInp') return; // only ignore the search bar
+            if (['INPUT', 'TEXTAREA'].includes(e.target.tagName) && e.target.id !== 'searchInp') return;
             if (e.key === ' ') { e.preventDefault(); document.getElementById('masterPlay').click(); }
             else if (e.key === 'ArrowRight') { e.preventDefault(); document.getElementById('btn-next').click(); }
             else if (e.key === 'ArrowLeft') { e.preventDefault(); document.getElementById('btn-prev').click(); }
