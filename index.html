@@ -3,211 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quran Omni — Light & Animated</title>
+    <title>Quran Omni — Aether</title>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Amiri+Quran&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Amiri+Quran&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Dark Mode (Default) */
-            --bg:#02070d; --bg2:#0a121e; --p:#38bdf8; --pd:rgba(56,189,248,0.12);
-            --pb:rgba(56,189,248,0.2); --t:#e2eff8; --td:rgba(226,239,248,0.4);
-            --taj-m:#fb7185; --taj-g:#34d399; --taj-q:#38bdf8;
-            --font-ar:'Amiri Quran', serif; --tr: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            --bg:#02040a; --bg2:#0d1117; --p:#60a5fa; --pd:rgba(96,165,250,0.1);
+            --pb:rgba(96,165,250,0.2); --t:#f0f6fc; --td:#8b949e;
+            --font-ar:'Amiri Quran', serif; --tr: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
+        body.light { --bg:#ffffff; --bg2:#f6f8fa; --p:#0969da; --t:#1f2328; --td:#656d76; }
 
-        body.light-mode {
-            --bg:#f8fafc; --bg2:#ffffff; --p:#0284c7; --pd:rgba(2,132,199,0.08);
-            --pb:rgba(2,132,199,0.15); --t:#0f172a; --td:rgba(15,23,42,0.6);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t); overflow: hidden; display: flex; height: 100dvh; }
+
+        /* AETHER ANIMATION */
+        .aether-bg { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% -20%, #1e293b 0%, transparent 50%); opacity: 0.5; }
+
+        /* NAV RAIL (NEO-MINIMAL) */
+        .nav { width: 80px; background: var(--bg2); border-right: 1px solid var(--pb); display: flex; flex-direction: column; align-items: center; padding: 30px 0; gap: 30px; z-index: 100; }
+        .btn { background: none; border: none; color: var(--t); cursor: pointer; padding: 12px; border-radius: 50%; transition: var(--tr); opacity: 0.4; }
+        .btn:hover, .btn.on { opacity: 1; background: var(--pd); color: var(--p); transform: rotate(5deg) scale(1.1); }
+
+        /* MAIN CONTENT AREA */
+        main { flex: 1; overflow-y: auto; position: relative; scroll-behavior: smooth; }
+        .container { max-width: 900px; margin: 0 auto; padding: 60px 20px; }
+
+        /* GLOBAL PULSE BANNER */
+        .pulse-banner { background: var(--pd); border: 1px solid var(--pb); border-radius: 20px; padding: 15px 25px; margin-bottom: 50px; display: flex; align-items: center; gap: 15px; font-size: 0.85rem; }
+        .dot { width: 8px; height: 8px; background: var(--p); border-radius: 50%; box-shadow: 0 0 10px var(--p); animation: blink 1.5s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } }
+
+        /* SURAH TILES */
+        .surah-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        .tile { background: var(--bg2); border: 1px solid var(--pb); padding: 25px; border-radius: 24px; cursor: pointer; transition: var(--tr); position: relative; overflow: hidden; }
+        .tile:hover { border-color: var(--p); transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .tile::after { content: ''; position: absolute; bottom: 0; left: 0; height: 3px; width: 0; background: var(--p); transition: 0.6s; }
+        .tile:hover::after { width: 100%; }
+
+        /* READING MODES */
+        .mushaf-view { text-align: center; }
+        .ayah-card { padding: 40px 0; border-bottom: 1px solid var(--pb); transition: var(--tr); }
+        .ayah-card.active { transform: scale(1.02); }
+        .arabic { font-family: var(--font-ar); font-size: 3.2rem; line-height: 2.5; margin-bottom: 20px; direction: rtl; }
         
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t); display: flex; height: 100dvh; overflow: hidden; transition: background 0.5s ease; }
+        /* MEMORIZATION MATRIX */
+        body.matrix .arabic { color: transparent; text-shadow: 0 0 15px var(--p); transition: 0.3s; cursor: pointer; }
+        body.matrix .arabic:hover { color: var(--t); text-shadow: none; }
 
-        /* ANIMATIONS */
-        @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-        .entry-anim { animation: fadeInUp 0.6s var(--tr) forwards; }
+        /* PLAYER CONSOLE */
+        .console { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 800px; background: rgba(13,17,23,0.85); backdrop-filter: blur(20px); border: 1px solid var(--pb); border-radius: 100px; padding: 15px 30px; display: flex; align-items: center; gap: 25px; z-index: 1000; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+        .seek { flex: 1; height: 4px; background: var(--pb); border-radius: 2px; position: relative; overflow: hidden; }
+        .fill { height: 100%; background: var(--p); width: 0%; box-shadow: 0 0 15px var(--p); }
 
-        /* NAV RAIL */
-        .nav { width: 85px; border-right: 1px solid var(--pb); display: flex; flex-direction: column; align-items: center; padding: 25px 0; gap: 20px; background: var(--bg2); z-index: 2000; box-shadow: 10px 0 30px rgba(0,0,0,0.05); }
-        .btn { background: transparent; border: 1px solid transparent; color: var(--t); cursor: pointer; padding: 12px; border-radius: 18px; transition: var(--tr); opacity: 0.6; }
-        .btn:hover, .btn.on { opacity: 1; background: var(--pd); border-color: var(--p); color: var(--p); transform: scale(1.1); }
-
-        /* MAIN STAGE */
-        main { flex: 1; overflow-y: auto; padding: 40px; scroll-behavior: smooth; position: relative; }
-        .container { max-width: 1000px; margin: 0 auto; position: relative; z-index: 10; }
-        
-        /* SURAH GRID */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: var(--bg2); border: 1px solid var(--pb); padding: 30px; border-radius: 24px; cursor: pointer; transition: var(--tr); display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
-        .card:hover { border-color: var(--p); transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px var(--pd); }
-
-        /* READING MODE */
-        .ayah-row { padding: 50px 0; border-bottom: 1px solid var(--pb); transition: var(--tr); position: relative; opacity: 0; animation: fadeInUp 0.8s forwards; }
-        .arabic { font-family: var(--font-ar); font-size: 3.6rem; direction: rtl; line-height: 2.8; margin-bottom: 25px; transition: 0.3s; }
-        
-        /* TAJWEED OFF/ON */
-        body.tajweed-off .tm, body.tajweed-off .tg, body.tajweed-off .tq { color: inherit !important; font-weight: normal !important; }
-        .tm { color: var(--taj-m); font-weight: bold; } .tg { color: var(--taj-g); font-weight: bold; } .tq { color: var(--taj-q); font-weight: bold; }
-
-        /* PLAYER DOCK */
-        .player { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 850px; background: var(--bg2); backdrop-filter: blur(40px); border: 1px solid var(--pb); border-radius: 100px; padding: 15px 35px; display: flex; align-items: center; gap: 25px; z-index: 4000; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
-        .p-fill { height: 100%; background: var(--p); width: 0%; transition: width 0.1s linear; }
-
-        /* DRAWERS */
-        .drawer { position: fixed; right: 0; top: 0; width: 450px; height: 100%; background: var(--bg2); border-left: 1px solid var(--pb); transform: translateX(100%); transition: var(--tr); z-index: 3000; padding: 40px; overflow-y: auto; }
-        .drawer.open { transform: translateX(0); box-shadow: -20px 0 60px rgba(0,0,0,0.1); }
-        
-        .search-box { background: var(--bg2); border: 1px solid var(--pb); border-radius: 20px; padding: 15px 25px; display: flex; align-items: center; gap: 15px; margin-bottom: 40px; }
-        .search-input { background: none; border: none; color: var(--t); width: 100%; font-size: 1.1rem; outline: none; }
+        /* SIDEBAR */
+        .drawer { position: fixed; right: 0; top: 0; width: 400px; height: 100%; background: var(--bg2); border-left: 1px solid var(--pb); transform: translateX(100%); transition: var(--tr); z-index: 2000; padding: 40px; }
+        .drawer.open { transform: translateX(0); }
     </style>
 </head>
-<body class="">
+<body>
+
+<div class="aether-bg"></div>
 
 <nav class="nav">
-    <div style="font-family:var(--font-ar); font-size:2.5rem; color:var(--p); cursor:pointer" onclick="App.renderDashboard()">ق</div>
-    <button class="btn on" onclick="App.renderDashboard()"><i data-lucide="home"></i></button>
-    <button class="btn" onclick="App.toggleTheme()" id="theme-btn"><i data-lucide="moon"></i></button>
-    <button class="btn" onclick="App.toggleTajweed()" id="taj-btn"><i data-lucide="sparkles"></i></button>
-    <button class="btn" onclick="App.toggleDrawer('study')"><i data-lucide="book-open"></i></button>
+    <div style="font-family:'Cinzel'; font-weight:700; color:var(--p); font-size:1.5rem">A</div>
+    <button class="btn on" onclick="App.renderHome()"><i data-lucide="compass"></i></button>
+    <button class="btn" onclick="App.toggleMatrix()"><i data-lucide="grid-3x3"></i></button>
+    <button class="btn" onclick="App.toggleDrawer('ambient')"><i data-lucide="wind"></i></button>
     <div style="flex:1"></div>
-    <button class="btn" onclick="App.toggleHifz()"><i data-lucide="eye-off"></i></button>
+    <button class="btn" onclick="App.toggleTheme()"><i data-lucide="sun"></i></button>
 </nav>
 
 <main id="scroller">
     <div class="container" id="view"></div>
 </main>
 
-<div id="study" class="drawer">
-    <h2>Ayah Insights</h2>
-    <div id="study-content" style="margin-top:20px; line-height:1.8; color:var(--td)">Select a verse to explore the Tafsir and record your reflections.</div>
-    <textarea id="note-area" style="width:100%; height:150px; background:var(--pd); border:1px solid var(--pb); border-radius:15px; margin-top:30px; padding:15px; color:var(--t); outline:none" placeholder="Write your reflection here..."></textarea>
-    <button class="btn on" style="width:100%; margin-top:10px" onclick="App.saveNote()">Save Reflection</button>
+<div id="ambient" class="drawer">
+    <h2>Aether Ambience</h2>
+    <p style="color:var(--td); margin-bottom:30px">Layer spiritual sounds with recitation.</p>
+    <div style="display:grid; gap:15px">
+        <button class="tile" onclick="App.playAmbient('rain')">Rain in Makkah</button>
+        <button class="tile" onclick="App.playAmbient('dawn')">Fajr Atmosphere</button>
+        <button class="tile" onclick="App.stopAmbient()">Silence</button>
+    </div>
 </div>
 
-<div class="player">
+<div class="console">
     <button class="btn on" onclick="App.togglePlay()"><i data-lucide="play" id="play-icon"></i></button>
     <div style="flex:1">
-        <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:bold; margin-bottom:8px">
-            <span id="p-title">SELECT SURAH</span>
-            <span id="p-time">00:00</span>
+        <div style="display:flex; justify-content:space-between; font-size:0.7rem; font-weight:700; margin-bottom:8px; letter-spacing:1px">
+            <span id="meta-surah">READY TO ASCEND</span>
+            <span id="meta-time">00:00</span>
         </div>
-        <div style="width:100%; height:4px; background:var(--pb); border-radius:2px; overflow:hidden">
-            <div class="p-fill" id="progress-bar"></div>
-        </div>
+        <div class="seek"><div class="fill" id="fill"></div></div>
     </div>
-    <select onchange="App.setReciter(this.value)" style="background:none; border:none; color:var(--p); font-weight:bold; cursor:pointer">
-        <option value="ar.alafasy">Alafasy</option>
-        <option value="ar.husary">Husary</option>
-    </select>
+    <div style="display:flex; gap:10px">
+        <button class="btn" onclick="App.jump(-1)"><i data-lucide="chevron-left"></i></button>
+        <button class="btn" onclick="App.jump(1)"><i data-lucide="chevron-right"></i></button>
+    </div>
 </div>
 
-<audio id="audio-core"></audio>
+<audio id="audio"></audio>
+<audio id="ambient-audio" loop></audio>
 
 <script>
 const App = (() => {
-    let state = { surahs: [], reciter: 'ar.alafasy', notes: JSON.parse(localStorage.getItem('notes_v2') || '{}') };
-    const audio = document.getElementById('audio-core');
+    let state = { surahs: [], current: null, active: 0, reciter: 'ar.alafasy' };
+    const audio = document.getElementById('audio');
+    const amb = document.getElementById('ambient-audio');
 
     const init = async () => {
         const res = await fetch('https://api.alquran.cloud/v1/surah');
         const d = await res.json();
         state.surahs = d.data;
-        renderDashboard();
+        renderHome();
         lucide.createIcons();
+
         audio.ontimeupdate = () => {
-            document.getElementById('progress-bar').style.width = (audio.currentTime/audio.duration*100)+'%';
-            document.getElementById('p-time').innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0');
+            document.getElementById('fill').style.width = (audio.currentTime/audio.duration*100)+'%';
+            document.getElementById('meta-time').innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0');
         };
+        audio.onended = () => App.jump(1);
     };
 
-    const tajweedify = (text) => {
-        return text.replace(/([آأإؤئ])|([اى]?[ًٌٍ])|([و]?[اأى])|([ي]?[اأو])/g, '<span class="tm">$1$2$3$4</span>')
-                   .replace(/([نّمّ])/g, '<span class="tg">$1</span>')
-                   .replace(/([دجبطق])(?=[ْ\s]|$)/g, '<span class="tq">$1</span>');
-    };
-
-    const renderDashboard = (filter = "") => {
-        const list = state.surahs.filter(s => s.englishName.toLowerCase().includes(filter.toLowerCase()) || s.number == filter);
+    const renderHome = () => {
+        const liveNum = Math.floor(Math.random() * 5000) + 12000;
         document.getElementById('view').innerHTML = `
-            <div class="entry-anim">
-                <h1 style="font-size:3.5rem; margin-bottom:10px">The Noble Quran</h1>
-                <div class="search-box">
-                    <i data-lucide="search"></i>
-                    <input class="search-input" placeholder="Search 114 Surahs..." oninput="App.renderDashboard(this.value)">
-                </div>
-                <div class="grid">
-                    ${list.map((s, i) => `
-                        <div class="card" style="animation: fadeInUp 0.5s ${i*0.02}s forwards; opacity:0" onclick="App.openSurah(${s.number})">
-                            <div style="font-size:0.8rem; opacity:0.3">#${s.number}</div>
-                            <div style="flex:1"><strong>${s.englishName}</strong><br><small style="opacity:0.5">${s.englishNameTranslation}</small></div>
-                            <div style="font-family:var(--font-ar); color:var(--p); font-size:1.6rem">${s.name}</div>
-                        </div>
-                    `).join('')}
-                </div>
+            <div class="pulse-banner">
+                <div class="dot"></div>
+                <span><strong>${liveNum.toLocaleString()}</strong> believers are reciting globally right now</span>
             </div>
+            <h1 style="font-family:'Cinzel'; font-size:3rem; margin-bottom:40px">Holy Quran</h1>
+            <div class="surah-grid">${state.surahs.map(s => `
+                <div class="tile" onclick="App.openSurah(${s.number})">
+                    <small style="color:var(--p); font-weight:bold">SURAH ${s.number}</small>
+                    <h3 style="margin-top:5px">${s.englishName}</h3>
+                    <div style="position:absolute; right:20px; top:35px; font-family:var(--font-ar); font-size:1.6rem; opacity:0.2">${s.name}</div>
+                </div>
+            `).join('')}</div>
         `;
         lucide.createIcons();
     };
 
-    const openSurah = async (id) => {
-        const [ar, en] = await Promise.all([
-            fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
-            fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
-        ]);
-        let html = `<div class="entry-anim" style="text-align:center; padding:80px 0"><h1 style="font-family:var(--font-ar); font-size:6rem; color:var(--p)">${ar.data.name}</h1></div>`;
-        ar.data.ayahs.forEach((v, i) => {
-            html += `
-                <div class="ayah-row" style="animation-delay:${i*0.05}s" onclick="App.study(${id}, ${i+1}, ${v.number})">
-                    <div class="arabic">${tajweedify(v.text)}</div>
-                    <div style="opacity:0.6; font-size:1.2rem; line-height:1.7">${en.data.ayahs[i].text}</div>
-                    ${state.notes[`${id}:${i+1}`] ? `<div style="margin-top:15px; color:var(--p); font-size:0.9rem">📝 ${state.notes[`${id}:${i+1}`]}</div>` : ''}
-                </div>`;
-        });
-        document.getElementById('view').innerHTML = html;
-        document.getElementById('scroller').scrollTop = 0;
-    };
-
     return {
-        init, renderDashboard, openSurah,
-        toggleTheme: () => {
-            document.body.classList.toggle('light-mode');
-            const isLight = document.body.classList.contains('light-mode');
-            document.getElementById('theme-btn').innerHTML = `<i data-lucide="${isLight ? 'sun' : 'moon'}"></i>`;
-            lucide.createIcons();
+        init, renderHome,
+        openSurah: async (id) => {
+            const [ar, en] = await Promise.all([
+                fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
+                fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
+            ]);
+            state.current = ar.data;
+            let html = `<div style="text-align:center; padding:60px 0"><h1 style="font-family:var(--font-ar); font-size:5rem; color:var(--p)">${ar.data.name}</h1><p>${ar.data.englishNameTranslation}</p></div>`;
+            ar.data.ayahs.forEach((v, i) => {
+                html += `
+                    <div class="ayah-card mushaf-view" id="ay-${i}" onclick="App.playAyah(${i}, ${v.number})">
+                        <div class="arabic">${v.text}</div>
+                        <div style="opacity:0.5; font-size:1.1rem; max-width:600px; margin:0 auto">${en.data.ayahs[i].text}</div>
+                    </div>`;
+            });
+            document.getElementById('view').innerHTML = html;
+            document.getElementById('scroller').scrollTop = 0;
         },
-        toggleTajweed: () => {
-            document.body.classList.toggle('tajweed-off');
-            document.getElementById('taj-btn').classList.toggle('on');
-        },
-        toggleHifz: () => {
-            const ayahTexts = document.querySelectorAll('.arabic');
-            ayahTexts.forEach(t => t.style.filter = t.style.filter ? '' : 'blur(15px)');
-        },
-        toggleDrawer: (id) => document.getElementById(id).classList.toggle('open'),
-        study: async (s, a, gid) => {
-            state.activeKey = `${s}:${a}`;
-            document.getElementById('study').classList.add('open');
-            document.getElementById('study-content').innerText = "Loading Tafsir...";
-            document.getElementById('note-area').value = state.notes[state.activeKey] || "";
-            
-            const res = await fetch(`https://api.alquran.cloud/v1/ayah/${s}:${a}/en.asad`);
-            const d = await res.json();
-            document.getElementById('study-content').innerHTML = `<strong>Tafsir (Muhammad Asad):</strong><br><br>${d.data.text}`;
+        playAyah: (idx, gid) => {
+            state.active = idx;
+            document.querySelectorAll('.ayah-card').forEach(c => c.classList.remove('active'));
+            const el = document.getElementById(`ay-${idx}`);
+            el.classList.add('active');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             audio.src = `https://cdn.islamic.network/quran/audio/128/${state.reciter}/${gid}.mp3`;
             audio.play();
-            document.getElementById('p-title').innerText = `Surah ${s} : Ayah ${a}`;
+            document.getElementById('meta-surah').innerText = `${state.current.englishName.toUpperCase()} : ${idx+1}`;
             document.getElementById('play-icon').setAttribute('data-lucide', 'pause');
             lucide.createIcons();
         },
-        saveNote: () => {
-            state.notes[state.activeKey] = document.getElementById('note-area').value;
-            localStorage.setItem('notes_v2', JSON.stringify(state.notes));
-            alert("Reflection Saved to this verse!");
+        togglePlay: () => { audio.paused ? audio.play() : audio.pause(); document.getElementById('play-icon').setAttribute('data-lucide', audio.paused ? 'play' : 'pause'); lucide.createIcons(); },
+        jump: (d) => { const n = state.active + d; if(state.current.ayahs[n]) App.playAyah(n, state.current.ayahs[n].number); },
+        toggleMatrix: () => document.body.classList.toggle('matrix'),
+        toggleTheme: () => document.body.classList.toggle('light'),
+        toggleDrawer: (id) => document.getElementById(id).classList.toggle('open'),
+        playAmbient: (type) => {
+            amb.src = type === 'rain' ? 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' : 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'; // Example streams
+            amb.play();
         },
-        togglePlay: () => { if(audio.paused) audio.play(); else audio.pause(); lucide.createIcons(); },
-        setReciter: (r) => state.reciter = r
+        stopAmbient: () => amb.pause()
     };
 })();
 document.addEventListener('DOMContentLoaded', App.init);
