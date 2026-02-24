@@ -3,92 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zenith Ultimate</title>
+    <title>Zenith Final - Kinetic</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri+Quran&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #020617; --card: #0f172a; --accent: #38bdf8; --border: rgba(255,255,255,0.06);
-            --text: #f8fafc; --text-dim: #94a3b8;
+            --bg: #010409; --card: #0d1117; --accent: #38bdf8; --border: rgba(255,255,255,0.08);
+            --text: #f0f6fc; --text-dim: #8b949e;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
-        /* PROGRESS TRACKER */
-        .progress-fixed { 
-            position: fixed; top: 0; left: 280px; right: 0; height: 5px; 
-            background: rgba(255,255,255,0.05); z-index: 2000; 
-        }
-        #reading-progress { height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 15px var(--accent); }
+        /* ANIMATIONS */
+        @keyframes reveal { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 10px rgba(56,189,248,0.2); } 50% { box-shadow: 0 0 25px rgba(56,189,248,0.5); } }
+        .animate-reveal { animation: reveal 0.8s ease forwards; }
 
-        /* SIDEBAR */
-        nav { width: 280px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 30px 20px; z-index: 100; }
-        .nav-btn { width: 100%; padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 12px; color: var(--text-dim); cursor: pointer; border: none; background: transparent; margin-bottom: 8px; font-weight: 600; }
-        .nav-btn:hover { background: rgba(56, 189, 248, 0.1); color: var(--accent); transform: translateX(5px); }
-        .nav-btn.active { background: rgba(56, 189, 248, 0.1); color: var(--accent); border-left: 4px solid var(--accent); }
-
-        /* MAIN CANVAS */
-        main { flex: 1; overflow-y: auto; scroll-behavior: smooth; position: relative; }
-        .container { max-width: 900px; margin: 0 auto; padding: 80px 30px; }
-
-        /* AYAH CARDS */
-        .ayah-card { background: rgba(255,255,255,0.01); border-radius: 24px; padding: 45px; margin-bottom: 40px; border: 1px solid var(--border); }
-        .word-grid { display: flex; flex-wrap: wrap; gap: 18px; justify-content: flex-end; direction: rtl; margin-bottom: 35px; }
+        /* HIGH-DENSITY SIDEBAR */
+        nav { width: 320px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 40px 24px; z-index: 1000; }
+        .logo { font-size: 1.6rem; font-weight: 900; color: var(--accent); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
         
-        .word-unit { 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 10px; border-radius: 12px; cursor: pointer; 
+        .section-label { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); letter-spacing: 2px; margin: 25px 0 12px 10px; text-transform: uppercase; }
+        
+        .nav-link { 
+            width: 100%; padding: 14px 18px; border-radius: 14px; display: flex; align-items: center; gap: 14px; 
+            color: var(--text-dim); cursor: pointer; border: 1px solid transparent; background: transparent; 
+            margin-bottom: 6px; font-weight: 600; font-size: 0.9rem;
         }
-        .word-unit:hover { background: rgba(56, 189, 248, 0.1); transform: scale(1.1); }
-        .ar-word { font-family: 'Amiri Quran'; font-size: 2.8rem; }
-        .en-sub { font-size: 0.7rem; color: var(--accent); opacity: 0; transition: 0.2s; }
-        .word-unit:hover .en-sub { opacity: 1; }
+        .nav-link:hover { background: rgba(255,255,255,0.03); color: var(--accent); transform: translateX(8px); }
+        .nav-link.active { background: rgba(56, 189, 248, 0.1); color: var(--accent); border-left: 4px solid var(--accent); }
 
-        /* KINETIC COLLAPSIBLES */
-        .collapsible-btn { 
-            width: 100%; padding: 18px; background: rgba(255,255,255,0.02); border: 1px solid var(--border);
-            border-radius: 15px; display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; margin-top: 12px; font-size: 0.8rem; font-weight: 700; color: var(--text-dim);
+        /* READING CANVAS */
+        main { flex: 1; overflow-y: auto; scroll-behavior: smooth; position: relative; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 100px 50px; }
+
+        /* VERSE ARCHITECTURE (LEFT ALIGNED) */
+        .verse-box { 
+            display: flex; flex-direction: column; align-items: flex-start; /* FORCE LEFT */
+            padding: 50px; border-radius: 30px; margin-bottom: 30px; 
+            background: linear-gradient(145deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+            border: 1px solid var(--border); opacity: 0;
         }
-        .collapsible-btn:hover { border-color: var(--accent); color: var(--text); }
-        .content-box { 
-            max-height: 0; overflow: hidden; opacity: 0; 
-            transform: translateY(-10px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        .verse-box.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.02); }
+        
+        .verse-meta { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .v-num { background: var(--accent); color: #000; padding: 5px 15px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; }
+        
+        .ar-line { 
+            font-family: 'Amiri Quran'; font-size: 3rem; line-height: 1.8; 
+            text-align: left; direction: rtl; width: 100%; margin-bottom: 25px;
+            cursor: pointer;
         }
-        .content-box.open { max-height: 500px; opacity: 1; transform: translateY(0); padding: 20px 0; }
+        .en-line { font-size: 1.2rem; color: var(--text-dim); line-height: 1.8; text-align: left; }
 
-        /* HUD */
-        .hud { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 800px; background: rgba(11, 15, 26, 0.9); backdrop-filter: blur(20px); border-radius: 20px; padding: 18px 30px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-        .p-btn { background: var(--accent); color: #000; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; }
+        /* KINETIC BUTTONS */
+        .action-bar { display: flex; gap: 12px; margin-top: 30px; }
+        .act-btn { 
+            padding: 10px 20px; border-radius: 12px; border: 1px solid var(--border); 
+            background: rgba(255,255,255,0.03); color: var(--text-dim); cursor: pointer;
+            font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 8px;
+        }
+        .act-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(56, 189, 248, 0.05); transform: translateY(-3px); }
 
-        .revert-btn { margin-top: auto; width: 100%; padding: 15px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid transparent; cursor: pointer; font-weight: 700; }
-        .revert-btn:hover { background: #ef4444; color: white; }
+        /* PLAYER HUD */
+        .hud { 
+            position: fixed; bottom: 30px; left: 350px; right: 30px; 
+            background: rgba(13, 17, 23, 0.85); backdrop-filter: blur(25px); 
+            border-radius: 24px; padding: 25px 40px; display: flex; align-items: center; gap: 30px;
+            border: 1px solid var(--border); z-index: 2000;
+        }
+        .play-trigger { 
+            background: var(--accent); color: #000; width: 55px; height: 55px; 
+            border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+            animation: pulseGlow 3s infinite;
+        }
+
+        /* GRID SYSTEM */
+        .surah-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .s-card { 
+            background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 24px;
+            cursor: pointer; position: relative;
+        }
+        .s-card:hover { border-color: var(--accent); transform: scale(1.03); }
+
+        .bismillah-header { 
+            font-family: 'Amiri Quran'; font-size: 4rem; text-align: center; 
+            color: var(--accent); margin-bottom: 60px; opacity: 0.8;
+        }
     </style>
 </head>
-<body id="body">
-
-<div class="progress-fixed"><div id="reading-progress"></div></div>
+<body>
 
 <nav>
-    <div style="font-weight:900; font-size:1.6rem; color:var(--accent); margin-bottom:40px; letter-spacing:-1px">ZENITH PRO</div>
-    <div class="nav-links">
-        <button class="nav-btn active" onclick="App.goHome()"><i data-lucide="home"></i> Dashboard</button>
-        <button class="nav-btn" onclick="App.openBookmarks()"><i data-lucide="bookmark"></i> Saved Verses</button>
-    </div>
-    <button class="revert-btn" onclick="App.revert()"><i data-lucide="rotate-ccw" style="width:16px; margin-right:8px"></i> REVERT SYSTEM</button>
+    <div class="logo"><i data-lucide="zap"></i> ZENITH PRO</div>
+    
+    <div class="section-label">Core Navigation</div>
+    <button class="nav-link active" onclick="App.goHome()"><i data-lucide="layout"></i> Dashboard</button>
+    <button class="nav-link"><i data-lucide="book-open"></i> Full Reading</button>
+    <button class="nav-link"><i data-lucide="heart"></i> Favorites</button>
+    <button class="nav-link"><i data-lucide="history"></i> Recents</button>
+
+    <div class="section-label">Study Tools</div>
+    <button class="nav-link"><i data-lucide="mic-2"></i> Reciters</button>
+    <button class="nav-link"><i data-lucide="languages"></i> Translations</button>
+    <button class="nav-link"><i data-lucide="layers"></i> Word-By-Word</button>
+    <button class="nav-link"><i data-lucide="file-text"></i> Tafsir Notes</button>
+
+    <div class="section-label">System</div>
+    <button class="nav-link"><i data-lucide="settings"></i> Config</button>
+    <button class="nav-link"><i data-lucide="download-cloud"></i> Sync Data</button>
+    <button class="nav-link" style="color:#f87171" onclick="location.reload()"><i data-lucide="refresh-cw"></i> Reset Session</button>
 </nav>
 
-<main id="scroller" onscroll="App.updateProgress()">
+<main id="scroller">
     <div class="container" id="view"></div>
 </main>
 
 <div class="hud">
-    <div class="p-btn" onclick="App.togglePlay()"><i data-lucide="play" id="p-icon"></i></div>
+    <div class="play-trigger" onclick="App.togglePlay()"><i data-lucide="play" id="p-icon"></i></div>
     <div style="flex:1">
-        <div id="p-meta" style="font-size:0.75rem; color:var(--accent); font-weight:800; margin-bottom:6px">READY</div>
-        <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:10px; overflow:hidden">
-            <div id="p-fill" style="height:100%; width:0%; background:var(--accent)"></div>
+        <div id="p-meta" style="font-size:0.8rem; font-weight:800; color:var(--accent); margin-bottom:10px; letter-spacing:1px">CHOOSE A SURAH</div>
+        <div style="height:6px; background:rgba(255,255,255,0.05); border-radius:10px; overflow:hidden">
+            <div id="p-fill" style="height:100%; width:0%; background:var(--accent); box-shadow: 0 0 15px var(--accent)"></div>
         </div>
+    </div>
+    <div style="display:flex; gap:15px">
+        <button class="act-btn"><i data-lucide="shuffle" style="width:14px"></i></button>
+        <button class="act-btn"><i data-lucide="list-music" style="width:14px"></i></button>
     </div>
 </div>
 
@@ -96,7 +138,7 @@
 
 <script>
 const App = (() => {
-    let state = { surahs: [], current: null, activeIdx: 0 };
+    let state = { surahs: [], current: null };
     const audio = document.getElementById('audio');
 
     const init = async () => {
@@ -109,63 +151,72 @@ const App = (() => {
     };
 
     const goHome = () => {
-        document.getElementById('reading-progress').style.width = '0%';
         document.getElementById('view').innerHTML = `
-            <h1 style="font-size:3.5rem; margin-bottom:10px">Dashboard</h1>
-            <p style="color:var(--text-dim); margin-bottom:40px">Select a Surah to begin your kinetic study.</p>
-            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:20px">
-                ${state.surahs.map(s => `
-                    <div class="ayah-card" style="padding:25px; cursor:pointer" onclick="App.openSurah(${s.number})">
-                        <div style="color:var(--accent); font-size:0.7rem; font-weight:900">#${s.number}</div>
-                        <h3 style="margin:5px 0">${s.englishName}</h3>
-                        <div style="font-family:'Amiri Quran'; text-align:right; font-size:1.8rem; color:var(--accent)">${s.name}</div>
-                    </div>`).join('')}
-            </div>`;
+            <div style="margin-bottom:60px" class="animate-reveal">
+                <h1 style="font-size:4.5rem; font-weight:900; letter-spacing:-3px">The Library</h1>
+                <p style="color:var(--text-dim); font-size:1.2rem">Click a Surah to begin your kinetic journey.</p>
+            </div>
+            <div class="surah-grid">${state.surahs.map((s, i) => `
+                <div class="s-card animate-reveal" style="animation-delay: ${i*0.03}s" onclick="App.openSurah(${s.number})">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px">
+                        <span style="color:var(--accent); font-weight:900; font-size:0.7rem">SURAH NO. ${s.number}</span>
+                        <i data-lucide="plus-circle" style="width:16px; opacity:0.3"></i>
+                    </div>
+                    <h2>${s.englishName}</h2>
+                    <div style="font-family:'Amiri Quran'; font-size:2rem; color:var(--accent); text-align:right">${s.name}</div>
+                </div>`).join('')}</div>`;
         lucide.createIcons();
     };
 
     return {
         init, goHome,
-        revert: () => { if(confirm("Revert all settings?")) location.reload(); },
-        updateProgress: () => {
-            const s = document.getElementById('scroller');
-            const p = (s.scrollTop / (s.scrollHeight - s.clientHeight)) * 100;
-            document.getElementById('reading-progress').style.width = p + '%';
-        },
-        openSurah: async (id) => {
+        openSurah: async (num) => {
             const [ar, en] = await Promise.all([
-                fetch(`https://api.alquran.cloud/v1/surah/${id}/quran-uthmani`).then(r => r.json()),
-                fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`).then(r => r.json())
+                fetch(`https://api.alquran.cloud/v1/surah/${num}/quran-uthmani`).then(r => r.json()),
+                fetch(`https://api.alquran.cloud/v1/surah/${num}/en.sahih`).then(r => r.json())
             ]);
-            state.current = ar.data;
-            let html = `<div style="text-align:center; padding-bottom:60px"><h1 style="font-family:'Amiri Quran'; font-size:5rem; color:var(--accent)">${ar.data.name}</h1></div>`;
             
-            ar.data.ayahs.forEach((v, i) => {
-                const words = v.text.split(' ');
+            // BISMILLAH LOGIC: Extract and display as a header if applicable
+            let ayahs = ar.data.ayahs;
+            let showBis = (num !== 1 && num !== 9);
+            if (showBis) {
+                ayahs[0].text = ayahs[0].text.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ ", "");
+            }
+
+            let html = `
+                <button class="act-btn" style="margin-bottom:40px" onclick="App.goHome()"><i data-lucide="arrow-left"></i> BACK TO DASHBOARD</button>
+                <div style="text-align:center; margin-bottom:80px">
+                    <p style="letter-spacing:12px; color:var(--accent); font-weight:800; opacity:0.6">${ar.data.englishName.toUpperCase()}</p>
+                    <h1 style="font-family:'Amiri Quran'; font-size:6.5rem; margin:20px 0">${ar.data.name}</h1>
+                    ${showBis ? `<div class="bismillah-header">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>` : ''}
+                </div>`;
+
+            ayahs.forEach((v, i) => {
                 html += `
-                <div class="ayah-card" id="ay-${i}">
-                    <div class="word-grid">${words.map(w => `<div class="word-unit"><span class="ar-word">${w}</span><span class="en-sub">Play Word</span></div>`).join('')}</div>
-                    
-                    <div class="collapsible-btn" onclick="this.nextElementSibling.classList.toggle('open')">TRANSLATION <i data-lucide="chevron-down"></i></div>
-                    <div class="content-box"><p style="color:var(--text-dim); line-height:1.8">${en.data.ayahs[i].text}</p></div>
-
-                    <div class="collapsible-btn" onclick="this.nextElementSibling.classList.toggle('open')">REFLECTIVE TAFSIR <i data-lucide="chevron-down"></i></div>
-                    <div class="content-box">
-                        <p style="color:var(--text-dim); line-height:1.7"><strong>Reflection:</strong> This verse serves as a guide for those who seek truth. It highlights the intricate balance of the universe.</p>
+                <div class="verse-box animate-reveal" style="animation-delay: ${i*0.1}s">
+                    <div class="verse-meta">
+                        <div class="v-num">VERSE ${i+1}</div>
+                        <span style="font-size:0.7rem; color:var(--text-dim); font-weight:700">SAHIH INTERNATIONAL</span>
                     </div>
-
-                    <button class="nav-btn" style="margin-top:20px; border:1px solid var(--border); width:auto" onclick="App.play(${i})"><i data-lucide="play"></i> Listen to Verse</button>
+                    <p class="ar-line" onclick="App.play(${v.number}, ${i+1})">${v.text}</p>
+                    <p class="en-line">${en.data.ayahs[i].text}</p>
+                    <div class="action-bar">
+                        <button class="act-btn" onclick="App.play(${v.number}, ${i+1})"><i data-lucide="play-circle"></i> Listen</button>
+                        <button class="act-btn"><i data-lucide="bookmark"></i> Bookmark</button>
+                        <button class="act-btn"><i data-lucide="share"></i> Share</button>
+                        <button class="act-btn"><i data-lucide="book-open"></i> Tafsir</button>
+                        <button class="act-btn"><i data-lucide="copy"></i> Copy</button>
+                    </div>
                 </div>`;
             });
             document.getElementById('view').innerHTML = html;
             document.getElementById('scroller').scrollTop = 0;
             lucide.createIcons();
         },
-        play: (idx) => {
-            state.activeIdx = idx;
-            audio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${state.current.ayahs[idx].number}.mp3`;
+        play: (num, idx) => {
+            audio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${num}.mp3`;
             audio.play();
-            document.getElementById('p-meta').innerText = `${state.current.englishName.toUpperCase()} • AYAH ${idx+1}`;
+            document.getElementById('p-meta').innerText = `NOW RECITING: VERSE ${idx}`;
             document.getElementById('p-icon').setAttribute('data-lucide', 'pause');
             lucide.createIcons();
         },
