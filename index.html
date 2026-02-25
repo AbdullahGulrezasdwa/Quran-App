@@ -118,7 +118,183 @@
 }
 
 /* ══════════════════════════════════════
-   RESET & BASE
+   FEATURE: Font size control
+══════════════════════════════════════ */
+.ar { font-size: var(--ar-size, 1.9rem); }
+.en { font-size: var(--en-size, 0.95rem); }
+
+/* ══════════════════════════════════════
+   FEATURE: Reading progress bar (top of main)
+══════════════════════════════════════ */
+.read-prog {
+  position: fixed; top: 0;
+  left: var(--sidebar-w); right: 0;
+  height: 3px; z-index: 150;
+  background: transparent; pointer-events: none;
+}
+.read-prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  width: 0%; transition: width 0.15s;
+}
+
+/* ══════════════════════════════════════
+   FEATURE: Ayah jump input
+══════════════════════════════════════ */
+.jump-wrap {
+  display: flex; gap: 6px; padding: 0 12px 10px;
+  flex-shrink: 0;
+}
+.jump-inp {
+  flex: 1; background: var(--card);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 7px 10px; color: var(--text);
+  font-family: inherit; font-size: 0.78rem; outline: none;
+  transition: border-color var(--transition);
+}
+.jump-inp:focus { border-color: rgba(var(--accent-rgb),0.5); }
+.jump-inp::placeholder { color: var(--text-dimmer); }
+.jump-btn {
+  background: var(--glow); border: 1px solid rgba(var(--accent-rgb),0.25);
+  color: var(--accent); border-radius: 8px; padding: 7px 10px;
+  font-size: 0.72rem; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: all var(--transition);
+}
+.jump-btn:hover { background: rgba(var(--accent-rgb),0.2); }
+
+/* ══════════════════════════════════════
+   FEATURE: Transliteration
+══════════════════════════════════════ */
+.translit {
+  font-size: 0.82rem; color: var(--text-dimmer);
+  font-style: italic; margin: -8px 0 10px;
+  display: none;
+  line-height: 1.6;
+}
+body.show-translit .translit { display: block; }
+
+/* ══════════════════════════════════════
+   FEATURE: Night mode eye comfort toggle (dim overlay)
+══════════════════════════════════════ */
+.dim-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0);
+  pointer-events: none; z-index: 9;
+  transition: background 0.4s;
+}
+body.eye-comfort .dim-overlay { background: rgba(0,0,0,0.25); }
+
+/* ══════════════════════════════════════
+   FEATURE: Highlight/focus mode (blur other cards)
+══════════════════════════════════════ */
+body.focus-mode .ayah-card:not(.playing) {
+  opacity: 0.35; filter: blur(0.5px);
+  transition: opacity 0.3s, filter 0.3s;
+}
+body.focus-mode .ayah-card.playing { opacity: 1; filter: none; }
+
+/* ══════════════════════════════════════
+   FEATURE: Word hover highlight
+══════════════════════════════════════ */
+.ar-word {
+  display: inline; cursor: pointer;
+  border-radius: 3px; padding: 0 1px;
+  transition: background 0.12s;
+}
+.ar-word:hover { background: rgba(var(--accent-rgb),0.18); }
+
+/* ══════════════════════════════════════
+   FEATURE: Scroll to top button
+══════════════════════════════════════ */
+.scroll-top {
+  position: fixed; bottom: calc(var(--hud-h) + 24px); right: 20px;
+  width: 36px; height: 36px; background: var(--card);
+  border: 1px solid var(--border-hi); border-radius: 10px;
+  display: grid; place-items: center; cursor: pointer;
+  color: var(--text-dim); z-index: 190;
+  opacity: 0; transform: translateY(8px);
+  transition: all 0.2s; pointer-events: none;
+}
+.scroll-top.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.scroll-top:hover { color: var(--accent); border-color: rgba(var(--accent-rgb),0.4); }
+
+/* ══════════════════════════════════════
+   FEATURE: Ayah notes
+══════════════════════════════════════ */
+.note-box {
+  margin-top: 10px; display: none;
+}
+.note-box.open { display: block; animation: fadeDown 0.2s ease; }
+.note-inp {
+  width: 100%; background: rgba(0,0,0,0.2);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 12px; color: var(--text);
+  font-family: inherit; font-size: 0.82rem;
+  resize: vertical; min-height: 70px; outline: none;
+  transition: border-color var(--transition);
+}
+.note-inp:focus { border-color: rgba(var(--accent-rgb),0.4); }
+.note-inp::placeholder { color: var(--text-dimmer); }
+.note-saved { font-size: 0.65rem; color: var(--accent); margin-top: 4px; opacity: 0; transition: opacity 0.3s; }
+.note-saved.show { opacity: 1; }
+
+/* ══════════════════════════════════════
+   FEATURE: Surah reading time estimate
+══════════════════════════════════════ */
+.read-time-badge {
+  font-size: 0.62rem; font-weight: 600; color: var(--text-dimmer);
+  margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+
+/* ══════════════════════════════════════
+   FEATURE: Streak badge in stats
+══════════════════════════════════════ */
+.streak-box {
+  background: linear-gradient(135deg, rgba(var(--gold-rgb),0.15), rgba(var(--accent-rgb),0.08));
+  border: 1px solid rgba(var(--gold-rgb),0.25);
+  border-radius: 12px; padding: 14px; text-align: center;
+  margin-bottom: 10px;
+}
+.streak-num { font-size: 2rem; font-weight: 800; color: var(--gold); }
+.streak-label { font-size: 0.62rem; color: var(--text-dim); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ══════════════════════════════════════
+   FEATURE: HUD settings row
+══════════════════════════════════════ */
+.hud-settings {
+  display: flex; align-items: center; gap: 5px;
+}
+.font-ctrl {
+  display: flex; align-items: center; gap: 3px;
+}
+.font-btn {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-dim); width: 24px; height: 24px; border-radius: 6px;
+  display: grid; place-items: center; cursor: pointer;
+  font-size: 0.65rem; font-weight: 800; transition: all var(--transition);
+  font-family: inherit;
+}
+.font-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ══════════════════════════════════════
+   FEATURE: Random ayah button on hero
+══════════════════════════════════════ */
+.random-btn {
+  background: var(--gold-glow); border: 1px solid rgba(var(--gold-rgb),0.25);
+  color: var(--gold); padding: 9px 20px; border-radius: 10px;
+  font-size: 0.78rem; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: all var(--transition);
+  display: inline-flex; align-items: center; gap: 7px; margin-top: 14px;
+}
+.random-btn:hover { background: rgba(var(--gold-rgb),0.2); }
+
+/* ══════════════════════════════════════
+   FEATURE: Search highlight in sidebar
+══════════════════════════════════════ */
+.hl { background: rgba(var(--gold-rgb),0.25); border-radius: 2px; }
+
+/* ══════════════════════════════════════
+   EXISTING STYLES (unchanged)
 ══════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -802,6 +978,17 @@ main {
 </head>
 <body>
 
+<!-- ── Eye comfort overlay ── -->
+<div class="dim-overlay" id="dim-overlay"></div>
+
+<!-- ── Reading progress bar ── -->
+<div class="read-prog"><div class="read-prog-fill" id="read-prog-fill"></div></div>
+
+<!-- ── Scroll to top ── -->
+<button class="scroll-top" id="scroll-top" aria-label="Scroll to top" onclick="App.scrollTop()">
+  <i data-lucide="chevron-up" style="width:16px;height:16px"></i>
+</button>
+
 <!-- ── Offline banner ── -->
 <div class="offline-banner" id="offline-banner">⚠ No internet connection — audio and data unavailable</div>
 
@@ -868,6 +1055,11 @@ main {
       <input type="text" class="search-bar" id="search-inp" placeholder="Search surah or meaning…"
         oninput="UI.onSearch(this.value)" aria-label="Search surahs">
     </div>
+    <div class="jump-wrap">
+      <input type="number" class="jump-inp" id="jump-inp" placeholder="Jump to ayah #" min="1" max="286"
+        onkeydown="if(event.key==='Enter') App.jumpToAyah()">
+      <button class="jump-btn" onclick="App.jumpToAyah()">Go</button>
+    </div>
     <div class="last-read-pill" id="last-read-pill" onclick="App.resumeLastRead()" role="button" tabindex="0">
       <div class="lrp-label">↩ CONTINUE READING</div>
       <div class="lrp-val" id="last-read-val">—</div>
@@ -883,6 +1075,10 @@ main {
   <!-- Stats panel -->
   <div id="panel-stats" style="display:none;flex:1;overflow:hidden;min-height:0">
     <div class="stats-wrap">
+      <div class="streak-box">
+        <div class="streak-num" id="s-streak">0🔥</div>
+        <div class="streak-label">Day Streak</div>
+      </div>
       <div class="stat-grid">
         <div class="stat-box">
           <div class="stat-num" id="s-listened">0</div>
@@ -900,6 +1096,34 @@ main {
       <button class="abtn" style="width:100%;justify-content:center;" onclick="App.resetStats()">
         <i data-lucide="refresh-cw" style="width:11px;height:11px"></i> Reset Stats
       </button>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;color:var(--text-dim);margin-bottom:10px">DISPLAY</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <button class="abtn" id="toggle-translit" style="justify-content:space-between" onclick="App.toggleTranslit()">
+            Transliteration <span id="translit-state" style="opacity:0.5">OFF</span>
+          </button>
+          <button class="abtn" id="toggle-focus" style="justify-content:space-between" onclick="App.toggleFocusMode()">
+            Focus Mode <span id="focus-state" style="opacity:0.5">OFF</span>
+          </button>
+          <button class="abtn" id="toggle-comfort" style="justify-content:space-between" onclick="App.toggleEyeComfort()">
+            Eye Comfort <span id="comfort-state" style="opacity:0.5">OFF</span>
+          </button>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <span style="font-size:0.7rem;color:var(--text-dim);font-weight:600">Arabic Size</span>
+            <div class="font-ctrl">
+              <button class="font-btn" onclick="App.changeFontSize('ar', -1)">A-</button>
+              <button class="font-btn" onclick="App.changeFontSize('ar', 1)">A+</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <span style="font-size:0.7rem;color:var(--text-dim);font-weight:600">English Size</span>
+            <div class="font-ctrl">
+              <button class="font-btn" onclick="App.changeFontSize('en', -1)">A-</button>
+              <button class="font-btn" onclick="App.changeFontSize('en', 1)">A+</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </nav>
@@ -976,6 +1200,9 @@ const STORAGE = {
   STATS:     'zp_stats',
   LAST_READ: 'zp_lastread',
   THEME:     'zp_theme',
+  NOTES:     'zp_notes',
+  STREAK:    'zp_streak',
+  PREFS:     'zp_prefs',
 };
 
 const SPEEDS    = [0.75, 1, 1.25, 1.5, 2];
@@ -1001,24 +1228,35 @@ const EL = {};
 ══════════════════════════════════════════════════════ */
 const State = {
   surahs:       [],
-  currentSurah: null,     // full surah metadata object
-  currentAyahs: [],       // [{number, numberInSurah, text, enText}, …]
-  currentIdx:   -1,       // index in currentAyahs of what's playing/selected
+  currentSurah: null,
+  currentAyahs: [],
+  currentIdx:   -1,
   repeat:       false,
   autoplay:     true,
   speedIdx:     1,
   muted:        false,
   lastVolume:   1,
-  bookmarks:    [],       // [{surah, ayah, name, preview}]
-  bmSet:        new Set(),// fast O(1) lookup: "surahNum:ayahNum"
+  bookmarks:    [],
+  bmSet:        new Set(),
   stats:        { listened: 0, surahs: [] },
-  lastRead:     null,     // {num, name}
+  lastRead:     null,
   statsDirty:   false,
+  notes:        {},         // key: "surahNum:ayahNum" → note text
+  streak:       { count: 0, lastDate: null },
+  prefs:        { translit: false, focus: false, eyeComfort: false },
+  fontSizes:    { ar: 1.9, en: 0.95 },  // rem values
 
   load() {
     try { this.bookmarks = JSON.parse(localStorage.getItem(STORAGE.BOOKMARKS) || '[]'); } catch { this.bookmarks = []; }
     try { this.stats     = JSON.parse(localStorage.getItem(STORAGE.STATS)     || '{"listened":0,"surahs":[]}'); } catch { this.stats = {listened:0,surahs:[]}; }
     try { this.lastRead  = JSON.parse(localStorage.getItem(STORAGE.LAST_READ) || 'null'); } catch { this.lastRead = null; }
+    try { this.notes     = JSON.parse(localStorage.getItem(STORAGE.NOTES)     || '{}'); } catch { this.notes = {}; }
+    try { this.streak    = JSON.parse(localStorage.getItem(STORAGE.STREAK)    || '{"count":0,"lastDate":null}'); } catch { this.streak = {count:0,lastDate:null}; }
+    try {
+      const p = JSON.parse(localStorage.getItem(STORAGE.PREFS) || '{}');
+      this.prefs = { translit: p.translit||false, focus: p.focus||false, eyeComfort: p.eyeComfort||false };
+      this.fontSizes = p.fontSizes || { ar: 1.9, en: 0.95 };
+    } catch {}
     this.rebuildBmSet();
   },
 
@@ -1033,6 +1271,18 @@ const State = {
   saveBookmarks() {
     localStorage.setItem(STORAGE.BOOKMARKS, JSON.stringify(this.bookmarks));
     this.rebuildBmSet();
+  },
+
+  saveNotes() {
+    localStorage.setItem(STORAGE.NOTES, JSON.stringify(this.notes));
+  },
+
+  saveStreak() {
+    localStorage.setItem(STORAGE.STREAK, JSON.stringify(this.streak));
+  },
+
+  savePrefs() {
+    localStorage.setItem(STORAGE.PREFS, JSON.stringify({ ...this.prefs, fontSizes: this.fontSizes }));
   },
 
   flushStats() {
@@ -1083,6 +1333,11 @@ const API = {
 
   async getSurahEn(num) {
     const d = await this.fetch(`https://api.alquran.cloud/v1/surah/${num}/en.sahih`);
+    return d.data;
+  },
+
+  async getSurahTranslit(num) {
+    const d = await this.fetch(`https://api.alquran.cloud/v1/surah/${num}/en.transliteration`);
     return d.data;
   },
 
@@ -1368,10 +1623,8 @@ const UI = {
 
   renderSurah(arData, enAyahs) {
     const num = arData.number;
-    // Surah 1 (Al-Fatiha): Bismillah IS ayah 1 in the data, so render all ayahs, no decorative div.
-    // Surah 9 (At-Tawbah): starts with no Bismillah at all.
-    // All others: show decorative Bismillah div before the ayahs.
-    const showBismillah = num !== 1 && num !== 9;
+    const estMins = Math.max(1, Math.round(arData.numberOfAyahs * 10 / 240));
+    const showBismillah = num !== 9;
 
     let html = `<div class="surah-wrap">
       <div class="surah-hdr">
@@ -1381,18 +1634,20 @@ const UI = {
           <span class="badge badge-blue">${arData.revelationType}</span>
           <span class="badge badge-gold">${arData.numberOfAyahs} Verses</span>
         </div>
+        <div class="read-time-badge">
+          <i data-lucide="clock" style="width:10px;height:10px"></i>
+          ~${estMins} min recitation
+        </div>
       </div>
       ${showBismillah ? `<div class="bismillah" aria-hidden="true">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</div>` : ''}`;
 
     arData.ayahs.forEach((ayah, i) => {
-      // For surahs that show a decorative Bismillah (all except 1 & 9),
-      // skip rendering ayah 1 as a card since it IS the Bismillah already shown above.
-      if (showBismillah && ayah.numberInSurah === 1) return;
-
-      // Use ayah index in State.currentAyahs (0-based) as the stable card ID.
-      // This stays correct whether or not we skipped ayah 1 above.
+      // Render ALL ayahs as cards — no skipping.
+      // The decorative Bismillah div above is purely visual; ayah 1 still gets its own card.
       const cardIdx = i;
       const isBm = State.isBookmarked(num, ayah.numberInSurah);
+      const noteKey = `${num}:${ayah.numberInSurah}`;
+      const savedNote = State.notes[noteKey] || '';
       html += `
       <div class="ayah-card${isBm ? ' bookmarked' : ''}" id="ac-${cardIdx}" style="animation-delay:${Math.min(cardIdx*0.035,0.5)}s">
         <div class="ayah-top">
@@ -1409,9 +1664,14 @@ const UI = {
             <button class="ib" aria-label="Share ayah" onclick="App.shareAyah(${cardIdx})">
               <i data-lucide="share-2" style="width:12px;height:12px"></i>
             </button>
+            <button class="ib${savedNote ? ' bm-active' : ''}" aria-label="Notes"
+              onclick="App.toggleNote(${cardIdx}, '${noteKey}')">
+              <i data-lucide="${savedNote ? 'pencil-line' : 'pencil'}" style="width:12px;height:12px"></i>
+            </button>
           </div>
         </div>
         <p class="ar" lang="ar">${ayah.text}</p>
+        <p class="translit" id="tl-${cardIdx}"></p>
         <p class="en">${enAyahs[i].text}</p>
         <div class="ayah-footer">
           <button class="abtn" id="pb-${cardIdx}" aria-label="Play ayah ${ayah.numberInSurah}"
@@ -1423,6 +1683,11 @@ const UI = {
           </button>
         </div>
         <div class="tafsir-box" id="tf-${cardIdx}"></div>
+        <div class="note-box" id="nb-${cardIdx}">
+          <textarea class="note-inp" id="ni-${cardIdx}" placeholder="Add a personal note for this verse…"
+            oninput="App.saveNote('${noteKey}', ${cardIdx})">${savedNote}</textarea>
+          <div class="note-saved" id="ns-${cardIdx}">✓ Saved</div>
+        </div>
       </div>`;
     });
 
@@ -1451,6 +1716,9 @@ const UI = {
             <i data-lucide="play" style="width:11px;height:11px"></i> Play this verse
           </button>
         </div>` : ''}
+        <button class="random-btn" onclick="App.loadRandomAyah()" aria-label="Discover a random verse">
+          <i data-lucide="shuffle" style="width:13px;height:13px"></i> Discover Random Verse
+        </button>
       </div>
     </div>`;
     lucide.createIcons();
@@ -1643,6 +1911,13 @@ const App = {
     EL.sStat         = document.getElementById('s-listened');
     EL.sBm           = document.getElementById('s-bookmarks');
     EL.sSurahs       = document.getElementById('s-surahs');
+    EL.sStreak       = document.getElementById('s-streak');
+    EL.readProgFill  = document.getElementById('read-prog-fill');
+    EL.scrollTopBtn  = document.getElementById('scroll-top');
+    EL.jumpInp       = document.getElementById('jump-inp');
+    EL.transitState  = document.getElementById('translit-state');
+    EL.focusState    = document.getElementById('focus-state');
+    EL.comfortState  = document.getElementById('comfort-state');
 
     // Load stored state
     State.load();
@@ -1663,6 +1938,20 @@ const App = {
 
     // Periodic stats flush
     setInterval(() => State.flushStats(), STATS_FLUSH_MS);
+
+    // Reading progress bar + scroll-to-top
+    EL.mainScroll.addEventListener('scroll', () => {
+      const el = EL.mainScroll;
+      const pct = el.scrollTop / (el.scrollHeight - el.clientHeight) * 100 || 0;
+      if (EL.readProgFill) EL.readProgFill.style.width = pct + '%';
+      if (EL.scrollTopBtn) EL.scrollTopBtn.classList.toggle('show', el.scrollTop > 400);
+    });
+
+    // Apply saved prefs
+    this._applyPrefs();
+
+    // Update daily streak
+    this._updateStreak();
 
     // Initial icon render
     lucide.createIcons();
