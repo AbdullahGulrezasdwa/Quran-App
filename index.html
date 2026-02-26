@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Zenith Pro - Premium Quran experience with audio, bookmarks, and tafsir">
 <title>Zenith Pro | Premium Quran Experience</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080c10'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='serif' font-size='18' fill='%2338bdf8'%3E%D9%82%3C/text%3E%3C/svg%3E">
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Amiri+Quran&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
@@ -15,6 +17,8 @@
   --hud-h: 80px;
   --radius: 14px;
   --transition: 0.18s ease;
+  --ar-size: 1.9rem;
+  --en-size: 0.95rem;
 }
 
 [data-theme="dark"] {
@@ -120,11 +124,11 @@
 /* ══════════════════════════════════════
    FEATURE: Font size control
 ══════════════════════════════════════ */
-.ar { font-size: var(--ar-size, 1.9rem); }
-.en { font-size: var(--en-size, 0.95rem); }
+.ar { font-size: var(--ar-size); }
+.en { font-size: var(--en-size); }
 
 /* ══════════════════════════════════════
-   FEATURE: Reading progress bar (top of main)
+   FEATURE: Reading progress bar
 ══════════════════════════════════════ */
 .read-prog {
   position: fixed; top: 0;
@@ -174,7 +178,7 @@
 body.show-translit .translit { display: block; }
 
 /* ══════════════════════════════════════
-   FEATURE: Night mode eye comfort toggle (dim overlay)
+   FEATURE: Night mode eye comfort toggle
 ══════════════════════════════════════ */
 .dim-overlay {
   position: fixed; inset: 0;
@@ -185,7 +189,7 @@ body.show-translit .translit { display: block; }
 body.eye-comfort .dim-overlay { background: rgba(0,0,0,0.25); }
 
 /* ══════════════════════════════════════
-   FEATURE: Highlight/focus mode (blur other cards)
+   FEATURE: Focus mode (blur other cards)
 ══════════════════════════════════════ */
 body.focus-mode .ayah-card:not(.playing) {
   opacity: 0.35; filter: blur(0.5px);
@@ -261,9 +265,6 @@ body.focus-mode .ayah-card.playing { opacity: 1; filter: none; }
 /* ══════════════════════════════════════
    FEATURE: HUD settings row
 ══════════════════════════════════════ */
-.hud-settings {
-  display: flex; align-items: center; gap: 5px;
-}
 .font-ctrl {
   display: flex; align-items: center; gap: 3px;
 }
@@ -294,7 +295,7 @@ body.focus-mode .ayah-card.playing { opacity: 1; filter: none; }
 .hl { background: rgba(var(--gold-rgb),0.25); border-radius: 2px; }
 
 /* ══════════════════════════════════════
-   EXISTING STYLES (unchanged)
+   CORE STYLES
 ══════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -302,13 +303,14 @@ body.focus-mode .ayah-card.playing { opacity: 1; filter: none; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
+html, body { height: 100%; }
+
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   background: var(--bg);
   color: var(--text);
   display: flex;
   flex-direction: row;
-  height: 100vh;
   overflow: hidden;
   transition: background var(--transition), color var(--transition);
 }
@@ -333,6 +335,8 @@ nav {
   z-index: 100;
   position: relative;
   transition: background var(--transition);
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 .nav-header {
@@ -352,6 +356,9 @@ nav {
   display: flex;
   align-items: center;
   gap: 9px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .logo-icon {
   width: 30px; height: 30px;
@@ -539,7 +546,7 @@ nav {
   flex-direction: column;
   flex: 1;
   min-width: 0;
-  height: 100vh;
+  max-height: 100vh;
   overflow: hidden;
 }
 
@@ -715,12 +722,12 @@ main {
 
 .ar {
   font-family: 'Amiri Quran', serif;
-  font-size: 1.9rem; direction: rtl;
+  font-size: var(--ar-size); direction: rtl;
   line-height: 2.3; margin-bottom: 14px; color: var(--text);
 }
 .en {
   font-family: 'Noto Serif', serif; font-style: italic;
-  color: var(--text-dim); font-size: 0.95rem; line-height: 1.75;
+  color: var(--text-dim); font-size: var(--en-size); line-height: 1.75;
 }
 
 .ayah-footer { display: flex; gap: 7px; margin-top: 14px; flex-wrap: wrap; }
@@ -762,7 +769,6 @@ main {
   animation: shimmer 1.4s infinite;
   border-radius: var(--radius);
 }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
 /* ══════════════════════════════════════
    PLAYER HUD
@@ -783,6 +789,7 @@ main {
   transition: background var(--transition), border-color var(--transition);
   position: relative;
   z-index: 10;
+  max-height: 80px;
 }
 
 .hud-art {
@@ -893,6 +900,11 @@ main {
   -webkit-appearance: none; width: 11px; height: 11px;
   background: var(--accent); border-radius: 50%;
 }
+.vol-slider::-moz-range-thumb {
+  width: 11px; height: 11px;
+  background: var(--accent); border-radius: 50%;
+  border: none; cursor: pointer;
+}
 
 /* Keyboard shortcut help */
 .hk-btn {
@@ -917,6 +929,7 @@ main {
 .modal {
   background: var(--card); border: 1px solid var(--border-hi);
   border-radius: 18px; padding: 28px; min-width: 320px; max-width: 90vw;
+  max-height: 80vh; overflow-y: auto;
 }
 .modal-title {
   font-size: 0.95rem; font-weight: 800;
@@ -974,6 +987,27 @@ main {
 @keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
 @keyframes spin     { to { transform: rotate(360deg); } }
 @keyframes wv       { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
+@keyframes shimmer  { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0; }
+  nav { display: none; }
+  .read-prog { left: 0; }
+  
+  /* Show nav as modal on mobile */
+  nav.mobile-open {
+    position: fixed;
+    width: 280px;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 200;
+    display: flex;
+  }
+}
 </style>
 </head>
 <body>
@@ -1056,7 +1090,7 @@ main {
         oninput="UI.onSearch(this.value)" aria-label="Search surahs">
     </div>
     <div class="jump-wrap">
-      <input type="number" class="jump-inp" id="jump-inp" placeholder="Jump to ayah #" min="1" max="286"
+      <input type="number" class="jump-inp" id="jump-inp" placeholder="Jump to ayah #" min="1" max="6236"
         onkeydown="if(event.key==='Enter') App.jumpToAyah()">
       <button class="jump-btn" onclick="App.jumpToAyah()">Go</button>
     </div>
@@ -1137,7 +1171,7 @@ main {
   <div id="view"></div>
 </main>
 
-<!-- PLAYER HUD (in-flow, no fixed overlap) -->
+<!-- PLAYER HUD -->
 <div class="hud" role="region" aria-label="Audio player">
 
   <div class="hud-art" id="hud-art" aria-hidden="true">﷽</div>
@@ -1188,8 +1222,8 @@ main {
   </div>
 </div>
 
-<audio id="audio-el" preload="none"></audio>
-</div><!-- /.right-col -->
+<audio id="audio-el" preload="none" crossorigin="anonymous"></audio>
+</div>
 
 <script>
 /* ══════════════════════════════════════════════════════
@@ -1209,7 +1243,6 @@ const SPEEDS    = [0.75, 1, 1.25, 1.5, 2];
 const AUDIO_CDNS = [
   n => `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${n}.mp3`,
   n => `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${n}.mp3`,
-  n => `https://everyayah.com/data/Alafasy_128kbps/${String(Math.floor((n-1)/1000+1)).padStart(3,'0')}${String(n).padStart(3,'0')}.mp3`,
 ];
 const TAFSIR_EDITIONS = ['en.maududi', 'en.yusufali', 'en.sahih'];
 const TAFSIR_LABELS   = { 'en.maududi': 'AL-MAUDUDI', 'en.yusufali': 'YUSUF ALI', 'en.sahih': 'TRANSLATION' };
@@ -1219,7 +1252,7 @@ const DEBOUNCE_MS     = 280;
 const STATS_FLUSH_MS  = 60000;
 
 /* ══════════════════════════════════════════════════════
-   CACHED DOM SELECTORS (populated once in App.boot)
+   DOM ELEMENT CACHE
 ══════════════════════════════════════════════════════ */
 const EL = {};
 
@@ -1241,10 +1274,10 @@ const State = {
   stats:        { listened: 0, surahs: [] },
   lastRead:     null,
   statsDirty:   false,
-  notes:        {},         // key: "surahNum:ayahNum" → note text
+  notes:        {},
   streak:       { count: 0, lastDate: null },
   prefs:        { translit: false, focus: false, eyeComfort: false },
-  fontSizes:    { ar: 1.9, en: 0.95 },  // rem values
+  fontSizes:    { ar: 1.9, en: 0.95 },
 
   load() {
     try { this.bookmarks = JSON.parse(localStorage.getItem(STORAGE.BOOKMARKS) || '[]'); } catch { this.bookmarks = []; }
@@ -1301,8 +1334,8 @@ const State = {
    API MODULE
 ══════════════════════════════════════════════════════ */
 const API = {
-  _cache: new Map(), // url → data
-  _tafsirCache: {},  // globalNum → {text, src}
+  _cache: new Map(),
+  _tafsirCache: {},
 
   async fetch(url) {
     if (this._cache.has(url)) return this._cache.get(url);
@@ -1352,14 +1385,12 @@ const API = {
 
   async getTafsir(globalNum) {
     if (this._tafsirCache[globalNum]) return this._tafsirCache[globalNum];
-
     for (const ed of TAFSIR_EDITIONS) {
       try {
         const d = await this.fetch(`https://api.alquran.cloud/v1/ayah/${globalNum}/${ed}`);
         if (d.data?.text) {
           const entry = { text: d.data.text, src: ed };
           this._tafsirCache[globalNum] = entry;
-          // Trim cache
           const keys = Object.keys(this._tafsirCache);
           if (keys.length > CACHE_MAX) delete this._tafsirCache[keys[0]];
           return entry;
@@ -1374,7 +1405,7 @@ const API = {
    AUDIO MODULE
 ══════════════════════════════════════════════════════ */
 const Audio = {
-  el: null, // set in boot
+  el: null,
   _cdnIdx: 0,
   _pendingGlobal: null,
   _pendingLocal: null,
@@ -1384,7 +1415,6 @@ const Audio = {
     this.el = audioEl;
 
     this.el.onerror = () => {
-      // Try next CDN
       this._cdnIdx++;
       if (this._cdnIdx < AUDIO_CDNS.length && this._pendingGlobal !== null) {
         this._tryLoad(this._pendingGlobal, this._pendingLocal, this._pendingIdx);
@@ -1399,7 +1429,6 @@ const Audio = {
       const dur = this.el.duration;
       const pct = (dur && !isNaN(dur)) ? (cur / dur) * 100 : 0;
       EL.progFill.style.width = pct + '%';
-      // Move thumb to match
       EL.progThumb.style.left = `calc(${pct}% - 5px)`;
       const fmt = s => `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`;
       EL.hudTime.textContent = `${fmt(cur)} / ${fmt(dur || 0)}`;
@@ -1408,7 +1437,7 @@ const Audio = {
     this.el.onended = () => {
       if (State.repeat) {
         this.el.currentTime = 0;
-        this.el.play();
+        this.el.play().catch(() => {});
         return;
       }
       if (State.autoplay && State.currentIdx >= 0 && State.currentAyahs.length) {
@@ -1428,7 +1457,6 @@ const Audio = {
     this.el.onplay  = () => { EL.wave.classList.add('go'); UI.setPlayIcon(true); };
     this.el.onpause = () => { EL.wave.classList.remove('go'); UI.setPlayIcon(false); };
 
-    // Progress bar click
     EL.progBg.addEventListener('click', e => {
       const dur = this.el.duration;
       if (!dur || isNaN(dur)) return;
@@ -1436,7 +1464,6 @@ const Audio = {
       this.el.currentTime = ((e.clientX - rect.left) / rect.width) * dur;
     });
 
-    // Volume
     EL.volSlider.oninput = () => {
       this.el.volume = parseFloat(EL.volSlider.value);
       State.lastVolume = this.el.volume;
@@ -1444,39 +1471,35 @@ const Audio = {
       UI.updateVolIcon();
     };
 
-    // Playback speed
     EL.speedPill.onclick = () => {
       State.speedIdx = (State.speedIdx + 1) % SPEEDS.length;
       this.el.playbackRate = SPEEDS[State.speedIdx];
       EL.speedPill.textContent = SPEEDS[State.speedIdx] + '×';
     };
 
-    // Repeat
     EL.btnRepeat.onclick = () => {
       State.repeat = !State.repeat;
       EL.btnRepeat.classList.toggle('on', State.repeat);
       UI.toast(State.repeat ? '🔁 Repeat ON' : '🔁 Repeat OFF');
     };
 
-    // Autoplay
     EL.btnAuto.onclick = () => {
       State.autoplay = !State.autoplay;
       EL.btnAuto.classList.toggle('on', State.autoplay);
       UI.toast(State.autoplay ? '▶ Auto-play ON' : '▶ Auto-play OFF');
     };
 
-    // Master play/pause
     EL.btnPlay.onclick = () => {
       if (!this.el.src) return;
-      if (this.el.paused) this.el.play();
+      if (this.el.paused) this.el.play().catch(() => {});
       else this.el.pause();
     };
 
-    // Prev / next
     EL.btnPrev.onclick = () => {
       if (this.el.currentTime > 3) { this.el.currentTime = 0; return; }
       if (State.currentIdx > 0) App.playByIdx(State.currentIdx - 1);
     };
+
     EL.btnNext.onclick = () => {
       if (State.currentIdx < State.currentAyahs.length - 1) App.playByIdx(State.currentIdx + 1);
     };
@@ -1530,10 +1553,8 @@ const UI = {
   _searchTimer: null,
   _currentTab: 'surahs',
 
-  /* ── Themes ── */
   toggleThemePicker() {
     EL.themePicker.classList.toggle('open');
-    // close on outside click
     if (EL.themePicker.classList.contains('open')) {
       const close = e => {
         if (!EL.themePicker.contains(e.target) && e.target !== EL.themeBtn) {
@@ -1549,7 +1570,6 @@ const UI = {
     document.documentElement.setAttribute('data-theme', name);
     localStorage.setItem(STORAGE.THEME, name);
     EL.themePicker.classList.remove('open');
-    // highlight active
     document.querySelectorAll('.theme-opt').forEach((el, i) => {
       const themes = ['dark','desert','emerald','rose','slate'];
       el.classList.toggle('active', themes[i] === name);
@@ -1561,7 +1581,6 @@ const UI = {
     this.setTheme(saved);
   },
 
-  /* ── Tabs ── */
   switchTab(name) {
     this._currentTab = name;
     ['surahs','bookmarks','stats'].forEach(t => {
@@ -1577,11 +1596,10 @@ const UI = {
     if (name === 'stats')     this.renderStats();
   },
 
-  /* ── Sidebar surah list ── */
   renderSurahList(surahs) {
     EL.surahList.innerHTML = surahs.map(s => `
       <div class="surah-item" id="si-${s.number}" onclick="App.loadSurah(${s.number})"
-           role="button" tabindex="0" aria-label="${s.englishName}, ${s.revelationType}, ${s.numberOfAyahs} verses">
+           role="button" tabindex="0">
         <div class="sn">${s.number}</div>
         <div class="sm">
           <div class="sn-name">${s.englishName}</div>
@@ -1596,7 +1614,6 @@ const UI = {
     clearTimeout(this._searchTimer);
     this._searchTimer = setTimeout(() => {
       const lower = q.toLowerCase();
-      // Show/hide via CSS class — no DOM rebuild
       document.querySelectorAll('.surah-item').forEach(el => {
         const name  = el.querySelector('.sn-name')?.textContent.toLowerCase() || '';
         const match = !q || name.includes(lower);
@@ -1614,7 +1631,6 @@ const UI = {
     }
   },
 
-  /* ── Ayah content ── */
   renderSurahSkeleton() {
     EL.view.innerHTML = `<div class="surah-wrap">
       ${Array(6).fill(0).map(() => `<div class="skeleton" style="height:160px;margin-bottom:16px"></div>`).join('')}
@@ -1639,11 +1655,9 @@ const UI = {
           ~${estMins} min recitation
         </div>
       </div>
-      ${showBismillah ? `<div class="bismillah" aria-hidden="true">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</div>` : ''}`;
+      ${showBismillah ? `<div class="bismillah">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</div>` : ''}`;
 
     arData.ayahs.forEach((ayah, i) => {
-      // Render ALL ayahs as cards — no skipping.
-      // The decorative Bismillah div above is purely visual; ayah 1 still gets its own card.
       const cardIdx = i;
       const isBm = State.isBookmarked(num, ayah.numberInSurah);
       const noteKey = `${num}:${ayah.numberInSurah}`;
@@ -1651,20 +1665,19 @@ const UI = {
       html += `
       <div class="ayah-card${isBm ? ' bookmarked' : ''}" id="ac-${cardIdx}" style="animation-delay:${Math.min(cardIdx*0.035,0.5)}s">
         <div class="ayah-top">
-          <span class="ayah-num" aria-label="Ayah ${ayah.numberInSurah}">AYAH ${ayah.numberInSurah}</span>
+          <span class="ayah-num">AYAH ${ayah.numberInSurah}</span>
           <div class="ayah-btns">
             <button class="ib${isBm ? ' bm-active' : ''}" id="bm-${cardIdx}"
-              aria-label="${isBm ? 'Remove bookmark' : 'Bookmark this ayah'}"
               onclick="App.toggleBookmark(${num}, ${ayah.numberInSurah}, ${cardIdx})">
               <i data-lucide="${isBm ? 'bookmark-check' : 'bookmark'}" style="width:12px;height:12px"></i>
             </button>
-            <button class="ib" aria-label="Copy ayah" onclick="App.copyAyah(${cardIdx})">
+            <button class="ib" onclick="App.copyAyah(${cardIdx})">
               <i data-lucide="copy" style="width:12px;height:12px"></i>
             </button>
-            <button class="ib" aria-label="Share ayah" onclick="App.shareAyah(${cardIdx})">
+            <button class="ib" onclick="App.shareAyah(${cardIdx})">
               <i data-lucide="share-2" style="width:12px;height:12px"></i>
             </button>
-            <button class="ib${savedNote ? ' bm-active' : ''}" aria-label="Notes"
+            <button class="ib${savedNote ? ' bm-active' : ''}"
               onclick="App.toggleNote(${cardIdx}, '${noteKey}')">
               <i data-lucide="${savedNote ? 'pencil-line' : 'pencil'}" style="width:12px;height:12px"></i>
             </button>
@@ -1674,17 +1687,17 @@ const UI = {
         <p class="translit" id="tl-${cardIdx}"></p>
         <p class="en">${enAyahs[i].text}</p>
         <div class="ayah-footer">
-          <button class="abtn" id="pb-${cardIdx}" aria-label="Play ayah ${ayah.numberInSurah}"
+          <button class="abtn" id="pb-${cardIdx}"
             onclick="App.playByIdx(${cardIdx})">
             <i data-lucide="play" style="width:11px;height:11px"></i> Play
           </button>
-          <button class="abtn" aria-label="Show tafsir" onclick="App.toggleTafsir(${cardIdx}, ${ayah.number})">
+          <button class="abtn" onclick="App.toggleTafsir(${cardIdx}, ${ayah.number})">
             <i data-lucide="book-open" style="width:11px;height:11px"></i> Tafsir
           </button>
         </div>
         <div class="tafsir-box" id="tf-${cardIdx}"></div>
         <div class="note-box" id="nb-${cardIdx}">
-          <textarea class="note-inp" id="ni-${cardIdx}" placeholder="Add a personal note for this verse…"
+          <textarea class="note-inp" id="ni-${cardIdx}" placeholder="Add a personal note…"
             oninput="App.saveNote('${noteKey}', ${cardIdx})">${savedNote}</textarea>
           <div class="note-saved" id="ns-${cardIdx}">✓ Saved</div>
         </div>
@@ -1712,11 +1725,11 @@ const UI = {
           <p class="votd-ar" lang="ar">${votd.ar.text}</p>
           <p class="votd-en">${votd.en.text}</p>
           <div class="votd-ref">${votd.ar.surah.englishName} · ${votd.ar.surah.name} — Ayah ${votd.ar.numberInSurah}</div>
-          <button class="votd-play" onclick="App.playVotd(${votd.ar.number}, ${votd.ar.numberInSurah})" aria-label="Play this verse">
+          <button class="votd-play" onclick="App.playVotd(${votd.ar.number}, ${votd.ar.numberInSurah})">
             <i data-lucide="play" style="width:11px;height:11px"></i> Play this verse
           </button>
         </div>` : ''}
-        <button class="random-btn" onclick="App.loadRandomAyah()" aria-label="Discover a random verse">
+        <button class="random-btn" onclick="App.loadRandomAyah()">
           <i data-lucide="shuffle" style="width:13px;height:13px"></i> Discover Random Verse
         </button>
       </div>
@@ -1736,7 +1749,6 @@ const UI = {
     lucide.createIcons();
   },
 
-  /* ── Playing state ── */
   setPlayingCard(idx) {
     document.querySelectorAll('.ayah-card').forEach(c => c.classList.remove('playing'));
     document.querySelectorAll('[id^="pb-"]').forEach(b => {
@@ -1776,7 +1788,6 @@ const UI = {
     lucide.createIcons();
   },
 
-  /* ── Last read pill ── */
   renderLastRead() {
     if (State.lastRead) {
       EL.lastReadPill.classList.add('show');
@@ -1784,7 +1795,6 @@ const UI = {
     }
   },
 
-  /* ── Bookmarks ── */
   renderBookmarks() {
     const container = EL.bmList;
     if (!State.bookmarks.length) {
@@ -1800,8 +1810,7 @@ const UI = {
           <div class="bm-label">${b.name} · Ayah ${b.ayah}</div>
           <div class="bm-sub">${b.preview}</div>
         </div>
-        <button class="bm-del" aria-label="Remove bookmark"
-          onclick="event.stopPropagation(); App.deleteBookmark(${i})">
+        <button class="bm-del" onclick="event.stopPropagation(); App.deleteBookmark(${i})">
           <i data-lucide="x" style="width:12px;height:12px"></i>
         </button>
       </div>`).join('');
@@ -1814,27 +1823,25 @@ const UI = {
     if (btn) {
       btn.classList.toggle('bm-active', isBm);
       btn.innerHTML = `<i data-lucide="${isBm ? 'bookmark-check' : 'bookmark'}" style="width:12px;height:12px"></i>`;
-      btn.setAttribute('aria-label', isBm ? 'Remove bookmark' : 'Bookmark this ayah');
     }
     if (card) card.classList.toggle('bookmarked', isBm);
     lucide.createIcons();
   },
 
-  /* ── Stats ── */
   renderStats() {
     EL.sStat.textContent  = State.stats.listened || 0;
     EL.sBm.textContent    = State.bookmarks.length;
     EL.sSurahs.textContent = (State.stats.surahs || []).length;
+    EL.sStreak.textContent = (State.streak?.count || 0) + '🔥';
   },
 
-  /* ── Tafsir ── */
   async showTafsir(cardIdx, globalNum) {
     const box = document.getElementById(`tf-${cardIdx}`);
     if (!box) return;
     if (box.classList.contains('open')) { box.classList.remove('open'); return; }
     box.classList.add('open');
     if (box.dataset.loaded) return;
-    box.innerHTML = `<div class="tafsir-spin"><div class="spin"></div> Loading commentary…</div>`;
+    box.innerHTML = `<div class="tafsir-spin"><div class="spin"></div> Loading…</div>`;
     box.dataset.loaded = '1';
     try {
       const { text, src } = await API.getTafsir(globalNum);
@@ -1845,13 +1852,10 @@ const UI = {
     }
   },
 
-  /* ── Modal ── */
   openModal()  { EL.hkOverlay.classList.add('open'); },
   closeModal() { EL.hkOverlay.classList.remove('open'); },
 
-  /* ── Toast (queued, non-stacking) ── */
   toast(msg) {
-    // Remove any existing toasts
     EL.toastWrap.querySelectorAll('.toast-item').forEach(t => {
       t.classList.remove('show');
       setTimeout(() => t.remove(), 300);
@@ -1867,79 +1871,67 @@ const UI = {
     }, 2400);
   },
 
-  /* ── Offline ── */
   updateOnlineStatus() {
     EL.offlineBanner.classList.toggle('show', !navigator.onLine);
   },
 };
 
 /* ══════════════════════════════════════════════════════
-   APP MODULE (orchestrates State + API + Audio + UI)
+   APP MODULE
 ══════════════════════════════════════════════════════ */
 const App = {
   _votdData: null,
 
   async boot() {
-    // Cache all DOM selectors once
-    EL.view          = document.getElementById('view');
-    EL.mainScroll    = document.getElementById('main-scroll');
-    EL.surahList     = document.getElementById('surah-list');
-    EL.bmList        = document.getElementById('bm-list');
-    EL.lastReadPill  = document.getElementById('last-read-pill');
-    EL.lastReadVal   = document.getElementById('last-read-val');
-    EL.searchInp     = document.getElementById('search-inp');
-    EL.hudTitle      = document.getElementById('hud-title');
-    EL.hudTime       = document.getElementById('hud-time');
-    EL.hudArt        = document.getElementById('hud-art');
-    EL.wave          = document.getElementById('wave');
-    EL.progBg        = document.getElementById('prog-bg');
-    EL.progFill      = document.getElementById('prog-fill');
-    EL.progThumb     = document.getElementById('prog-thumb');
-    EL.btnPlay       = document.getElementById('btn-play');
-    EL.btnPrev       = document.getElementById('btn-prev');
-    EL.btnNext       = document.getElementById('btn-next');
-    EL.btnRepeat     = document.getElementById('btn-repeat');
-    EL.btnAuto       = document.getElementById('btn-auto');
-    EL.speedPill     = document.getElementById('speed-pill');
-    EL.volSlider     = document.getElementById('vol-slider');
-    EL.volIcon       = document.getElementById('vol-icon');
-    EL.hkOverlay     = document.getElementById('hk-overlay');
-    EL.toastWrap     = document.getElementById('toast-wrap');
-    EL.offlineBanner = document.getElementById('offline-banner');
-    EL.themePicker   = document.getElementById('theme-picker');
-    EL.themeBtn      = document.getElementById('theme-btn');
-    EL.sStat         = document.getElementById('s-listened');
-    EL.sBm           = document.getElementById('s-bookmarks');
-    EL.sSurahs       = document.getElementById('s-surahs');
-    EL.sStreak       = document.getElementById('s-streak');
-    EL.readProgFill  = document.getElementById('read-prog-fill');
-    EL.scrollTopBtn  = document.getElementById('scroll-top');
-    EL.jumpInp       = document.getElementById('jump-inp');
-    EL.transitState  = document.getElementById('translit-state');
-    EL.focusState    = document.getElementById('focus-state');
-    EL.comfortState  = document.getElementById('comfort-state');
+    // Cache DOM elements
+    Object.assign(EL, {
+      view:          document.getElementById('view'),
+      mainScroll:    document.getElementById('main-scroll'),
+      surahList:     document.getElementById('surah-list'),
+      bmList:        document.getElementById('bm-list'),
+      lastReadPill:  document.getElementById('last-read-pill'),
+      lastReadVal:   document.getElementById('last-read-val'),
+      searchInp:     document.getElementById('search-inp'),
+      hudTitle:      document.getElementById('hud-title'),
+      hudTime:       document.getElementById('hud-time'),
+      hudArt:        document.getElementById('hud-art'),
+      wave:          document.getElementById('wave'),
+      progBg:        document.getElementById('prog-bg'),
+      progFill:      document.getElementById('prog-fill'),
+      progThumb:     document.getElementById('prog-thumb'),
+      btnPlay:       document.getElementById('btn-play'),
+      btnPrev:       document.getElementById('btn-prev'),
+      btnNext:       document.getElementById('btn-next'),
+      btnRepeat:     document.getElementById('btn-repeat'),
+      btnAuto:       document.getElementById('btn-auto'),
+      speedPill:     document.getElementById('speed-pill'),
+      volSlider:     document.getElementById('vol-slider'),
+      volIcon:       document.getElementById('vol-icon'),
+      hkOverlay:     document.getElementById('hk-overlay'),
+      toastWrap:     document.getElementById('toast-wrap'),
+      offlineBanner: document.getElementById('offline-banner'),
+      themePicker:   document.getElementById('theme-picker'),
+      themeBtn:      document.getElementById('theme-btn'),
+      sStat:         document.getElementById('s-listened'),
+      sBm:           document.getElementById('s-bookmarks'),
+      sSurahs:       document.getElementById('s-surahs'),
+      sStreak:       document.getElementById('s-streak'),
+      readProgFill:  document.getElementById('read-prog-fill'),
+      scrollTopBtn:  document.getElementById('scroll-top'),
+      jumpInp:       document.getElementById('jump-inp'),
+    });
 
-    // Load stored state
     State.load();
-
-    // Theme
     UI.loadTheme();
-
-    // Audio
     Audio.init(document.getElementById('audio-el'));
-
-    // Keyboard
     this._initKeyboard();
 
-    // Offline detection
     window.addEventListener('online',  () => UI.updateOnlineStatus());
     window.addEventListener('offline', () => UI.updateOnlineStatus());
     UI.updateOnlineStatus();
 
-    // Periodic stats flush
     setInterval(() => State.flushStats(), STATS_FLUSH_MS);
 
-    // Reading progress bar + scroll-to-top
     EL.mainScroll.addEventListener('scroll', () => {
       const el = EL.mainScroll;
       const pct = el.scrollTop / (el.scrollHeight - el.clientHeight) * 100 || 0;
@@ -1947,16 +1939,10 @@ const App = {
       if (EL.scrollTopBtn) EL.scrollTopBtn.classList.toggle('show', el.scrollTop > 400);
     });
 
-    // Apply saved prefs
     this._applyPrefs();
-
-    // Update daily streak
     this._updateStreak();
-
-    // Initial icon render
     lucide.createIcons();
 
-    // Show UI immediately, load data async
     UI.renderHero(null);
     UI.renderLastRead();
 
@@ -1980,13 +1966,11 @@ const App = {
     UI.highlightSurah(num);
     UI.renderSurahSkeleton();
 
-    // Update last read
     const surahMeta = State.surahs.find(s => s.number === num);
     State.lastRead = { num, name: surahMeta?.englishName || `Surah ${num}` };
     localStorage.setItem(STORAGE.LAST_READ, JSON.stringify(State.lastRead));
     UI.renderLastRead();
 
-    // Stats
     if (!State.stats.surahs.includes(num)) State.stats.surahs.push(num);
     State.markStatsDirty();
 
@@ -2015,7 +1999,6 @@ const App = {
     Audio.play(ayah.number, ayah.numberInSurah, idx);
     UI.setPlayingCard(idx);
 
-    // Stats
     State.stats.listened = (State.stats.listened || 0) + 1;
     State.markStatsDirty();
     UI.renderStats();
@@ -2028,7 +2011,6 @@ const App = {
   },
 
   toggleBookmark(surahNum, ayahNum, cardIdx) {
-    const key = `${surahNum}:${ayahNum}`;
     const existsIdx = State.bookmarks.findIndex(b => b.surah === surahNum && b.ayah === ayahNum);
     if (existsIdx >= 0) {
       State.bookmarks.splice(existsIdx, 1);
@@ -2059,12 +2041,10 @@ const App = {
   gotoBookmark(surahNum, ayahIdx) {
     UI.switchTab('surahs');
     this.loadSurah(surahNum).then(() => {
-      if (ayahIdx >= 0) {
-        setTimeout(() => {
-          const card = document.getElementById(`ac-${ayahIdx}`);
-          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 350);
-      }
+      setTimeout(() => {
+        const card = document.getElementById(`ac-${ayahIdx}`);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 350);
     });
   },
 
@@ -2080,17 +2060,17 @@ const App = {
     const ayah = State.currentAyahs[idx];
     if (!ayah) return;
     const text = `${ayah.text}\n\n"${ayah.enText}"\n\n— ${State.currentSurah?.englishName} · Ayah ${ayah.numberInSurah}`;
-    navigator.clipboard?.writeText(text).then(() => UI.toast('📋 Copied!')).catch(() => UI.toast('Copy failed'));
+    navigator.clipboard?.writeText(text).then(() => UI.toast('📋 Copied!')).catch(() => {});
   },
 
   shareAyah(idx) {
     const ayah = State.currentAyahs[idx];
     if (!ayah) return;
-    const text = `"${ayah.enText}"\n— ${State.currentSurah?.englishName} · Ayah ${ayah.numberInSurah} (Quran)`;
+    const text = `"${ayah.enText}"\n— ${State.currentSurah?.englishName} · Ayah ${ayah.numberInSurah}`;
     if (navigator.share) {
       navigator.share({ text }).catch(() => {});
     } else {
-      navigator.clipboard?.writeText(text).then(() => UI.toast('📋 Copied for sharing!'));
+      navigator.clipboard?.writeText(text).then(() => UI.toast('📋 Copied!'));
     }
   },
 
@@ -2100,6 +2080,87 @@ const App = {
     localStorage.setItem(STORAGE.STATS, JSON.stringify(State.stats));
     UI.renderStats();
     UI.toast('Stats reset');
+  },
+
+  jumpToAyah() {
+    const ayahNum = parseInt(EL.jumpInp.value);
+    if (ayahNum < 1 || ayahNum > 6236) { UI.toast('Invalid ayah number'); return; }
+
+    // Find surah for this global ayah number
+    // For now, approximate: each surah ~56 ayahs on average
+    let global = 0;
+    for (const s of State.surahs) {
+      if (global + s.numberOfAyahs >= ayahNum) {
+        const localNum = ayahNum - global;
+        this.loadSurah(s.number);
+        EL.jumpInp.value = '';
+        return;
+      }
+      global += s.numberOfAyahs;
+    }
+    UI.toast('Ayah not found');
+  },
+
+  loadRandomAyah() {
+    UI.renderHero(null);
+    API.getRandomAyah().then(votd => {
+      this._votdData = votd;
+      UI.renderHero(votd);
+    }).catch(() => UI.toast('Failed to load random ayah'));
+  },
+
+  toggleTranslit() {
+    State.prefs.translit = !State.prefs.translit;
+    document.body.classList.toggle('show-translit', State.prefs.translit);
+    State.savePrefs();
+    UI.toast(State.prefs.translit ? '🔤 Transliteration ON' : '🔤 Transliteration OFF');
+  },
+
+  toggleFocusMode() {
+    State.prefs.focus = !State.prefs.focus;
+    document.body.classList.toggle('focus-mode', State.prefs.focus);
+    State.savePrefs();
+    UI.toast(State.prefs.focus ? '🎯 Focus Mode ON' : '🎯 Focus Mode OFF');
+  },
+
+  toggleEyeComfort() {
+    State.prefs.eyeComfort = !State.prefs.eyeComfort;
+    document.body.classList.toggle('eye-comfort', State.prefs.eyeComfort);
+    State.savePrefs();
+    UI.toast(State.prefs.eyeComfort ? '👁 Eye Comfort ON' : '👁 Eye Comfort OFF');
+  },
+
+  changeFontSize(type, delta) {
+    const key = type === 'ar' ? 'ar' : 'en';
+    const sizes = { ar: [1.5, 1.7, 1.9, 2.1, 2.3], en: [0.8, 0.88, 0.95, 1.05, 1.15] };
+    const current = State.fontSizes[key];
+    const idx = sizes[key].indexOf(current);
+    const newIdx = Math.max(0, Math.min(sizes[key].length - 1, idx + delta));
+    State.fontSizes[key] = sizes[key][newIdx];
+    document.documentElement.style.setProperty(`--${key}-size`, State.fontSizes[key] + 'rem');
+    State.savePrefs();
+  },
+
+  toggleNote(cardIdx, noteKey) {
+    const noteBox = document.getElementById(`nb-${cardIdx}`);
+    if (!noteBox) return;
+    noteBox.classList.toggle('open');
+  },
+
+  saveNote(noteKey, cardIdx) {
+    const inp = document.getElementById(`ni-${cardIdx}`);
+    if (!inp) return;
+    State.notes[noteKey] = inp.value;
+    State.saveNotes();
+    const saved = document.getElementById(`ns-${cardIdx}`);
+    if (saved) {
+      saved.classList.add('show');
+      setTimeout(() => saved.classList.remove('show'), 1200);
+    }
+  },
+
+  scrollTop() {
+    EL.mainScroll.scrollTop = 0;
   },
 
   _safePreview(text) {
@@ -2113,9 +2174,31 @@ const App = {
     return out + (text.length > out.length ? '…' : '');
   },
 
+  _applyPrefs() {
+    if (State.prefs.translit) document.body.classList.add('show-translit');
+    if (State.prefs.focus) document.body.classList.add('focus-mode');
+    if (State.prefs.eyeComfort) document.body.classList.add('eye-comfort');
+    document.documentElement.style.setProperty('--ar-size', State.fontSizes.ar + 'rem');
+    document.documentElement.style.setProperty('--en-size', State.fontSizes.en + 'rem');
+  },
+
+  _updateStreak() {
+    const today = new Date().toDateString();
+    const last = State.streak?.lastDate;
+    if (last !== today) {
+      if (last === new Date(Date.now() - 86400000).toDateString()) {
+        State.streak.count++;
+      } else {
+        State.streak.count = 1;
+      }
+      State.streak.lastDate = today;
+      State.saveStreak();
+    }
+    UI.renderStats();
+  },
+
   _initKeyboard() {
     document.addEventListener('keydown', e => {
-      // Block shortcuts in all inputs except the search bar
       const inInput = ['INPUT','TEXTAREA'].includes(e.target.tagName);
       if (inInput) return;
       switch (e.key) {
@@ -2143,9 +2226,6 @@ const App = {
   },
 };
 
-/* ══════════════════════════════════════════════════════
-   BOOT
-══════════════════════════════════════════════════════ */
 App.boot();
 </script>
 </body>
