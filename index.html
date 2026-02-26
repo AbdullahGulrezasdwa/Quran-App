@@ -3,70 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zenith Pro Ultra | Ultimate Quran Experience</title>
+    <title>Zenith Pro Ultra | Premium Quran</title>
     
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Amiri+Quran&family=Noto+Serif:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Amiri+Quran&family=Noto+Nastaliq+Urdu:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
     /* ══════════════════════════════════════
-       ZENITH PRO ULTRA - CORE DESIGN SYSTEM
+       DESIGN SYSTEM - VARIABLES & THEMES
     ══════════════════════════════════════ */
     :root {
       --sidebar-w: 320px;
-      --hud-h: 90px;
-      --radius: 16px;
-      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      
-      /* Colors - Deep Dark Theme */
+      --hud-h: 100px;
+      --radius: 18px;
+      --accent: #3d8bff;
+      --accent-glow: rgba(61, 139, 255, 0.3);
       --bg: #05070a;
       --sidebar: #0a0d14;
       --card: #11151d;
-      --card-hover: #1a1f29;
-      --accent: #3d8bff;
-      --accent-glow: rgba(61, 139, 255, 0.3);
       --text: #f0f2f5;
       --text-dim: #94a3b8;
       --border: rgba(255, 255, 255, 0.06);
-      --glass: rgba(10, 13, 20, 0.8);
+      --glass: rgba(10, 13, 20, 0.85);
+      --font-arabic: 'Amiri Quran', serif; /* Uthmani Default */
     }
 
     [data-theme="light"] {
       --bg: #f8fafc;
       --sidebar: #ffffff;
       --card: #ffffff;
-      --card-hover: #f1f5f9;
-      --accent: #2563eb;
-      --accent-glow: rgba(37, 99, 235, 0.1);
       --text: #0f172a;
       --text-dim: #64748b;
       --border: rgba(0, 0, 0, 0.08);
-      --glass: rgba(255, 255, 255, 0.8);
+      --glass: rgba(255, 255, 255, 0.9);
     }
 
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-      outline: none; -webkit-tap-highlight-color: transparent;
+    /* Indo-Pak Script Adjustment */
+    [data-script="indopak"] {
+      --font-arabic: 'Scheherazade New', serif;
     }
 
+    /* ══════════════════════════════════════
+       BASE RESET & LAYOUT
+    ══════════════════════════════════════ */
+    * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+    
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Plus+Jakarta+Sans', sans-serif;
-      overflow: hidden; /* Controlled by main scroll area */
-      line-height: 1.6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      transition: background 0.3s ease;
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { 
-      background: var(--border); 
-      border-radius: 10px; 
-    }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
-
-    /* Layout Wrapper */
     .app-container {
       display: grid;
       grid-template-columns: var(--sidebar-w) 1fr;
@@ -74,7 +63,56 @@
       width: 100vw;
     }
 
-    /* Sidebar Navigation */
+    /* ══════════════════════════════════════
+       MEMORIZATION MODE SPECIALS
+    ══════════════════════════════════════ */
+    body.memo-mode .ayah-english {
+      filter: blur(8px);
+      transition: filter 0.4s ease;
+      cursor: help;
+      user-select: none;
+    }
+    body.memo-mode .ayah-english:hover {
+      filter: blur(0);
+    }
+    body.memo-mode .ayah-arabic {
+      letter-spacing: 1px;
+    }
+
+    /* ══════════════════════════════════════
+       ACHIEVEMENT & TOAST ANIMATIONS
+    ══════════════════════════════════════ */
+    .achievement-toast {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 9999;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      animation: slideInRight 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(120%) scale(0.9); opacity: 0; }
+      to { transform: translateX(0) scale(1); opacity: 1; }
+    }
+
+    .spin { animation: spin 2s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+        /* ══════════════════════════════════════
+       SIDEBAR & MAIN VIEW STYLES
+    ══════════════════════════════════════ */
     .sidebar {
       background: var(--sidebar);
       border-right: 1px solid var(--border);
@@ -82,252 +120,100 @@
       flex-direction: column;
       height: 100vh;
       z-index: 100;
+      transition: transform 0.3s ease;
     }
 
-    .sidebar-header {
-      padding: 24px;
+    .sidebar-header { padding: 30px 24px 10px; }
+    
+    .logo-container {
       display: flex;
       align-items: center;
       gap: 12px;
+      margin-bottom: 25px;
     }
 
-    .logo-icon {
-      width: 40px;
-      height: 40px;
+    .logo-box {
+      width: 42px;
+      height: 42px;
       background: var(--accent);
-      border-radius: 10px;
+      border-radius: 12px;
       display: grid;
       place-items: center;
       color: white;
-      box-shadow: 0 4px 15px var(--accent-glow);
+      box-shadow: 0 8px 20px var(--accent-glow);
     }
 
-    .search-box {
-      padding: 0 20px 20px;
-    }
-
-    .search-input-wrapper {
+    .search-wrapper {
       position: relative;
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      margin-bottom: 20px;
     }
 
-    .search-input-wrapper input {
-      background: transparent;
-      border: none;
-      color: var(--text);
+    .search-wrapper input {
       width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 14px 14px 14px 44px;
+      border-radius: 14px;
+      color: var(--text);
       font-size: 0.9rem;
+      transition: border-color 0.2s;
     }
+
+    .search-wrapper input:focus { border-color: var(--accent); }
+    .search-wrapper i { position: absolute; left: 16px; top: 14px; opacity: 0.4; }
 
     .nav-scroll {
       flex: 1;
       overflow-y: auto;
-      padding: 0 12px 100px;
+      padding: 0 12px 120px;
     }
 
     .nav-item {
-      padding: 12px 16px;
-      border-radius: 12px;
+      padding: 14px 16px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       gap: 16px;
       cursor: pointer;
-      transition: var(--transition);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      transition: all 0.2s ease;
       border: 1px solid transparent;
     }
 
-    .nav-item:hover {
-      background: var(--card-hover);
-      transform: translateX(4px);
-    }
+    .nav-item:hover { background: var(--card); transform: translateX(5px); }
+    .nav-item.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
 
-    .nav-item.active {
-      background: var(--accent-glow);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .nav-number {
-      font-size: 0.75rem;
-      font-weight: 800;
-      opacity: 0.5;
-      width: 24px;
-    }
-
-    .nav-info { flex: 1; }
-    .nav-name { font-weight: 600; font-size: 0.95rem; }
-    .nav-sub { font-size: 0.75rem; opacity: 0.6; }
-
-    /* Main Content Area */
     .main-content {
-      height: calc(100vh - var(--hud-h));
+      height: 100vh;
       overflow-y: auto;
       position: relative;
       scroll-behavior: smooth;
+      background: radial-gradient(circle at top right, var(--accent-glow), transparent 40%);
     }
-       /* ══════════════════════════════════════
-       SURAH VIEW & AYAH CARDS
-    ══════════════════════════════════════ */
+
     .view-container {
       max-width: 900px;
       margin: 0 auto;
-      padding: 60px 24px 150px;
-    }
-
-    .surah-header {
-      text-align: center;
-      margin-bottom: 80px;
-      padding: 40px;
-      background: var(--card);
-      border-radius: 30px;
-      border: 1px solid var(--border);
-    }
-
-    .surah-header h1 {
-      font-family: 'Amiri Quran', serif;
-      font-size: 4rem;
-      color: var(--accent);
-      margin-bottom: 10px;
-    }
-
-    .ayah-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 40px;
-      margin-bottom: 24px;
-      border: 1px solid var(--border);
-      transition: var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .ayah-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-
-    .ayah-number-badge {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      font-size: 0.7rem;
-      font-weight: 800;
-      color: var(--accent);
-      background: var(--accent-glow);
-      padding: 4px 10px;
-      border-radius: 20px;
-    }
-
-    .ayah-arabic {
-      font-family: 'Scheherazade New', serif;
-      font-size: 2.5rem;
-      line-height: 2.2;
-      text-align: right;
-      margin-bottom: 30px;
-      direction: rtl;
-    }
-
-    .ayah-english {
-      font-family: 'Noto Serif', serif;
-      font-size: 1.1rem;
-      color: var(--text-dim);
-      line-height: 1.8;
-      border-left: 3px solid var(--border);
-      padding-left: 20px;
-    }
-
-    /* ══════════════════════════════════════
-       HUD (AUDIO PLAYER)
-    ══════════════════════════════════════ */
-    .hud {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: var(--hud-h);
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 320px 1fr 320px;
-      align-items: center;
-      padding: 0 30px;
-      z-index: 1000;
-    }
-
-    .hud-info { display: flex; align-items: center; gap: 15px; }
-    .hud-controls { display: flex; align-items: center; justify-content: center; gap: 25px; }
-    
-    .play-btn {
-      width: 50px;
-      height: 50px;
-      background: var(--accent);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 0 20px var(--accent-glow);
-    }
-
-    .progress-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 3px;
-      background: var(--accent);
-      width: 0%;
-      transition: width 0.1s linear;
-    }
-
-    /* Hero Section */
-    .hero {
-      position: relative;
-      padding: 100px 40px;
-      text-align: center;
-      background: radial-gradient(circle at top right, var(--accent-glow), transparent);
-      border-bottom: 1px solid var(--border);
-      overflow: hidden;
-    }
-
-    .hero-orb {
-      position: absolute;
-      width: 300px;
-      height: 300px;
-      background: var(--accent);
-      filter: blur(120px);
-      opacity: 0.15;
-      z-index: -1;
-    }
-
-    .hero-title { font-size: 3.5rem; font-weight: 800; margin-bottom: 10px; }
-
-    button {
-      background: none; border: none; color: inherit; cursor: pointer;
+      padding: 60px 24px 180px;
     }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="logo-icon"><i data-lucide="zap"></i></div>
-            <div style="font-weight: 800; letter-spacing: -0.5px;">ZENITH PRO</div>
-        </div>
-        
-        <div class="search-box">
-            <div class="search-input-wrapper">
-                <i data-lucide="search" size="18" style="opacity: 0.5;"></i>
-                <input type="text" id="surahSearch" placeholder="Search Surah...">
+            <div class="logo-container">
+                <div class="logo-box"><i data-lucide="zap" fill="currentColor"></i></div>
+                <div>
+                    <h2 style="font-size: 1.1rem; font-weight: 800; letter-spacing: -0.5px;">ZENITH ULTRA</h2>
+                    <p style="font-size: 0.65rem; font-weight: 700; opacity: 0.5; letter-spacing: 1px;">PRO EDITION V2</p>
+                </div>
+            </div>
+            
+            <div class="search-wrapper">
+                <i data-lucide="search" size="18"></i>
+                <input type="text" id="surahSearch" placeholder="Search Surah (Name/Num)...">
             </div>
         </div>
 
@@ -340,32 +226,105 @@
             </div>
     </main>
 </div>
-
 <footer class="hud">
-    <div class="progress-bar" id="audioProgress"></div>
-    <div class="hud-info">
-        <div id="currentTrackInfo">
-            <div style="font-weight: 700; font-size: 0.9rem;" id="hudSurahName">Zenith Quran</div>
-            <div style="font-size: 0.75rem; opacity: 0.6;" id="hudReciterName">Select a Surah to play</div>
+    <div id="audioProgress" style="position: absolute; top: 0; left: 0; height: 3px; background: var(--accent); width: 0%; transition: 0.1s linear; box-shadow: 0 0 10px var(--accent);"></div>
+    
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div id="hudIcon" style="width: 48px; height: 48px; background: var(--card); border-radius: 12px; display: grid; place-items: center; border: 1px solid var(--border);">
+            <i data-lucide="music" size="20"></i>
+        </div>
+        <div>
+            <div id="hudTitle" style="font-weight: 800; font-size: 0.95rem; letter-spacing: -0.3px;">Zenith Engine</div>
+            <div id="hudSub" style="font-size: 0.75rem; opacity: 0.5; font-weight: 600;">Waiting for Selection...</div>
         </div>
     </div>
-    
-    <div class="hud-controls">
-        <button onclick="AudioEngine.prev()"><i data-lucide="skip-back"></i></button>
-        <button class="play-btn" id="masterPlay" onclick="AudioEngine.toggle()">
-            <i data-lucide="play" fill="currentColor"></i>
+
+    <div style="display: flex; align-items: center; justify-content: center; gap: 25px;">
+        <button class="ctrl-btn" onclick="AudioEngine.prev()"><i data-lucide="skip-back" fill="currentColor"></i></button>
+        <button id="masterPlay" onclick="AudioEngine.toggle()" style="width: 60px; height: 60px; background: var(--accent); border-radius: 50%; color: white; display: grid; place-items: center; box-shadow: 0 10px 25px var(--accent-glow); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <i data-lucide="play" fill="currentColor" size="28"></i>
         </button>
-        <button onclick="AudioEngine.next()"><i data-lucide="skip-forward"></i></button>
+        <button class="ctrl-btn" onclick="AudioEngine.next()"><i data-lucide="skip-forward" fill="currentColor"></i></button>
     </div>
 
-    <div style="display: flex; justify-content: flex-end; gap: 20px;">
-        <button id="themeToggle"><i data-lucide="sun"></i></button>
-        <button><i data-lucide="settings"></i></button>
+    <div style="display: flex; justify-content: flex-end; gap: 20px; align-items: center;">
+        <div style="text-align: right; margin-right: 10px;">
+            <div id="goalLabel" style="font-size: 0.65rem; font-weight: 800; color: var(--accent); letter-spacing: 1px; text-transform: uppercase;">Daily Goal: 0/10</div>
+            <div style="width: 100px; height: 6px; background: var(--border); border-radius: 10px; margin-top: 6px; overflow: hidden;">
+                <div id="goalBar" style="width: 0%; height: 100%; background: var(--accent); transition: width 1s ease;"></div>
+            </div>
+        </div>
+        <button onclick="UI.toggleSettings()" class="action-btn"><i data-lucide="sliders"></i></button>
+        <button onclick="UI.toggleTheme()" id="themeBtn" class="action-btn"><i data-lucide="sun"></i></button>
     </div>
 </footer>
+
+<style>
+    /* ══════════════════════════════════════
+       HUD SPECIFIC STYLES
+    ══════════════════════════════════════ */
+    .hud {
+        position: fixed; bottom: 0; left: 0; right: 0; height: var(--hud-h);
+        background: var(--glass); backdrop-filter: blur(25px);
+        border-top: 1px solid var(--border); display: grid;
+        grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0 40px;
+        z-index: 1000;
+    }
+
+    .ctrl-btn { opacity: 0.6; transition: 0.2s; cursor: pointer; background: none; border: none; color: white; }
+    .ctrl-btn:hover { opacity: 1; transform: scale(1.1); }
+    
+    .action-btn {
+        width: 42px; height: 42px; background: var(--card); border: 1px solid var(--border);
+        border-radius: 12px; display: grid; place-items: center; color: var(--text);
+        cursor: pointer; transition: 0.2s;
+    }
+    .action-btn:hover { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
+
+    /* Settings Overlay */
+    .settings-panel {
+        position: fixed; bottom: 120px; right: 40px; width: 280px;
+        background: var(--card); border: 1px solid var(--border);
+        border-radius: var(--radius); padding: 20px; z-index: 2000;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: none;
+        animation: slideUp 0.3s ease-out;
+    }
+    .settings-panel.active { display: block; }
+
+    .toggle-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+    
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+</style>
+
+<div id="settingsPanel" class="settings-panel">
+    <h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="settings-2" size="18"></i> PREFERENCES
+    </h3>
+    <div class="toggle-group">
+        <span style="font-size: 0.85rem; font-weight: 600;">Indo-Pak Script</span>
+        <button onclick="Engine.toggleScript()" id="scriptBtn" class="mini-toggle">OFF</button>
+    </div>
+    <div class="toggle-group">
+        <span style="font-size: 0.85rem; font-weight: 600;">Memorization Mode</span>
+        <button onclick="Engine.toggleMemo()" id="memoBtn" class="mini-toggle">OFF</button>
+    </div>
+    <div class="toggle-group">
+        <span style="font-size: 0.85rem; font-weight: 600;">Auto-Play Next</span>
+        <button class="mini-toggle active">ON</button>
+    </div>
+</div>
+
+<style>
+    .mini-toggle {
+        padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
+        background: var(--bg); color: var(--text); font-size: 0.65rem;
+        font-weight: 800; cursor: pointer; transition: 0.2s;
+    }
+    .mini-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
+</style>
 <script>
 // ══════════════════════════════════════════════════════════════
-// CORE ENGINE: STATE & STORAGE
+// CORE ENGINE: THE ZENITH STATE
 // ══════════════════════════════════════════════════════════════
 const State = {
     currentSurah: null,
@@ -373,77 +332,102 @@ const State = {
     allSurahs: [],
     bookmarks: JSON.parse(localStorage.getItem('zenith_bookmarks')) || [],
     goals: JSON.parse(localStorage.getItem('zenith_goals')) || { current: 0, target: 10 },
+    achievements: JSON.parse(localStorage.getItem('zenith_achievements')) || [],
     settings: {
-        reciter: 'ar.alafasy',
-        translation: 'en.sahih',
-        fontScale: 1
+        script: localStorage.getItem('zenith_script') || 'uthmani', // 'uthmani' or 'indopak'
+        memoMode: false,
+        theme: localStorage.getItem('zenith_theme') || 'dark',
+        reciter: 'ar.alafasy'
     },
 
     save(key) {
-        localStorage.setItem(`zenith_${key}`, JSON.stringify(this[key]));
+        if (key === 'settings') {
+            localStorage.setItem('zenith_script', this.settings.script);
+            localStorage.setItem('zenith_theme', this.settings.theme);
+        } else {
+            localStorage.setItem(`zenith_${key}`, JSON.stringify(this[key]));
+        }
     }
 };
 
 // ══════════════════════════════════════════════════════════════
-// DATA ARCHITECTURE: API WRAPPER
+// DATA ARCHITECTURE: THE API GATEWAY
 // ══════════════════════════════════════════════════════════════
 const API = {
     base: 'https://api.alquran.cloud/v1',
 
-    async fetchJSON(url) {
+    async getJSON(endpoint) {
         try {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error('Network error');
-            const data = await res.json();
+            const response = await fetch(`${this.base}/${endpoint}`);
+            const data = await response.json();
             return data.data;
         } catch (err) {
-            console.error("API Error:", err);
-            UI.toast("Connection failed. Check your internet.");
+            console.error("Zenith API Error:", err);
             return null;
         }
     },
 
-    async getSurahs() {
-        if (State.allSurahs.length > 0) return State.allSurahs;
-        const data = await this.fetchJSON(`${this.base}/surah`);
-        State.allSurahs = data;
-        return data;
-    },
+    async loadSurahData(num) {
+        // Feature: Dynamic Script Selection (Indo-Pak vs Uthmani)
+        const arabicEdition = State.settings.script === 'indopak' 
+            ? 'quran-tajweed' // Tajweed version often fits Indo-Pak styling better in APIs
+            : 'quran-uthmani';
 
-    async getSurahFull(number) {
-        // Fetches Arabic and Translation simultaneously for speed
         return Promise.all([
-            this.fetchJSON(`${this.base}/surah/${number}/quran-uthmani`),
-            this.fetchJSON(`${this.base}/surah/${number}/${State.settings.translation}`)
+            this.getJSON(`surah/${num}/${arabicEdition}`),
+            this.getJSON(`surah/${num}/en.sahih`)
         ]);
     },
 
-    getAudioUrl(ayahNumber) {
-        // Using the high-quality Alafasy stream
-        return `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNumber}.mp3`;
+    getAudioUrl(ayahNum) {
+        return `https://cdn.islamic.network/quran/audio/128/${State.settings.reciter}/${ayahNum}.mp3`;
     }
 };
 
 // ══════════════════════════════════════════════════════════════
-// SEARCH & FILTER LOGIC
+// ACHIEVEMENT ENGINE
 // ══════════════════════════════════════════════════════════════
-const Search = {
-    init() {
-        const input = document.getElementById('surahSearch');
-        input.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = State.allSurahs.filter(s => 
-                s.englishName.toLowerCase().includes(query) || 
-                s.number.toString() === query ||
-                s.name.includes(query)
-            );
-            UI.renderSidebarList(filtered);
-        });
+const Achievements = {
+    check(type, value) {
+        const list = {
+            'first_light': { title: 'First Light', desc: 'Opened your first Surah', icon: 'zap' },
+            'night_owl': { title: 'Night Owl', desc: 'Reading after midnight', icon: 'moon' },
+            'consistent': { title: 'Dedicated', desc: 'Reached daily goal', icon: 'award' }
+        };
+
+        if (type === 'load' && !State.achievements.includes('first_light')) {
+            this.unlock('first_light', list.first_light);
+        }
+
+        if (new Date().getHours() >= 0 && new Date().getHours() < 4 && !State.achievements.includes('night_owl')) {
+            this.unlock('night_owl', list.night_owl);
+        }
+    },
+
+    unlock(id, data) {
+        State.achievements.push(id);
+        State.save('achievements');
+        
+        const toast = document.createElement('div');
+        toast.className = 'achievement-toast';
+        toast.innerHTML = `
+            <div style="background:rgba(255,255,255,0.2); padding:8px; border-radius:10px;">
+                <i data-lucide="${data.icon}"></i>
+            </div>
+            <div>
+                <div style="font-size:0.7rem; opacity:0.8; text-transform:uppercase;">Achievement Unlocked</div>
+                <div style="font-size:1rem; font-weight:800;">${data.title}</div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        lucide.createIcons();
+        setTimeout(() => toast.remove(), 5000);
     }
 };
-
+</script>
+<script>
 // ══════════════════════════════════════════════════════════════
-// AUDIO ENGINE (Logic Layer)
+// AUDIO ENGINE (THE SOUND OF ZENITH)
 // ══════════════════════════════════════════════════════════════
 const AudioEngine = {
     player: new Audio(),
@@ -451,11 +435,20 @@ const AudioEngine = {
     isPlaying: false,
 
     init() {
-        this.player.addEventListener('ended', () => this.next());
-        this.player.addEventListener('timeupdate', () => {
-            const progress = (this.player.currentTime / this.player.duration) * 100;
-            document.getElementById('audioProgress').style.width = `${progress}%`;
+        this.player.addEventListener('timeupdate', () => this.updateProgress());
+        this.player.addEventListener('ended', () => {
+            if (this.currentAyahIndex < State.currentAyahs.length - 1) {
+                this.next();
+            } else {
+                this.stop();
+            }
         });
+        
+        // Handle physical media keys (Play/Pause on keyboards/headphones)
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setActionHandler('play', () => this.toggle());
+            navigator.mediaSession.setActionHandler('pause', () => this.toggle());
+        }
     },
 
     play(index) {
@@ -466,105 +459,167 @@ const AudioEngine = {
         this.player.src = API.getAudioUrl(ayah.number);
         this.player.play();
         this.isPlaying = true;
-        this.updateUI();
+        
+        // UI Updates
+        this.highlightAyah(index);
+        this.updateHUD(ayah);
+        this.updatePlayButton();
     },
 
     toggle() {
+        if (!this.player.src && State.currentAyahs.length > 0) return this.play(0);
         if (this.isPlaying) {
             this.player.pause();
             this.isPlaying = false;
         } else {
-            if (!this.player.src && State.currentAyahs.length > 0) {
-                this.play(0);
-            } else {
-                this.player.play();
-                this.isPlaying = true;
-            }
+            this.player.play();
+            this.isPlaying = true;
         }
-        this.updateUI();
+        this.updatePlayButton();
     },
 
-    next() {
-        if (this.currentAyahIndex < State.currentAyahs.length - 1) {
-            this.play(this.currentAyahIndex + 1);
+    next() { this.play(this.currentAyahIndex + 1); },
+    prev() { this.play(Math.max(0, this.currentAyahIndex - 1)); },
+
+    stop() {
+        this.isPlaying = false;
+        this.updatePlayButton();
+    },
+
+    updateProgress() {
+        const bar = document.getElementById('audioProgress');
+        if (this.player.duration) {
+            const pct = (this.player.currentTime / this.player.duration) * 100;
+            bar.style.width = `${pct}%`;
         }
     },
 
-    prev() {
-        if (this.currentAyahIndex > 0) {
-            this.play(this.currentAyahIndex - 1);
+    highlightAyah(index) {
+        document.querySelectorAll('.ayah-card').forEach(c => c.classList.remove('active-playing'));
+        const active = document.getElementById(`ayah-${index}`);
+        if (active) {
+            active.classList.add('active-playing');
+            active.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     },
 
-    updateUI() {
+    updateHUD(ayah) {
+        document.getElementById('hudTitle').innerText = `${State.currentSurah.englishName} : ${ayah.numberInSurah}`;
+        document.getElementById('hudSub').innerText = `Reciting: Mishary Rashid Alafasy`;
+        document.getElementById('hudIcon').innerHTML = `<i data-lucide="volume-2" class="spin-slow" color="var(--accent)"></i>`;
+        lucide.createIcons();
+    },
+
+    updatePlayButton() {
         const btn = document.getElementById('masterPlay');
-        btn.innerHTML = this.isPlaying ? `<i data-lucide="pause" fill="currentColor"></i>` : `<i data-lucide="play" fill="currentColor"></i>`;
+        btn.innerHTML = this.isPlaying 
+            ? `<i data-lucide="pause" fill="currentColor" size="28"></i>` 
+            : `<i data-lucide="play" fill="currentColor" size="28"></i>`;
         lucide.createIcons();
     }
 };
-   // ══════════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════════
+// SMART SEARCH ENGINE
+// ══════════════════════════════════════════════════════════════
+const Search = {
+    init() {
+        const input = document.getElementById('surahSearch');
+        input.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase().trim();
+            const results = State.allSurahs.filter(s => 
+                s.englishName.toLowerCase().includes(val) ||
+                s.number.toString() === val ||
+                s.name.includes(val)
+            );
+            UI.renderSidebar(results);
+        });
+    }
+};
+</script>
+
+<style>
+    .active-playing {
+        border-color: var(--accent) !important;
+        background: var(--accent-glow) !important;
+        box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .spin-slow { animation: spin 4s linear infinite; }
+</style>
+// ══════════════════════════════════════════════════════════════
 // UI RENDERING ENGINE
 // ══════════════════════════════════════════════════════════════
 const UI = {
-    toast(msg) {
-        const t = document.createElement('div');
-        t.style = "position:fixed; bottom:110px; right:20px; background:var(--accent); color:white; padding:12px 24px; border-radius:12px; z-index:10000; font-weight:600; box-shadow:0 10px 30px rgba(0,0,0,0.3); animation: slideIn 0.3s ease;";
-        t.innerText = msg;
-        document.body.appendChild(t);
-        setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3000);
+    async init() {
+        const surahs = await API.getJSON('surah');
+        if (surahs) {
+            State.allSurahs = surahs;
+            this.renderSidebar(surahs);
+        }
+        this.renderHome();
+        this.updateGoalUI();
+        Search.init();
+        AudioEngine.init();
+        lucide.createIcons();
+    },
+
+    renderHome() {
+        document.getElementById('view').innerHTML = `
+            <div class="view-container">
+                <div style="text-align: center; padding: 100px 20px;">
+                    <div class="logo-box" style="width: 80px; height: 80px; margin: 0 auto 30px;">
+                        <i data-lucide="zap" size="40" fill="currentColor"></i>
+                    </div>
+                    <h1 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 15px;">Zenith Ultra</h1>
+                    <p style="font-size: 1.2rem; opacity: 0.6; max-width: 500px; margin: 0 auto 40px;">
+                        Experience the Holy Quran with Indo-Pak scripts, advanced memorization tools, and premium audio.
+                    </p>
+                    <button onclick="UI.loadSurah(1)" style="background: var(--accent); color: white; padding: 18px 40px; border-radius: 50px; font-weight: 800; cursor: pointer; box-shadow: 0 10px 30px var(--accent-glow);">
+                        Start Reading
+                    </button>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
     },
 
     async loadSurah(num) {
-        const view = document.getElementById('view');
-        view.innerHTML = `<div style="display:grid; place-items:center; height:50vh;"><i data-lucide="loader" class="spin"></i></div>`;
+        document.getElementById('view').innerHTML = `<div style="display:grid; place-items:center; height:60vh;"><i data-lucide="loader" class="spin" size="40"></i></div>`;
         lucide.createIcons();
 
-        const data = await API.getSurahFull(num);
-        if (!data) return;
+        const [ar, en] = await API.loadSurahData(num);
+        if (!ar) return;
 
-        const [ar, en] = data;
         State.currentSurah = ar;
-        State.currentAyahs = ar.ayahs.map((a, i) => ({
-            ...a,
-            enText: en.ayahs[i].text
-        }));
+        State.currentAyahs = ar.ayahs.map((a, i) => ({ ...a, enText: en.ayahs[i].text }));
 
         this.renderSurah();
-        document.getElementById('hudSurahName').innerText = ar.englishName;
-        document.getElementById('hudReciterName').innerText = "Mishary Rashid Alafasy";
-        
-        // Progress tracking
-        State.goals.current++;
-        State.save('goals');
+        Achievements.check('load');
+        this.updateGoalProgress();
     },
 
     renderSurah() {
         const container = document.getElementById('view');
-        const surah = State.currentSurah;
+        const s = State.currentSurah;
 
         let html = `
             <div class="view-container">
-                <div class="surah-header">
-                    <div class="ayah-number-badge">SURAH ${surah.number}</div>
-                    <h1>${surah.name}</h1>
-                    <p style="font-size: 1.2rem; opacity: 0.7;">${surah.englishName} • ${surah.englishNameTranslation}</p>
-                    <div style="margin-top: 20px; display: flex; justify-content: center; gap: 15px;">
-                        <button onclick="AudioEngine.play(0)" class="play-btn"><i data-lucide="play"></i></button>
-                    </div>
+                <div style="text-align:center; margin-bottom: 60px; background:var(--card); padding:40px; border-radius:30px; border:1px solid var(--border);">
+                    <h1 style="font-family: var(--font-arabic); font-size: 3.5rem; color: var(--accent);">${s.name}</h1>
+                    <p style="font-weight: 700; opacity: 0.6; margin-top: 10px;">${s.englishName} • ${s.englishNameTranslation}</p>
                 </div>
                 <div class="ayah-list">
         `;
 
-        State.currentAyahs.forEach((ayah, index) => {
+        State.currentAyahs.forEach((ayah, i) => {
             html += `
-                <div class="ayah-card" id="ayah-${index}">
-                    <div class="ayah-number-badge">${ayah.numberInSurah}</div>
+                <div class="ayah-card" id="ayah-${i}">
+                    <div style="position:absolute; top:20px; left:20px; font-size:0.7rem; font-weight:800; color:var(--accent); opacity:0.5;">${ayah.numberInSurah}</div>
                     <div class="ayah-arabic">${ayah.text}</div>
                     <div class="ayah-english">${ayah.enText}</div>
-                    <div style="margin-top: 20px; display: flex; gap: 15px; opacity: 0.5;">
-                        <button onclick="AudioEngine.play(${index})"><i data-lucide="play" size="18"></i></button>
-                        <button><i data-lucide="bookmark" size="18"></i></button>
-                        <button><i data-lucide="share-2" size="18"></i></button>
+                    <div style="margin-top:25px; display:flex; gap:15px;">
+                        <button onclick="AudioEngine.play(${i})" class="action-btn" style="width:35px; height:35px;"><i data-lucide="play" size="14"></i></button>
+                        <button class="action-btn" style="width:35px; height:35px;"><i data-lucide="bookmark" size="14"></i></button>
                     </div>
                 </div>
             `;
@@ -576,65 +631,66 @@ const UI = {
         lucide.createIcons();
     },
 
-    async renderSidebarList(list) {
+    renderSidebar(list) {
         const container = document.getElementById('sidebarList');
-        const surahs = list || await API.getSurahs();
-        
-        container.innerHTML = surahs.map(s => `
+        container.innerHTML = list.map(s => `
             <div class="nav-item" onclick="UI.loadSurah(${s.number})">
-                <span class="nav-number">${s.number}</span>
-                <div class="nav-info">
-                    <div class="nav-name">${s.englishName}</div>
-                    <div class="nav-sub">${s.name} • ${s.numberOfAyahs} Ayahs</div>
+                <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.3; width: 25px;">${s.number}</div>
+                <div style="flex:1">
+                    <div style="font-weight: 700; font-size: 0.9rem;">${s.englishName}</div>
+                    <div style="font-size: 0.7rem; opacity: 0.5;">${s.name} • ${s.numberOfAyahs} Ayahs</div>
                 </div>
             </div>
         `).join('');
     },
 
-    renderHome() {
-        document.getElementById('view').innerHTML = `
-            <div class="hero">
-                <div class="hero-orb" style="top: -100px; right: -100px;"></div>
-                <div class="hero-orb" style="bottom: -100px; left: -100px; background: #6366f1;"></div>
-                <div style="position: relative; z-index: 1;">
-                    <div style="text-transform: uppercase; letter-spacing: 4px; font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 15px;">Experience the Divine</div>
-                    <h1 class="hero-title">Zenith Pro Ultra</h1>
-                    <p style="font-size: 1.2rem; opacity: 0.6; max-width: 600px; margin: 0 auto 40px;">The world's most advanced digital Quran interface. Clean, fast, and beautiful.</p>
-                    <button onclick="UI.loadSurah(1)" style="background: var(--accent); color: white; padding: 16px 32px; border-radius: 50px; font-weight: 700; box-shadow: 0 10px 25px var(--accent-glow);">Begin Reading</button>
-                </div>
-            </div>
-        `;
+    // ══════════════════════════════════════════════════════════════
+    // SYSTEM TOGGLES
+    // ══════════════════════════════════════════════════════════════
+    toggleTheme() {
+        State.settings.theme = State.settings.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', State.settings.theme);
+        State.save('settings');
+        document.getElementById('themeBtn').innerHTML = `<i data-lucide="${State.settings.theme === 'dark' ? 'sun' : 'moon'}"></i>`;
+        lucide.createIcons();
+    },
+
+    toggleSettings() {
+        document.getElementById('settingsPanel').classList.toggle('active');
+    },
+
+    updateGoalProgress() {
+        State.goals.current = Math.min(State.goals.current + 1, State.goals.target);
+        State.save('goals');
+        this.updateGoalUI();
+    },
+
+    updateGoalUI() {
+        const pct = (State.goals.current / State.goals.target) * 100;
+        document.getElementById('goalBar').style.width = `${pct}%`;
+        document.getElementById('goalLabel').innerText = `Daily Goal: ${State.goals.current}/${State.goals.target}`;
     }
 };
 
-// ══════════════════════════════════════════════════════════════
-// INITIALIZATION & EVENT LISTENERS
-// ══════════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', async () => {
-    // Start Services
-    await UI.renderSidebarList();
-    UI.renderHome();
-    Search.init();
-    AudioEngine.init();
-    lucide.createIcons();
+const Engine = {
+    toggleScript() {
+        State.settings.script = State.settings.script === 'uthmani' ? 'indopak' : 'uthmani';
+        document.documentElement.setAttribute('data-script', State.settings.script);
+        document.getElementById('scriptBtn').innerText = State.settings.script.toUpperCase();
+        document.getElementById('scriptBtn').classList.toggle('active');
+        State.save('settings');
+        if (State.currentSurah) UI.loadSurah(State.currentSurah.number);
+    },
+    toggleMemo() {
+        State.settings.memoMode = !State.settings.memoMode;
+        document.body.classList.toggle('memo-mode');
+        document.getElementById('memoBtn').innerText = State.settings.memoMode ? 'ON' : 'OFF';
+        document.getElementById('memoBtn').classList.toggle('active');
+    }
+};
 
-    // Theme Toggle
-    document.getElementById('themeToggle').addEventListener('click', () => {
-        const html = document.documentElement;
-        const isDark = html.getAttribute('data-theme') === 'dark';
-        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-        const icon = isDark ? 'moon' : 'sun';
-        document.getElementById('themeToggle').innerHTML = `<i data-lucide="${icon}"></i>`;
-        lucide.createIcons();
-    });
-});
+// Launch
+window.addEventListener('DOMContentLoaded', () => UI.init());
 </script>
-
-<style>
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.spin { animation: spin 1s linear infinite; opacity: 0.5; }
-@keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-</style>
-
 </body>
 </html>
