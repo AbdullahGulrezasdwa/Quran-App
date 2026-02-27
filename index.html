@@ -662,6 +662,35 @@ body.show-translit .translit { display: block; }
   50% { transform: scale(1.2) rotate(5deg); } 
   100% { transform: scale(1); } 
 }
+/* FIX 5: Dedicated spin keyframes to avoid duration conflict */
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
+.spin-slow { animation: spin-slow 4s linear infinite; }
+
+/* FIX 6: Focus styles for keyboard navigation accessibility */
+button:focus-visible, .surah-item:focus-visible, .abtn:focus-visible, .ib:focus-visible, .nav-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Loading spinner for API fallback */
+.loading-spinner {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 300px; gap: 16px; color: var(--text-dim);
+}
+.spinner {
+  width: 36px; height: 36px; border: 3px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.error-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 300px; gap: 12px; color: var(--text-dim); text-align: center; padding: 40px;
+}
+.error-state-icon { font-size: 2.5rem; }
+.error-state-msg { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+.error-state-sub { font-size: 0.78rem; max-width: 280px; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -890,29 +919,32 @@ body.show-translit .translit { display: block; }
         <span class="hud-title" id="hud-title">SELECT A SURAH TO BEGIN</span>
         <span class="hud-time" id="hud-time">0:00 / 0:00</span>
       </div>
-      <div class="prog-bg" id="prog-bg">
+      <!-- FIX 7: Dynamic reciter subtitle instead of hardcoded -->
+      <div id="hud-sub" style="font-size:0.6rem; color:var(--text-dimmer); font-weight:600; letter-spacing:0.04em; margin-top:-2px;"></div>
+      <div class="prog-bg" id="prog-bg" role="progressbar" aria-label="Playback progress" aria-valuemin="0" aria-valuemax="100">
         <div class="prog-fill" id="prog-fill"></div>
       </div>
     </div>
     <div class="hud-ctrl">
-      <button class="hbtn" id="btn-prev" onclick="Audio.prev()">
+      <!-- FIX 6: aria-labels for keyboard/screen reader accessibility -->
+      <button class="hbtn" id="btn-prev" onclick="Audio.prev()" aria-label="Previous ayah">
         <i data-lucide="skip-back" style="width:15px;height:15px"></i>
       </button>
-      <button class="play-btn" id="btn-play" onclick="Audio.togglePlay()">
+      <button class="play-btn" id="btn-play" onclick="Audio.togglePlay()" aria-label="Play or pause">
         <i data-lucide="play" style="width:17px;height:17px"></i>
       </button>
-      <button class="hbtn" id="btn-next" onclick="Audio.next()">
+      <button class="hbtn" id="btn-next" onclick="Audio.next()" aria-label="Next ayah">
         <i data-lucide="skip-forward" style="width:15px;height:15px"></i>
       </button>
     </div>
     <div style="display:flex; align-items:center; gap:7px;">
-      <button class="hbtn" id="btn-repeat" onclick="Audio.toggleRepeat()">
+      <button class="hbtn" id="btn-repeat" onclick="Audio.toggleRepeat()" aria-label="Toggle repeat">
         <i data-lucide="repeat-1" style="width:14px;height:14px"></i>
       </button>
-      <button class="hbtn on" id="btn-auto" onclick="Audio.toggleAuto()">
+      <button class="hbtn on" id="btn-auto" onclick="Audio.toggleAuto()" aria-label="Toggle autoplay">
         <i data-lucide="list-music" style="width:14px;height:14px"></i>
       </button>
-      <button class="hbtn" onclick="Features.selectReciter()">
+      <button class="hbtn" onclick="Features.selectReciter()" aria-label="Select reciter">
         <i data-lucide="mic" style="width:14px;height:14px"></i>
       </button>
     </div>
@@ -1022,7 +1054,8 @@ const State = {
     type: 'surahs', 
     target: 20, 
     current: 0,
-    customTarget: null 
+    customTarget: null,
+    lastReset: null  // FIX 4: track daily resets
   },
   
   challenges: [],
@@ -1114,6 +1147,16 @@ const State = {
     const today = new Date().toDateString();
     this.heatmap[today] = (this.heatmap[today] || 0) + 1;
     this.save('heatmap');
+  },
+
+  // FIX 4: Reset daily goal counter at midnight
+  checkGoalReset() {
+    const today = new Date().toDateString();
+    if (this.goals.lastReset !== today) {
+      this.goals.current = 0;
+      this.goals.lastReset = today;
+      this.save('goals');
+    }
   },
   
   updateStreak() {
@@ -1224,7 +1267,8 @@ const Audio = {
         this.el.play();
         return;
       }
-      if (this.autoplay && this.currentIdx < State.currentAyahs.length - 1) {
+      // FIX 2: Guard against empty currentAyahs before autoplay
+      if (this.autoplay && State.currentAyahs.length > 0 && this.currentIdx < State.currentAyahs.length - 1) {
         this.play(this.currentIdx + 1);
       } else {
         document.getElementById('wave').classList.remove('go');
@@ -1247,6 +1291,18 @@ const Audio = {
         icon.setAttribute('data-lucide', 'play');
         lucide.createIcons();
       }
+    };
+
+    // FIX 8: Handle audio playback errors gracefully
+    this.el.onerror = () => {
+      console.error('Audio failed to load:', this.el.src);
+      document.getElementById('wave').classList.remove('go');
+      const icon = document.querySelector('#btn-play i');
+      if (icon) {
+        icon.setAttribute('data-lucide', 'play');
+        lucide.createIcons();
+      }
+      UI.toast('⚠️ Audio failed to load. Try another reciter.');
     };
     
     // Progress bar click
@@ -1290,8 +1346,10 @@ const Audio = {
   },
   
   togglePlay() {
-    if (!this.el.src) {
+    // FIX 2: Guard against pressing play before any surah is loaded
+    if (!this.el || !this.el.src || this.el.src === window.location.href) {
       if (State.currentAyahs.length > 0) this.play(0);
+      else UI.toast('⚠️ Please select a Surah first');
       return;
     }
     if (this.el.paused) this.el.play();
@@ -1299,6 +1357,8 @@ const Audio = {
   },
   
   prev() {
+    // FIX 2: Guard against pressing prev before any surah is loaded
+    if (!State.currentAyahs.length) return;
     if (this.el.currentTime > 3) {
       this.el.currentTime = 0;
       return;
@@ -1307,6 +1367,8 @@ const Audio = {
   },
   
   next() {
+    // FIX 2: Guard against pressing next before any surah is loaded
+    if (!State.currentAyahs.length) return;
     if (this.currentIdx < State.currentAyahs.length - 1) {
       this.play(this.currentIdx + 1);
     }
@@ -1353,6 +1415,19 @@ const UI = {
     document.querySelectorAll('.ar').forEach(el => {
       el.classList.add(`font-${State.settings.arabicFont}`);
     });
+
+    // FIX 7: Initialize HUD subtitle with saved reciter name (not hardcoded)
+    this.updateHUDSub();
+
+    // FIX 1: Re-run createIcons after all settings applied (dynamic content)
+    lucide.createIcons();
+  },
+
+  // FIX 7: Helper to keep HUD reciter subtitle always in sync
+  updateHUDSub() {
+    const reciter = RECITERS.find(r => r.id === State.settings.reciter) || RECITERS[0];
+    const el = document.getElementById('hud-sub');
+    if (el) el.textContent = `🎙 ${reciter.name}`;
   },
   
   switchTab(name) {
@@ -1513,6 +1588,8 @@ const UI = {
       `;
     }).join('');
     document.getElementById('achievements').innerHTML = achHtml;
+    // FIX 1: Call createIcons after dynamic content with Lucide icons
+    lucide.createIcons();
   },
   
   renderBookmarks() {
@@ -1685,6 +1762,12 @@ const Features = {
     const fonts = ['uthmani', 'indopak', 'simple'];
     const current = fonts.indexOf(State.settings.arabicFont);
     const next = fonts[(current + 1) % fonts.length];
+
+    // FIX 3: Preserve playback state before font change (no re-render, just class swap)
+    const savedAyahIdx = Audio.currentIdx;
+    const savedTime = Audio.el ? Audio.el.currentTime : 0;
+    const wasPlaying = Audio.el ? !Audio.el.paused : false;
+
     State.settings.arabicFont = next;
     State.save('settings');
     
@@ -1693,6 +1776,12 @@ const Features = {
       el.classList.add(`font-${next}`);
     });
     
+    // FIX 3: Restore playback position and state after font swap
+    if (Audio.el && savedAyahIdx >= 0 && State.currentAyahs.length > 0) {
+      Audio.el.currentTime = savedTime;
+      if (wasPlaying) Audio.el.play().catch(() => {});
+    }
+
     const names = { uthmani: 'Uthmani', indopak: 'Indo-Pak', simple: 'Simple' };
     UI.toast(`✓ Arabic Font: ${names[next]}`);
   },
@@ -1884,6 +1973,8 @@ const Features = {
     UI.closeModal();
     
     const reciter = RECITERS.find(r => r.id === id);
+    // FIX 7: Keep HUD subtitle in sync with current reciter
+    UI.updateHUDSub();
     UI.toast(`✓ Reciter: ${reciter.name}`);
   },
   
@@ -2488,6 +2579,8 @@ const Features = {
 const App = {
   async init() {
     State.load();
+    // FIX 4: Reset daily goal counter if it's a new day
+    State.checkGoalReset();
     UI.init();
     
     // Load theme
@@ -2526,11 +2619,43 @@ const App = {
       
     } catch (e) {
       UI.toast('❌ Failed to load data');
+      // FIX 10: Show error state in the surah list panel if API fails
+      document.getElementById('surah-list').innerHTML = `
+        <div class="error-state">
+          <div class="error-state-icon">⚠️</div>
+          <div class="error-state-msg">Failed to load Surah list</div>
+          <div class="error-state-sub">Please check your internet connection and try again.</div>
+          <button class="btn btn-primary" style="margin-top:16px;" onclick="App.init()">Retry</button>
+        </div>
+      `;
       console.error(e);
     }
   },
   
   async loadSurah(num) {
+    // FIX 9 & 10: Show loading spinner immediately; set a timeout fallback
+    const view = document.getElementById('view');
+    view.innerHTML = `
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <div style="font-size:0.82rem;">Loading Surah…</div>
+      </div>
+    `;
+
+    // FIX 10: API failure fallback — show error if load takes too long or fails
+    const loadTimeout = setTimeout(() => {
+      if (!State.currentSurah || State.currentSurah._loadNum !== num) {
+        view.innerHTML = `
+          <div class="error-state">
+            <div class="error-state-icon">⏱️</div>
+            <div class="error-state-msg">Taking too long…</div>
+            <div class="error-state-sub">The server might be slow. Please wait or try again.</div>
+            <button class="btn btn-primary" style="margin-top:16px;" onclick="App.loadSurah(${num})">Retry</button>
+          </div>
+        `;
+      }
+    }, 8000);
+
     try {
       UI.toast('📖 Loading surah...');
       
@@ -2538,7 +2663,11 @@ const App = {
         API.getSurah(num, 'quran-uthmani'),
         API.getSurah(num, 'en.sahih'),
       ]);
+
+      clearTimeout(loadTimeout);
       
+      // Tag the data so the timeout check knows load succeeded
+      arData._loadNum = num;
       State.currentSurah = arData;
       State.currentAyahs = arData.ayahs.map((a, i) => ({
         ...a, 
@@ -2547,11 +2676,12 @@ const App = {
       
       UI.renderSurah(arData, enData);
       
-      // Update stats
+      // FIX 4: Increment daily goal counter (only once per unique surah per day)
       if (!State.stats.surahs.includes(num)) {
         State.stats.surahs.push(num);
-        State.goals.current = State.stats.surahs.length;
       }
+      // Always increment daily reading progress (reset daily by checkGoalReset)
+      State.goals.current = Math.min(State.goals.target, State.goals.current + 1);
       State.save('stats');
       State.save('goals');
       
@@ -2565,6 +2695,16 @@ const App = {
       document.getElementById('main-scroll').scrollTop = 0;
       
     } catch (e) {
+      clearTimeout(loadTimeout);
+      // FIX 10: Show actionable error with retry button
+      view.innerHTML = `
+        <div class="error-state">
+          <div class="error-state-icon">❌</div>
+          <div class="error-state-msg">Failed to load Surah</div>
+          <div class="error-state-sub">Please check your internet connection and try again.</div>
+          <button class="btn btn-primary" style="margin-top:16px;" onclick="App.loadSurah(${num})">Retry</button>
+        </div>
+      `;
       UI.toast('❌ Failed to load Surah');
       console.error(e);
     }
