@@ -881,6 +881,26 @@ body.night-light-mode { filter: sepia(0.2) hue-rotate(-8deg) brightness(0.88); }
 
 /* Focus */
 button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE — MOBILE
+══════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  :root { --rail-w: 54px; --panel-w: 280px; --hud-h: 68px; }
+  .hud { margin: 0 6px 6px; padding: 0 10px; gap: 7px; }
+  .hud-art { width: 36px; height: 36px; font-size: 0.85rem; }
+  .play-btn { width: 36px; height: 36px; }
+  .hud-extras { display: none; }
+  .surah-wrap { padding: 16px 12px 90px; }
+  .ayah-card { padding: 16px 14px 12px; }
+  .sh-ar { font-size: clamp(1.8rem, 8vw, 3rem) !important; }
+  .hero { padding: 32px 16px; }
+  .hero-stats { gap: 16px; }
+  .hero-actions { flex-direction: column; align-items: center; }
+  .analytics-grid { grid-template-columns: 1fr 1fr; }
+  .theme-grid { grid-template-columns: repeat(4, 1fr); }
+  .wave { display: none; }
+}
 </style>
 </head>
 <body>
@@ -1204,13 +1224,13 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
       <div class="prog-bg" id="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
     </div>
     <div class="hud-ctrl">
-      <button class="hbtn" onclick="Audio.prev()"><i data-lucide="skip-back" style="width:15px;height:15px"></i></button>
-      <button class="play-btn" id="btn-play" onclick="Audio.togglePlay()"><i data-lucide="play" style="width:16px;height:16px"></i></button>
-      <button class="hbtn" onclick="Audio.next()"><i data-lucide="skip-forward" style="width:15px;height:15px"></i></button>
+      <button class="hbtn" onclick="AudioPlayer.prev()"><i data-lucide="skip-back" style="width:15px;height:15px"></i></button>
+      <button class="play-btn" id="btn-play" onclick="AudioPlayer.togglePlay()"><i data-lucide="play" style="width:16px;height:16px"></i></button>
+      <button class="hbtn" onclick="AudioPlayer.next()"><i data-lucide="skip-forward" style="width:15px;height:15px"></i></button>
     </div>
     <div class="hud-extras">
-      <button class="hbtn" id="btn-repeat" onclick="Audio.toggleRepeat()"><i data-lucide="repeat-1" style="width:14px;height:14px"></i></button>
-      <button class="hbtn on" id="btn-auto" onclick="Audio.toggleAuto()"><i data-lucide="list-music" style="width:14px;height:14px"></i></button>
+      <button class="hbtn" id="btn-repeat" onclick="AudioPlayer.toggleRepeat()"><i data-lucide="repeat-1" style="width:14px;height:14px"></i></button>
+      <button class="hbtn on" id="btn-auto" onclick="AudioPlayer.toggleAuto()"><i data-lucide="list-music" style="width:14px;height:14px"></i></button>
       <button class="hbtn" onclick="Features.selectReciter()"><i data-lucide="mic" style="width:14px;height:14px"></i></button>
     </div>
   </div>
@@ -1351,9 +1371,9 @@ const API = {
 };
 
 // ═══════════════════════════════════════════════
-// AUDIO
+// AUDIO PLAYER
 // ═══════════════════════════════════════════════
-const Audio = {
+const AudioPlayer = {
   el:null, currentIdx:-1, repeat:false, autoplay:true,
 
   init() {
@@ -1395,7 +1415,7 @@ const Audio = {
     const ayah=State.currentAyahs[idx];
     const rec=RECITERS.find(r=>r.id===State.settings.reciter)||RECITERS[0];
     this.el.src=rec.cdn(ayah.number);
-    this.el.play().catch(e=>console.error('Play error',e));
+    this.el.play().catch(e=>{ console.warn('Play error',e); UI.toast('⚠️ Audio failed — tap play to retry'); });
     document.getElementById('hud-title').textContent=`${State.currentSurah.englishName} · Ayah ${ayah.numberInSurah}`;
     document.getElementById('hud-art').textContent=ayah.numberInSurah;
     State.stats.listened++;
@@ -1407,12 +1427,12 @@ const Audio = {
   },
 
   togglePlay() {
-    if(!this.el||!this.el.src||this.el.src===window.location.href){
+    if(!this.el||!this.el.src||this.currentIdx<0||this.el.src===window.location.href){
       if(State.currentAyahs.length>0) this.play(0);
       else UI.toast('⚠️ Select a Surah first');
       return;
     }
-    if(this.el.paused) this.el.play(); else this.el.pause();
+    if(this.el.paused) this.el.play().catch(()=>UI.toast('⚠️ Playback blocked — tap to retry')); else this.el.pause();
   },
 
   prev() { if(!State.currentAyahs.length) return; if(this.el.currentTime>3){ this.el.currentTime=0; return; } if(this.currentIdx>0) this.play(this.currentIdx-1); },
@@ -1429,7 +1449,7 @@ const UI = {
 
   init() {
     lucide.createIcons();
-    Audio.init();
+    AudioPlayer.init();
     const s=State.settings;
     const classMap={ wbw:'show-wbw', translit:'show-translit', multiTrans:'show-multi-trans',
       readingMode:'reading-mode', dyslexia:'dyslexia-mode', largeText:'large-text-mode', nightLight:'night-light-mode' };
@@ -1481,8 +1501,10 @@ const UI = {
     const acMap={dark:'%2338bdf8',midnight:'%23a78bfa',desert:'%23f59e0b',emerald:'%2334d399',rose:'%23fb7185',light:'%232563eb',sepia:'%237c3a14'};
     const bg=bgMap[name]||'%23080c14', ac=acMap[name]||'%2338bdf8';
     document.getElementById('favicon').href=`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='bg' cx='50%25' cy='0%25' r='100%25'%3E%3Cstop offset='0%25' stop-color='${bg}' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='${bg}'/%3E%3C/radialGradient%3E%3CradialGradient id='glow' cx='40%25' cy='40%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='${ac}' stop-opacity='0.3'/%3E%3Cstop offset='100%25' stop-color='${ac}' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23bg)'/%3E%3Cellipse cx='32' cy='32' rx='28' ry='28' fill='url(%23glow)'/%3E%3Cpath d='M38 14 A16 16 0 1 0 38 50 A12 12 0 1 1 38 14 Z' fill='${ac}' opacity='0.95'/%3E%3Cpolygon points='44,16 45.5,20.5 50,20.5 46.5,23.2 48,27.5 44,24.8 40,27.5 41.5,23.2 38,20.5 42.5,20.5' fill='${ac}' opacity='0.95'/%3E%3C/svg%3E`;
-    // Update rail logo color
-    document.querySelector('.rail-logo svg path, .rail-logo svg polygon');
+    // Update rail logo SVG colors to match theme accent
+    const accentHex = {'dark':'rgba(56,189,248,0.9)','midnight':'rgba(167,139,250,0.9)','desert':'rgba(245,158,11,0.9)','emerald':'rgba(52,211,153,0.9)','rose':'rgba(251,113,133,0.9)','light':'rgba(37,99,235,0.9)','sepia':'rgba(124,58,20,0.9)'};
+    const logoColor = accentHex[name] || 'rgba(56,189,248,0.9)';
+    document.querySelectorAll('.rail-logo svg path, .rail-logo svg polygon').forEach(el => el.setAttribute('fill', logoColor));
   },
 
   toast(msg) {
@@ -1545,7 +1567,7 @@ const UI = {
           <p class="en">${enData.ayahs[i].text}</p>
           <div class="translation-container" id="trans-${i}"></div>
           <div class="ayah-footer">
-            <button class="abtn" onclick="Audio.play(${i})"><i data-lucide="play" style="width:10px;height:10px"></i> Play</button>
+            <button class="abtn" onclick="AudioPlayer.play(${i})"><i data-lucide="play" style="width:10px;height:10px"></i> Play</button>
             <button class="abtn" onclick="Features.showTafsir(${i},${a.number})"><i data-lucide="book-open" style="width:10px;height:10px"></i> Tafsir</button>
             <button class="abtn" onclick="Features.memorizeAyah(${arData.number},${a.numberInSurah},${i})"><i data-lucide="brain" style="width:10px;height:10px"></i> Memorize</button>
           </div>
@@ -1746,7 +1768,7 @@ const Features = {
     const f=State.bookmarkFolders[0], ay=State.currentAyahs[ci];
     const ex=f.bookmarks.findIndex(b=>b.surahNum===sn&&b.ayahNum===an);
     if(ex>-1){ f.bookmarks.splice(ex,1); UI.toast('Bookmark removed'); }
-    else { f.bookmarks.push({surahNum:sn,ayahNum:an,surahName:State.currentSurah?.englishName||'',preview:ay?.text?.substring(0,50)+'…'}); UI.toast('⭐ Bookmarked!'); }
+    else { f.bookmarks.push({surahNum:sn,ayahNum:an,surahName:State.currentSurah?.englishName||'',preview:(ay?.enText||ay?.text||'').substring(0,60)+'…'}); UI.toast('⭐ Bookmarked!'); }
     State.stats.bookmarks=f.bookmarks.length; State.save('bookmarks'); State.save('stats'); State.checkAchievements();
   },
 
@@ -1777,8 +1799,6 @@ const Features = {
   },
   cloudSync() { UI.showModal('☁️ Cloud Sync','<p style="color:var(--text2);margin-bottom:16px;">Sync your bookmarks, notes and progress across devices.</p><button class="btn btn-primary" onclick="Features.performSync()">Sync Now</button>','sm'); },
   performSync() { UI.toast('☁️ Syncing…'); setTimeout(()=>{ UI.toast('✓ Sync complete!'); UI.closeModal(); },2000); },
-
-  toggleTranslit() { State.settings.translit=!State.settings.translit; document.body.classList.toggle('show-translit',State.settings.translit); const p=document.getElementById('pill-translit'); if(p) p.classList.toggle('on',State.settings.translit); State.save('settings'); if(State.settings.translit&&State.currentSurah) this.loadTransliterations(State.currentSurah.number); UI.toast(State.settings.translit?'✓ Transliteration ON':'OFF'); },
 
   selectReciter() {
     const html=`<div style="display:flex;flex-direction:column;gap:7px;">${RECITERS.map(r=>`
@@ -1935,6 +1955,14 @@ const App = {
 };
 
 App.init();
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if(e.code==='Space'){ e.preventDefault(); AudioPlayer.togglePlay(); }
+  if(e.code==='ArrowRight') AudioPlayer.next();
+  if(e.code==='ArrowLeft') AudioPlayer.prev();
+});
 </script>
 </body>
 </html>
