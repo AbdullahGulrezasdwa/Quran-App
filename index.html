@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zenith Pro — القرآن الكريم</title>
+<meta name="description" content="A modern, feature-rich Quran reader with audio recitation, translations, word-by-word analysis, prayer times, and study features.">
 
 <!-- FAVICON: Clean crescent + star on solid background -->
 <link rel="icon" id="favicon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080c14'/%3E%3Ccircle cx='14' cy='16' r='8' fill='%2338bdf8'/%3E%3Ccircle cx='17.5' cy='13' r='6' fill='%23080c14'/%3E%3Cpolygon points='24,6 24.9,8.7 27.6,8.7 25.4,10.4 26.3,13 24,11.3 21.7,13 22.6,10.4 20.4,8.7 23.1,8.7' fill='%2338bdf8'/%3E%3C/svg%3E">
@@ -13,28 +14,533 @@
 
 <style>
 /* ══════════════════════════════════════════════
-   ROOT VARIABLES (unchanged - keep your existing styles)
+   ROOT VARIABLES & THEME SYSTEM
 ══════════════════════════════════════════════ */
 :root {
+  /* Layout */
   --rail-w: 68px;
   --panel-w: 300px;
   --hud-h: 76px;
+  
+  /* Transitions */
   --t: 0.2s cubic-bezier(0.4,0,0.2,1);
   --t-spring: 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  
+  /* Effects */
   --blur: 20px;
+  
+  /* Typography */
   --ar-size: 2rem;
   --en-size: 0.95rem;
 }
 
-/* [Keep ALL your existing CSS styles here - they're perfect] */
-/* ... (all your theme variables and styles) ... */
+/* Dark theme */
+[data-theme="dark"] {
+  --bg: #080c14;
+  --surf: #0f1419;
+  --surf2: #141b24;
+  --surf3: #1a212c;
+  --text: #e8ecf1;
+  --text2: #b8c1cd;
+  --text3: #7b8794;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --accent: #38bdf8;
+  --accent-rgb: 56,189,248;
+  --glow: rgba(56,189,248,0.03);
+  --shadow: rgba(0,0,0,0.6);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --surf: #ffffff;
+  --surf2: #f1f5f9;
+  --surf3: #e2e8f0;
+  --text: #0f172a;
+  --text2: #475569;
+  --text3: #94a3b8;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.12);
+  --accent: #0ea5e9;
+  --accent-rgb: 14,165,233;
+  --glow: rgba(14,165,233,0.05);
+  --shadow: rgba(0,0,0,0.1);
+}
 
 /* ══════════════════════════════════════════════
-   FIXES & IMPROVEMENTS
+   BASE STYLES
 ══════════════════════════════════════════════ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surf);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surf3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border2);
+}
+
+/* ══════════════════════════════════════════════
+   LAYOUT STRUCTURE
+══════════════════════════════════════════════ */
+#rail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--rail-w);
+  background: var(--surf);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  gap: 4px;
+  z-index: 100;
+}
+
+.rail-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #0284c7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.3);
+}
+
+.rail-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--t);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text3);
+}
+
+.rail-btn:hover {
+  background: var(--surf2);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.rail-btn.active {
+  color: var(--accent);
+  background: rgba(var(--accent-rgb),0.1);
+  border-color: rgba(var(--accent-rgb),0.2);
+  box-shadow: 0 2px 12px rgba(var(--accent-rgb),0.15);
+}
+
+.rail-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Tooltips */
+.tooltip {
+  position: absolute;
+  left: calc(var(--rail-w) + 4px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  background: var(--surf3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  z-index: 999;
+}
+
+.rail-btn:hover .tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.rail-spacer {
+  flex: 1;
+}
+
+/* Panel */
+.panel {
+  position: fixed;
+  left: var(--rail-w);
+  top: 0;
+  bottom: 0;
+  width: var(--panel-w);
+  background: var(--surf);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  transition: transform var(--t);
+  z-index: 90;
+}
+
+.panel.hidden {
+  transform: translateX(-100%);
+}
+
+.panel-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surf);
+  backdrop-filter: blur(var(--blur));
+  z-index: 10;
+}
+
+.panel-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.search-box {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.85rem;
+  outline: none;
+  transition: all var(--t);
+}
+
+.search-box:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.1);
+}
+
+.panel-content {
+  padding: 12px;
+}
+
+/* Main content area */
+#main {
+  margin-left: var(--rail-w);
+  min-height: 100vh;
+  padding-bottom: calc(var(--hud-h) + 12px);
+  transition: margin-left var(--t);
+}
+
+#main.panel-open {
+  margin-left: calc(var(--rail-w) + var(--panel-w));
+}
+
+/* ══════════════════════════════════════════════
+   HERO SECTION
+══════════════════════════════════════════════ */
+.hero {
+  padding: 48px 32px;
+  background: linear-gradient(135deg, var(--surf), var(--surf2));
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--accent), #0284c7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--text2);
+  margin-bottom: 32px;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 28px;
+  min-width: 140px;
+  transition: all var(--t);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(var(--accent-rgb),0.1);
+  border-color: rgba(var(--accent-rgb),0.3);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--t);
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.btn-primary:hover {
+  background: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(var(--accent-rgb),0.3);
+}
+
+.btn-secondary {
+  background: var(--surf2);
+  color: var(--text);
+  border-color: var(--border2);
+}
+
+.btn-secondary:hover {
+  background: var(--surf3);
+  border-color: var(--accent);
+}
+
+/* ══════════════════════════════════════════════
+   SURAH LIST
+══════════════════════════════════════════════ */
+.surah-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all var(--t);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.surah-card:hover {
+  background: var(--surf2);
+  border-color: rgba(var(--accent-rgb),0.3);
+  transform: translateX(4px);
+}
+
+.surah-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.surah-info {
+  flex: 1;
+}
+
+.surah-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.surah-meta {
+  font-size: 0.75rem;
+  color: var(--text3);
+}
+
+.surah-ar {
+  font-family: 'Amiri Quran', 'Scheherazade New', serif;
+  font-size: 1.3rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ══════════════════════════════════════════════
+   SURAH VIEW
+══════════════════════════════════════════════ */
+.surah-header {
+  background: linear-gradient(135deg, var(--surf), var(--surf2));
+  border-bottom: 1px solid var(--border);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.sh-num {
+  display: inline-block;
+  background: var(--surf2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  color: var(--text3);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.sh-ar {
+  font-family: 'Amiri Quran', 'Scheherazade New', serif;
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  color: var(--text);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.sh-en {
+  font-size: 1.3rem;
+  color: var(--text2);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.sh-meta {
+  font-size: 0.85rem;
+  color: var(--text3);
+}
+
+.surah-wrap {
+  padding: 24px 16px 100px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Bismillah */
+.bismillah {
+  text-align: center;
+  padding: 32px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.bismillah-text {
+  font-family: 'Amiri Quran', 'Scheherazade New', serif;
+  font-size: 2rem;
+  color: var(--accent);
+  direction: rtl;
+}
+
+/* Ayah cards */
+.ayah-card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 18px 16px;
+  margin-bottom: 12px;
+  transition: all var(--t);
+  position: relative;
+}
+
+.ayah-card:hover {
+  border-color: rgba(var(--accent-rgb),0.3);
+  box-shadow: 0 4px 16px rgba(var(--accent-rgb),0.08);
+}
+
+.ayah-card.playing {
+  border-color: var(--accent);
+  background: linear-gradient(to right, rgba(var(--accent-rgb),0.05), transparent);
+  box-shadow: 0 4px 20px rgba(var(--accent-rgb),0.15);
+}
+
+.ayah-num-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
 .ar {
+  font-family: 'Amiri Quran', 'Scheherazade New', serif;
   font-size: var(--ar-size);
-  direction: rtl; 
+  direction: rtl;
   line-height: 2.9;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -44,6 +550,7 @@
   word-break: break-word;
 }
 
+/* Word-by-word translation */
 .wbw-container {
   display: none;
   flex-wrap: wrap;
@@ -51,6 +558,10 @@
   margin: 12px 0;
   direction: rtl;
   justify-content: center;
+}
+
+.wbw-container.show {
+  display: flex;
 }
 
 .wbw-word {
@@ -67,9 +578,32 @@
   min-width: 80px;
 }
 
+.wbw-word:hover {
+  background: var(--surf2);
+  border-color: rgba(var(--accent-rgb),0.4);
+  transform: translateY(-2px);
+}
+
+.wbw-ar {
+  font-family: 'Amiri Quran', serif;
+  font-size: 1.2rem;
+  color: var(--text);
+}
+
+.wbw-en {
+  font-size: 0.7rem;
+  color: var(--text3);
+  text-align: center;
+}
+
+/* Translation */
 .translation-container {
   display: none;
   margin-top: 10px;
+}
+
+.translation-container.show {
+  display: block;
 }
 
 .translation-row {
@@ -80,77 +614,210 @@
   border-left: 2px solid rgba(var(--accent-rgb),0.4);
 }
 
-/* Fix for active states */
-.rail-btn.active {
-  color: var(--accent);
-  background: rgba(var(--accent-rgb),0.1);
-  border-color: rgba(var(--accent-rgb),0.2);
-  box-shadow: 0 2px 12px rgba(var(--accent-rgb),0.15);
-}
-
-/* Fix for tooltips */
-.tooltip {
-  position: absolute;
-  left: calc(var(--rail-w) - 4px);
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--surf3);
-  border: 1px solid var(--border2);
-  color: var(--text);
+.trans-name {
   font-size: 0.7rem;
-  font-weight: 600;
-  padding: 5px 11px;
-  border-radius: 8px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s, transform 0.15s;
-  transform: translateY(-50%) translateX(4px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  z-index: 999;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Fix for heatmap */
-.heatmap-container {
-  display: grid;
-  grid-template-columns: repeat(14, 1fr);
-  gap: 3px;
-  margin: 8px 0;
+.trans-text {
+  font-size: var(--en-size);
+  color: var(--text2);
+  line-height: 1.7;
 }
 
-.heatmap-day {
-  aspect-ratio: 1;
-  border-radius: 3px;
-  background: var(--surf2);
-  transition: background 0.2s;
-}
-
-.heatmap-day[data-level="1"] { background: rgba(var(--accent-rgb),0.25); }
-.heatmap-day[data-level="2"] { background: rgba(var(--accent-rgb),0.45); }
-.heatmap-day[data-level="3"] { background: rgba(var(--accent-rgb),0.7); }
-.heatmap-day[data-level="4"] { background: var(--accent); }
-
-/* Fix for loading states */
-.loading-spinner {
+/* Ayah actions */
+.ayah-actions {
   display: flex;
-  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.ayah-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  color: var(--text3);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all var(--t);
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 280px;
-  gap: 14px;
+  gap: 4px;
+}
+
+.ayah-btn:hover {
+  background: var(--surf3);
+  color: var(--text);
+  border-color: rgba(var(--accent-rgb),0.3);
+}
+
+.ayah-btn.active {
+  background: rgba(var(--accent-rgb),0.1);
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb),0.3);
+}
+
+.ayah-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ══════════════════════════════════════════════
+   AUDIO HUD (Bottom Player)
+══════════════════════════════════════════════ */
+.hud {
+  position: fixed;
+  bottom: 0;
+  left: var(--rail-w);
+  right: 0;
+  height: var(--hud-h);
+  background: var(--surf);
+  backdrop-filter: blur(var(--blur));
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  z-index: 80;
+  transition: left var(--t);
+}
+
+.hud.panel-open {
+  left: calc(var(--rail-w) + var(--panel-w));
+}
+
+.hud-art {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #0284c7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.25);
+  flex-shrink: 0;
+}
+
+.hud-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.hud-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud-meta {
+  font-size: 0.75rem;
   color: var(--text3);
 }
 
-.spinner {
-  width: 32px;
-  height: 32px;
-  border: 2.5px solid var(--border2);
-  border-top-color: var(--accent);
+.play-btn {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  animation: spin 0.75s linear infinite;
+  background: var(--accent);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--t);
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.3);
 }
 
-/* Fix for modal */
+.play-btn:hover {
+  background: #0284c7;
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(var(--accent-rgb),0.4);
+}
+
+.play-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.hud-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hud-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--t);
+}
+
+.hud-btn:hover {
+  background: var(--surf2);
+  color: var(--text);
+  border-color: rgba(var(--accent-rgb),0.3);
+}
+
+.hud-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.hud-time {
+  font-size: 0.75rem;
+  color: var(--text3);
+  min-width: 90px;
+  text-align: center;
+}
+
+.hud-extras {
+  display: flex;
+  gap: 6px;
+}
+
+/* ══════════════════════════════════════════════
+   MODALS & OVERLAYS
+══════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
 .modal {
   background: linear-gradient(160deg, var(--surf), var(--surf2));
   border: 1px solid var(--border2);
@@ -165,33 +832,103 @@
   animation: modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
 }
 
-/* Fix for adhan banner */
-.adhan-banner {
-  position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--surf);
-  border: 1px solid rgba(var(--accent-rgb),0.4);
-  border-radius: 18px;
-  padding: 16px 24px;
-  z-index: 9999;
-  text-align: center;
-  min-width: 280px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 40px rgba(var(--accent-rgb),0.15);
-  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
-  display: none;
-  opacity: 0;
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
-.adhan-banner.show {
+.modal-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  opacity: 1;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
 }
 
-/* Fix for pills */
+.modal-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--t);
+}
+
+.modal-close:hover {
+  background: var(--surf3);
+  color: var(--text);
+  border-color: rgba(var(--accent-rgb),0.3);
+}
+
+.modal-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.modal-body {
+  color: var(--text2);
+  line-height: 1.7;
+}
+
+/* Settings modal */
+.setting-group {
+  margin-bottom: 20px;
+}
+
+.setting-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.setting-info {
+  flex: 1;
+}
+
+.setting-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.setting-desc {
+  font-size: 0.75rem;
+  color: var(--text3);
+}
+
+/* Toggle switch (pill) */
 .pill {
   width: 36px;
   height: 20px;
@@ -217,2730 +954,1098 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
-.pill.on { 
-  background: rgba(var(--accent-rgb),0.25); 
-  border-color: rgba(var(--accent-rgb),0.5); 
+.pill.on {
+  background: rgba(var(--accent-rgb),0.25);
+  border-color: rgba(var(--accent-rgb),0.5);
 }
 
-.pill.on::after { 
-  left: 18px; 
-  background: var(--accent); 
-  box-shadow: 0 0 8px rgba(var(--accent-rgb),0.5); 
+.pill.on::after {
+  left: 18px;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb),0.5);
 }
 
-/* Fix for mobile */
+/* ══════════════════════════════════════════════
+   ADHAN / PRAYER TIMES
+══════════════════════════════════════════════ */
+.adhan-banner {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surf);
+  border: 1px solid rgba(var(--accent-rgb),0.4);
+  border-radius: 18px;
+  padding: 16px 24px;
+  z-index: 9999;
+  text-align: center;
+  min-width: 280px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 40px rgba(var(--accent-rgb),0.15);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+  display: none;
+  opacity: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.adhan-banner.show {
+  display: flex;
+  opacity: 1;
+}
+
+.adhan-prayer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  transition: all var(--t);
+}
+
+.adhan-prayer-row.current {
+  background: rgba(var(--accent-rgb),0.1);
+  border-color: rgba(var(--accent-rgb),0.3);
+  box-shadow: 0 2px 8px rgba(var(--accent-rgb),0.15);
+}
+
+.apr-icon {
+  font-size: 1.2rem;
+}
+
+.apr-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.apr-time {
+  font-size: 0.85rem;
+  color: var(--text3);
+  font-weight: 600;
+}
+
+/* ══════════════════════════════════════════════
+   STUDY FEATURES
+══════════════════════════════════════════════ */
+.heatmap-container {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 3px;
+  margin: 8px 0;
+}
+
+.heatmap-day {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--surf2);
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.heatmap-day:hover {
+  transform: scale(1.1);
+}
+
+.heatmap-day[data-level="1"] { background: rgba(var(--accent-rgb),0.25); }
+.heatmap-day[data-level="2"] { background: rgba(var(--accent-rgb),0.45); }
+.heatmap-day[data-level="3"] { background: rgba(var(--accent-rgb),0.7); }
+.heatmap-day[data-level="4"] { background: var(--accent); }
+
+.note-card {
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 8px;
+}
+
+.note-ref {
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.note-text {
+  font-size: 0.85rem;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.note-time {
+  font-size: 0.7rem;
+  color: var(--text3);
+  margin-top: 6px;
+}
+
+/* ══════════════════════════════════════════════
+   LOADING & EMPTY STATES
+══════════════════════════════════════════════ */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  gap: 14px;
+  color: var(--text3);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2.5px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text3);
+  font-size: 0.9rem;
+}
+
+/* Toast notifications */
+.toast {
+  position: fixed;
+  bottom: calc(var(--hud-h) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surf);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 0.85rem;
+  color: var(--text);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  z-index: 9999;
+  animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE DESIGN
+══════════════════════════════════════════════ */
 @media (max-width: 600px) {
-  :root { 
-    --rail-w: 54px; 
-    --panel-w: 280px; 
-    --hud-h: 68px; 
+  :root {
+    --rail-w: 54px;
+    --panel-w: 280px;
+    --hud-h: 68px;
   }
-  .hud { 
-    margin: 0 6px 6px; 
-    padding: 0 10px; 
-    gap: 7px; 
+  
+  .hud {
+    margin: 0 6px 6px;
+    padding: 0 10px;
+    gap: 7px;
   }
-  .hud-art { 
-    width: 36px; 
-    height: 36px; 
-    font-size: 0.85rem; 
+  
+  .hud-art {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
   }
-  .play-btn { 
-    width: 36px; 
-    height: 36px; 
+  
+  .play-btn {
+    width: 36px;
+    height: 36px;
   }
-  .hud-extras { 
-    display: none; 
+  
+  .hud-extras {
+    display: none;
   }
-  .surah-wrap { 
-    padding: 16px 12px 90px; 
+  
+  .surah-wrap {
+    padding: 16px 12px 90px;
   }
-  .ayah-card { 
-    padding: 16px 14px 12px; 
+  
+  .ayah-card {
+    padding: 16px 14px 12px;
   }
-  .sh-ar { 
-    font-size: clamp(1.8rem, 8vw, 3rem) !important; 
+  
+  .sh-ar {
+    font-size: clamp(1.8rem, 8vw, 3rem) !important;
   }
-  .hero { 
-    padding: 32px 16px; 
+  
+  .hero {
+    padding: 32px 16px;
   }
-  .hero-stats { 
-    gap: 16px; 
+  
+  .hero-stats {
+    gap: 16px;
   }
-  .hero-actions { 
-    flex-direction: column; 
-    align-items: center; 
+  
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
-  .theme-grid { 
-    grid-template-columns: repeat(4, 1fr); 
+  
+  .stat-card {
+    min-width: 120px;
+    padding: 16px 20px;
   }
-  .wave { 
-    display: none; 
+  
+  .modal {
+    padding: 20px;
+    border-radius: 16px;
+  }
+  
+  .ar {
+    font-size: 1.6rem;
   }
 }
+
+/* ══════════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════════ */
+.hidden {
+  display: none !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
 </style>
 </head>
 <body>
 
-<div class="overlay" id="main-overlay"></div>
-<div class="toast-wrap" id="toast-wrap"></div>
-<div class="adhan-banner" id="adhan-banner">
-  <div class="adhan-banner-icon">🕌</div>
-  <div class="adhan-banner-title" id="adhan-banner-title">Azan — Fajr</div>
-  <div class="adhan-banner-sub" id="adhan-banner-sub">It is time for prayer</div>
-  <div class="adhan-banner-close">
-    <button class="btn btn-primary" style="padding:6px 18px;font-size:0.75rem;" onclick="Adhan.dismissBanner()">Dismiss</button>
+<!-- Left Navigation Rail -->
+<div id="rail">
+  <div class="rail-logo">ق</div>
+  
+  <div class="rail-btn active" onclick="UI.showView('home')">
+    <i data-lucide="home"></i>
+    <span class="tooltip">Home</span>
   </div>
-</div>
-
-<!-- RAIL (keep your existing HTML structure) -->
-<div class="rail" id="rail">
-  <!-- ... your rail content ... -->
-  <div class="rail-logo" onclick="UI.switchTab('surahs')" title="Zenith">
-    <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
-      <path d="M38 14 A16 16 0 1 0 38 50 A12 12 0 1 1 38 14 Z" fill="rgba(56,189,248,0.9)"/>
-      <polygon points="44,16 45.5,20.5 50,20.5 46.5,23.2 48,27.5 44,24.8 40,27.5 41.5,23.2 38,20.5 42.5,20.5" fill="rgba(56,189,248,0.9)"/>
-    </svg>
-  </div>
-  <button class="rail-btn active" id="rail-surahs" onclick="UI.switchTab('surahs')">
-    <i data-lucide="book-open" style="width:16px;height:16px"></i>
+  
+  <div class="rail-btn" onclick="UI.togglePanel('surahs')">
+    <i data-lucide="book-open"></i>
     <span class="tooltip">Surahs</span>
-  </button>
-  <button class="rail-btn" id="rail-search" onclick="UI.switchTab('search')">
-    <i data-lucide="search" style="width:16px;height:16px"></i>
+  </div>
+  
+  <div class="rail-btn" onclick="UI.togglePanel('search')">
+    <i data-lucide="search"></i>
     <span class="tooltip">Search</span>
-  </button>
-  <button class="rail-btn" id="rail-bookmarks" onclick="UI.switchTab('bookmarks')">
-    <i data-lucide="bookmark" style="width:16px;height:16px"></i>
-    <span class="tooltip">Saved</span>
-  </button>
-  <button class="rail-btn" id="rail-goals" onclick="UI.switchTab('goals')">
-    <i data-lucide="target" style="width:16px;height:16px"></i>
-    <span class="tooltip">Goals</span>
-  </button>
-  <button class="rail-btn" id="rail-learn" onclick="UI.switchTab('learn')">
-    <i data-lucide="graduation-cap" style="width:16px;height:16px"></i>
-    <span class="tooltip">Learn</span>
-  </button>
-  <button class="rail-btn" id="rail-social" onclick="UI.switchTab('social')">
-    <i data-lucide="users" style="width:16px;height:16px"></i>
-    <span class="tooltip">Live Room</span>
-  </button>
-  <button class="rail-btn" id="rail-adhan" onclick="UI.switchTab('adhan')">
-    <i data-lucide="bell" style="width:16px;height:16px"></i>
-    <span class="tooltip">Adhan</span>
-  </button>
-  <button class="rail-btn" id="rail-stats" onclick="UI.switchTab('stats')">
-    <i data-lucide="bar-chart-2" style="width:16px;height:16px"></i>
-    <span class="tooltip">Progress</span>
-  </button>
+  </div>
+  
+  <div class="rail-btn" onclick="UI.togglePanel('bookmarks')">
+    <i data-lucide="bookmark"></i>
+    <span class="tooltip">Bookmarks</span>
+  </div>
+  
+  <div class="rail-btn" onclick="UI.togglePanel('adhan')">
+    <i data-lucide="clock"></i>
+    <span class="tooltip">Prayer Times</span>
+  </div>
+  
+  <div class="rail-btn" onclick="UI.togglePanel('notes')">
+    <i data-lucide="file-text"></i>
+    <span class="tooltip">Notes</span>
+  </div>
+  
   <div class="rail-spacer"></div>
-  <button class="rail-btn" id="rail-settings" onclick="UI.switchTab('settings')">
-    <i data-lucide="settings-2" style="width:16px;height:16px"></i>
+  
+  <div class="rail-btn" onclick="UI.openSettings()">
+    <i data-lucide="settings"></i>
     <span class="tooltip">Settings</span>
-  </button>
+  </div>
+  
+  <div class="rail-btn" onclick="Theme.toggle()">
+    <i data-lucide="moon"></i>
+    <span class="tooltip">Toggle Theme</span>
+  </div>
 </div>
 
-<!-- PANEL (keep your existing panel structure) -->
-<div class="panel open" id="panel">
-  <!-- ... all your panel sections ... -->
-  <!-- SURAHS -->
-  <div id="panel-surahs" class="panel-section" style="display:flex;flex-direction:column;height:100%;">
-    <div class="panel-header">
-      <span class="panel-title">Surahs</span>
-      <button class="panel-close" onclick="UI.closePanel()"><i data-lucide="chevron-left" style="width:13px;height:13px"></i></button>
-    </div>
-    <div class="search-wrap">
-      <div class="search-bar-wrap">
-        <i data-lucide="search" class="search-bar-icon" style="width:13px;height:13px"></i>
-        <input type="text" class="search-bar" id="search-inp" placeholder="Search surahs…" oninput="Features.searchSurahs(this.value)">
-      </div>
-    </div>
-    <div style="flex:1;overflow-y:auto;padding:0 6px 8px;">
-      <div id="surah-list"></div>
-    </div>
+<!-- Panels -->
+<!-- Surahs Panel -->
+<div id="panel-surahs" class="panel hidden">
+  <div class="panel-header">
+    <div class="panel-title">Surahs (114)</div>
+    <input type="text" class="search-box" placeholder="Search surahs..." onkeyup="UI.filterSurahs(this.value)">
   </div>
+  <div class="panel-content" id="surahs-list"></div>
+</div>
 
-  <!-- SEARCH -->
-  <div id="panel-search" class="panel-section" style="display:none;flex-direction:column;height:100%;">
-    <div class="panel-header">
-      <span class="panel-title">Search</span>
-      <button class="panel-close" onclick="UI.closePanel()"><i data-lucide="chevron-left" style="width:13px;height:13px"></i></button>
-    </div>
-    <div class="panel-body">
-      <div class="search-bar-wrap" style="margin-bottom:10px;">
-        <i data-lucide="search" class="search-bar-icon" style="width:13px;height:13px"></i>
-        <input type="text" class="search-bar" id="adv-search-inp" placeholder="Keyword, topic, root…">
+<!-- Search Panel -->
+<div id="panel-search" class="panel hidden">
+  <div class="panel-header">
+    <div class="panel-title">Search Quran</div>
+    <input type="text" class="search-box" placeholder="Search..." onkeyup="Features.search(this.value)" id="search-input">
+  </div>
+  <div class="panel-content" id="search-results">
+    <div class="empty-state">Enter search query...</div>
+  </div>
+</div>
+
+<!-- Bookmarks Panel -->
+<div id="panel-bookmarks" class="panel hidden">
+  <div class="panel-header">
+    <div class="panel-title">Bookmarks</div>
+  </div>
+  <div class="panel-content" id="bookmarks-list">
+    <div class="empty-state">No bookmarks yet</div>
+  </div>
+</div>
+
+<!-- Prayer Times Panel -->
+<div id="panel-adhan" class="panel hidden">
+  <div class="panel-header">
+    <div class="panel-title">Prayer Times</div>
+  </div>
+  <div class="panel-content">
+    <button class="btn btn-primary" style="width:100%;margin-bottom:16px;" onclick="Adhan.fetchTimes()">
+      <i data-lucide="map-pin"></i>
+      Get Prayer Times
+    </button>
+    
+    <div id="adhan-times-panel" style="display:none;">
+      <div id="adhan-location-label" class="mb-3" style="font-size:0.8rem;color:var(--text3);text-align:center;">📍 Not set</div>
+      <div id="adhan-prayer-rows"></div>
+      
+      <div class="setting-row mt-4">
+        <div class="setting-info">
+          <div class="setting-name">Notifications</div>
+          <div class="setting-desc">Get alerts at prayer times</div>
+        </div>
+        <div class="pill" id="pill-adhan-notif" onclick="Adhan.toggleNotifications()"></div>
       </div>
-      <div class="filter-chips" id="search-filters">
-        <div class="filter-chip" onclick="Features.toggleFilter(this,'makkah')">Makkah</div>
-        <div class="filter-chip" onclick="Features.toggleFilter(this,'madinah')">Madinah</div>
-        <div class="filter-chip" onclick="Features.toggleFilter(this,'juz1-10')">Juz 1–10</div>
-        <div class="filter-chip" onclick="Features.toggleFilter(this,'juz11-20')">Juz 11–20</div>
-        <div class="filter-chip" onclick="Features.toggleFilter(this,'juz21-30')">Juz 21–30</div>
-      </div>
-      <button class="abtn" style="width:100%;justify-content:center;" onclick="Features.performSearch()">
-        <i data-lucide="search" style="width:11px;height:11px"></i> Search
+      
+      <button class="btn btn-secondary" style="width:100%;margin-top:12px;" onclick="Adhan.previewAdhan()">
+        <i data-lucide="volume-2"></i>
+        Preview Adhan
       </button>
-      <div id="search-results" style="margin-top:14px;"></div>
-    </div>
-  </div>
-
-  <!-- BOOKMARKS -->
-  <div id="panel-bookmarks" class="panel-section" style="display:none;flex-direction:column;height:100%;">
-    <div class="panel-header">
-      <span class="panel-title">Saved</span>
-      <button class="panel-close" onclick="UI.closePanel()"><i data-lucide="chevron-left" style="width:13px;height:13px"></i></button>
-    </div>
-    <div class="panel-body">
-      <button class="abtn" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="Features.createBookmarkFolder()">
-        <i data-lucide="folder-plus" style="width:11px;height:11px"></i> New Folder
-      </button>
-      <div id="bookmark-folders"></div>
-    </div>
-  </div>
-
-  <!-- GOALS -->
-  <div id="panel-goals" class="panel-section" style="display:none;flex-direction:column;height:100%;">
-    <div class="panel-header">
-      <span class="panel-title">Goals</span>
-      <button class="panel-close" onclick="UI.closePanel()"><i data-lucide="chevron-left" style="width:13px;height:13px"></i></button>
-    </div>
-    <div class="panel-body">
-      <div class="goal-arc-wrap">
-        <div class="goal-pct" id="goal-percentage">0%</div>
-        <div class="goal-bar-bg" style="width:100%;"><div class="goal-bar-fill" id="goal-bar-fill" style="width:0%"></div></div>
-        <div class="goal-stats"><span>Today: <b id="goal-current">0</b></span><span>Goal: <b id="goal-target">0</b></span></div>
-      </div>
-      <div class="pgroup">
-        <div class="pgroup-title" style="margin-top:12px;">Challenges</div>
-        <button class="abtn" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="Features.createChallenge()">
-          <i data-lucide="plus" style="width:11px;height:11px"></i> New Challenge
-        </button>
-        <div id="challenges-list"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LEARN -->
-  <div id="panel-learn" class="panel-section" style="display:none;flex-direction:column;height:100%;">
-    <div class="panel-header">
-      <span class="panel-title">Learn</span>
-      <button class="panel-close" onclick="UI.closePanel()"><i data-lucide="chevron-left" style="width:13px;height:13px"></i></button>
-    </div>
-    <div class="panel-body">
-      <div class="pgroup">
-        <div class="pgroup-title">Vocabulary</div>
-        <div id="learn-content"></div>
-      </div>
-      <div class="pgroup">
-        <div class="pgroup-title">Tools</div>
-        <button class="prow" onclick="Features.tajweedLessons()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="mic" style="width:12px;height:12px"></i></div><span class="prow-label">Tajweed Rules</span></div>
-          <i data-lucide="chevron-right" style="width:13px;height:13px;color:var(--text3)"></i>
-        </button>
-        <button class="prow" onclick="Features.quizMe()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="help-circle" style="width:12px;height:12px"></i></div><span class="prow-label">Quick Quiz</span></div>
-          <i data-lucide="chevron-right" style="width:13px;height:13px;color:var(--text3)"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- LIVE READING ROOM -->
-  <div id="panel-social" class="panel-section" style="display:none;flex-direction:column;height:100%;">
-    <div class="panel-header">
-      <span class="panel-title">Live Room</span>
-      <button class="panel-close" onclick="UI.closePanel()"><i data-lucide="chevron-left" style="width:13px;height:13px"></i></button>
-    </div>
-    <div class="panel-body">
-
-      <!-- Room status -->
-      <div id="room-status-area">
-        <div class="room-hero">
-          <div class="room-hero-icon">🕌</div>
-          <div class="room-hero-title">Quran Circle</div>
-          <div class="room-hero-sub">Read together in real‑time with audio</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-          <input type="text" id="room-name-inp" class="note-textarea" placeholder="Your display name…" style="min-height:auto;" value="Guest">
-          <input type="text" id="room-id-inp" class="note-textarea" placeholder="Room ID (leave blank to create new)" style="min-height:auto;">
-        </div>
-        <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="LiveRoom.join()">
-          <span style="display:flex;align-items:center;justify-content:center;gap:6px;"><i data-lucide="radio" style="width:13px;height:13px"></i> Join / Create Room</span>
-        </button>
-        <div id="room-info-msg" style="font-size:0.7rem;color:var(--text3);text-align:center;line-height:1.5;margin-top:4px;">Rooms are peer-to-peer and ephemeral — no server stores your audio.</div>
-      </div>
-
-      <!-- In-room UI (hidden until joined) -->
-      <div id="room-active-area" style="display:none;">
-        <div class="live-room-card">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <div>
-              <div style="font-size:0.65rem;font-weight:700;color:var(--accent);letter-spacing:0.1em;">LIVE ROOM</div>
-              <div id="active-room-id" style="font-size:0.78rem;font-weight:600;margin-top:1px;"></div>
-            </div>
-            <div class="live-badge">● LIVE</div>
-          </div>
-          <div id="participants-list" class="participants-grid"></div>
-          <div class="room-controls">
-            <button class="room-ctrl-btn" id="mic-btn" onclick="LiveRoom.toggleMic()" title="Toggle mic">
-              <i data-lucide="mic" style="width:16px;height:16px"></i>
-            </button>
-            <button class="room-ctrl-btn" id="speaker-btn" onclick="LiveRoom.toggleSpeaker()" title="Toggle speaker">
-              <i data-lucide="volume-2" style="width:16px;height:16px"></i>
-            </button>
-            <button class="room-ctrl-btn" id="screen-sync-btn" onclick="LiveRoom.syncAyah()" title="Sync ayah position">
-              <i data-lucide="link-2" style="width:16px;height:16px"></i>
-            </button>
-            <button class="room-ctrl-btn danger" onclick="LiveRoom.leave()" title="Leave room">
-              <i data-lucide="phone-off" style="width:16px;height:16px"></i>
-            </button>
-          </div>
-          <div id="room-share-row" style="margin-top:10px;">
-            <div style="font-size:0.6rem;color:var(--text3);margin-bottom:5px;">Share this Room ID with others:</div>
-            <div class="room-id-display" id="room-id-display" onclick="LiveRoom.copyRoomId()"></div>
-          </div>
-        </div>
-
-        <!-- Chat -->
-        <div style="margin-top:10px;">
-          <div class="pgroup-title" style="margin-bottom:6px;">Room Chat</div>
-          <div id="room-chat" class="room-chat-box"></div>
-          <div style="display:flex;gap:6px;margin-top:6px;">
-            <input type="text" id="chat-inp" class="note-textarea" placeholder="Message…" style="min-height:auto;flex:1;" onkeydown="if(event.key==='Enter')LiveRoom.sendChat()">
-            <button class="btn btn-primary" style="padding:8px 12px;flex-shrink:0;" onclick="LiveRoom.sendChat()"><i data-lucide="send" style="width:12px;height:12px"></i></button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ADHAN NOTIFIER -->
-  <div id="panel-adhan" class="panel-section" style="display:none;flex-direction:column;height:100%;">
-    <div class="panel-header">
-      <span class="panel-title">Adhan Notifier</span>
-      <button class="panel-close" onclick="UI.closePanel()"><i data-lucide="chevron-left" style="width:13px;height:13px"></i></button>
-    </div>
-    <div class="panel-body">
-
-      <div class="adhan-clock-wrap">
-        <div class="adhan-clock" id="adhan-clock">--:--:--</div>
-        <div class="adhan-date" id="adhan-date"></div>
-      </div>
-
-      <!-- Next prayer countdown -->
-      <div class="next-prayer-card" id="next-prayer-card">
-        <div class="next-prayer-label">Next Prayer</div>
-        <div class="next-prayer-name" id="np-name">—</div>
-        <div class="next-prayer-countdown" id="np-countdown">--:--:--</div>
-        <div class="next-prayer-time" id="np-time"></div>
-      </div>
-
-      <!-- Location setup -->
-      <div id="adhan-setup" style="margin-bottom:14px;">
-        <div class="pgroup-title" style="margin-bottom:6px;">Location</div>
-        <div style="display:flex;gap:6px;align-items:stretch;">
-          <input type="text" id="adhan-city" class="note-textarea" placeholder="City, Country (e.g. Cairo, Egypt)" style="min-height:auto;flex:1;">
-          <button class="btn btn-primary" style="padding:8px 12px;flex-shrink:0;" onclick="Adhan.fetchTimes()"><i data-lucide="search" style="width:12px;height:12px"></i></button>
-        </div>
-        <button class="prow" style="margin-top:8px;" onclick="Adhan.useGPS()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="map-pin" style="width:12px;height:12px"></i></div><span class="prow-label">Use my location (GPS)</span></div>
-          <i data-lucide="chevron-right" style="width:13px;height:13px;color:var(--text3)"></i>
-        </button>
-      </div>
-
-      <!-- Prayer times table -->
-      <div id="adhan-times-panel" style="display:none;">
-        <div class="pgroup-title" style="margin-bottom:8px;">Today's Prayer Times</div>
-        <div id="adhan-prayer-rows"></div>
-        <div class="prow" style="margin-top:8px;" onclick="Adhan.toggleNotifications()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="bell" style="width:12px;height:12px"></i></div><span class="prow-label">Adhan Notifications</span></div>
-          <div class="pill" id="pill-adhan-notif"></div>
-        </div>
-        <div class="prow" onclick="Adhan.previewAdhan()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="volume-2" style="width:12px;height:12px"></i></div><span class="prow-label">Preview Adhan Sound</span></div>
-          <i data-lucide="play" style="width:13px;height:13px;color:var(--text3)"></i>
-        </div>
-        <div style="font-size:0.62rem;color:var(--text3);text-align:center;margin-top:10px;line-height:1.6;" id="adhan-location-label"></div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- STATS -->
-  <div id="panel-stats" class="panel-section" style="display:none;flex-direction:column;height:100%;">
-    <div class="panel-header">
-      <span class="panel-title">Progress</span>
-      <button class="panel-close" onclick="UI.closePanel()"><i data-lucide="chevron-left" style="width:13px;height:13px"></i></button>
-    </div>
-    <div class="panel-body">
-      <div class="analytics-grid">
-        <div class="analytics-card"><div class="analytics-value" id="s-streak">0</div><div class="analytics-label">Day Streak</div></div>
-        <div class="analytics-card"><div class="analytics-value" id="s-listened">0</div><div class="analytics-label">Ayahs Heard</div></div>
-        <div class="analytics-card"><div class="analytics-value" id="s-bookmarks">0</div><div class="analytics-label">Bookmarks</div></div>
-        <div class="analytics-card"><div class="analytics-value" id="s-surahs">0</div><div class="analytics-label">Surahs Read</div></div>
-      </div>
-      <div class="pgroup" style="margin-top:14px;">
-        <div class="pgroup-title">Activity (28 days)</div>
-        <div class="heatmap-container" id="heatmap"></div>
-      </div>
-      <div class="pgroup">
-        <div class="pgroup-title">Achievements</div>
-        <div class="achievement-grid" id="achievements"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SETTINGS -->
-  <div id="panel-settings" class="panel-section" style="display:none;flex-direction:column;height:100%;">
-    <div class="panel-header">
-      <span class="panel-title">Settings</span>
-      <button class="panel-close" onclick="UI.closePanel()"><i data-lucide="chevron-left" style="width:13px;height:13px"></i></button>
-    </div>
-    <div class="panel-body">
-
-      <div class="pgroup">
-        <div class="pgroup-title">Theme</div>
-        <div class="theme-grid">
-          <div class="theme-swatch-wrap" onclick="UI.setTheme('dark')"><div class="theme-swatch active" id="swatch-dark" style="background:linear-gradient(135deg,#080c14 40%,#38bdf8)"></div><div class="theme-label">Dark</div></div>
-          <div class="theme-swatch-wrap" onclick="UI.setTheme('midnight')"><div class="theme-swatch" id="swatch-midnight" style="background:linear-gradient(135deg,#07071a 40%,#a78bfa)"></div><div class="theme-label">Midnight</div></div>
-          <div class="theme-swatch-wrap" onclick="UI.setTheme('emerald')"><div class="theme-swatch" id="swatch-emerald" style="background:linear-gradient(135deg,#030c07 40%,#34d399)"></div><div class="theme-label">Emerald</div></div>
-          <div class="theme-swatch-wrap" onclick="UI.setTheme('desert')"><div class="theme-swatch" id="swatch-desert" style="background:linear-gradient(135deg,#0e0a04 40%,#f59e0b)"></div><div class="theme-label">Desert</div></div>
-          <div class="theme-swatch-wrap" onclick="UI.setTheme('rose')"><div class="theme-swatch" id="swatch-rose" style="background:linear-gradient(135deg,#0e0509 40%,#fb7185)"></div><div class="theme-label">Rose</div></div>
-          <div class="theme-swatch-wrap" onclick="UI.setTheme('light')"><div class="theme-swatch" id="swatch-light" style="background:linear-gradient(135deg,#f5f7fc 40%,#2563eb)"></div><div class="theme-label">Light</div></div>
-          <div class="theme-swatch-wrap" onclick="UI.setTheme('sepia')"><div class="theme-swatch" id="swatch-sepia" style="background:linear-gradient(135deg,#f2ece0 40%,#7c3a14)"></div><div class="theme-label">Sepia</div></div>
-        </div>
-      </div>
-
-      <div class="pgroup">
-        <div class="pgroup-title">Display</div>
-        <button class="prow" onclick="Features.toggleWBW()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="align-justify" style="width:12px;height:12px"></i></div><span class="prow-label">Word by Word</span></div>
-          <div class="pill" id="pill-wbw"></div>
-        </button>
-        <button class="prow" onclick="Features.toggleTajweed()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="palette" style="width:12px;height:12px"></i></div><span class="prow-label">Tajweed Colors</span></div>
-          <div class="pill" id="pill-tajweed"></div>
-        </button>
-        <button class="prow" onclick="Features.toggleTranslit()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="languages" style="width:12px;height:12px"></i></div><span class="prow-label">Transliteration</span></div>
-          <div class="pill" id="pill-translit"></div>
-        </button>
-        <button class="prow" onclick="Features.toggleReadingMode()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="book-open" style="width:12px;height:12px"></i></div><span class="prow-label">Reading Mode</span></div>
-          <div class="pill" id="pill-readingMode"></div>
-        </button>
-        <button class="prow" onclick="Features.toggleMultiTrans()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="globe" style="width:12px;height:12px"></i></div><span class="prow-label">Multi-Translation</span></div>
-          <div class="pill" id="pill-multiTrans"></div>
-        </button>
-        <button class="prow" onclick="Features.showFontPicker()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="type" style="width:12px;height:12px"></i></div><span class="prow-label">Arabic Font</span></div>
-          <span class="prow-value" id="font-label">Uthmani</span>
-        </button>
-      </div>
-
-      <div class="pgroup">
-        <div class="pgroup-title">Accessibility</div>
-        <button class="prow" onclick="Features.toggleDyslexiaMode()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="eye" style="width:12px;height:12px"></i></div><span class="prow-label">Dyslexia-Friendly</span></div>
-          <div class="pill" id="pill-dyslexia"></div>
-        </button>
-        <button class="prow" onclick="Features.toggleLargeText()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="zoom-in" style="width:12px;height:12px"></i></div><span class="prow-label">Large Text</span></div>
-          <div class="pill" id="pill-largeText"></div>
-        </button>
-        <button class="prow" onclick="Features.toggleNightLight()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="moon" style="width:12px;height:12px"></i></div><span class="prow-label">Night Light</span></div>
-          <div class="pill" id="pill-nightLight"></div>
-        </button>
-      </div>
-
-      <div class="pgroup">
-        <div class="pgroup-title">Audio</div>
-        <button class="prow" onclick="Features.selectReciter()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="mic-2" style="width:12px;height:12px"></i></div><span class="prow-label">Select Reciter</span></div>
-          <i data-lucide="chevron-right" style="width:13px;height:13px;color:var(--text3)"></i>
-        </button>
-      </div>
-
-      <div class="pgroup">
-        <div class="pgroup-title">Prayer Times</div>
-        <button class="prow" onclick="Features.setupPrayerTimes()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="clock" style="width:12px;height:12px"></i></div><span class="prow-label">Setup Prayer Times</span></div>
-          <i data-lucide="chevron-right" style="width:13px;height:13px;color:var(--text3)"></i>
-        </button>
-        <div id="prayer-times-container"></div>
-      </div>
-
-      <div class="pgroup">
-        <div class="pgroup-title">Data</div>
-        <button class="prow" onclick="Features.exportData()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="download" style="width:12px;height:12px"></i></div><span class="prow-label">Export Data</span></div>
-        </button>
-        <button class="prow" onclick="Features.importData()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="upload" style="width:12px;height:12px"></i></div><span class="prow-label">Import Data</span></div>
-        </button>
-        <button class="prow" onclick="Features.cloudSync()">
-          <div class="prow-left"><div class="prow-icon"><i data-lucide="cloud" style="width:12px;height:12px"></i></div><span class="prow-label">Cloud Sync</span></div>
-        </button>
-      </div>
     </div>
   </div>
 </div>
 
-<!-- MAIN -->
-<div class="right-col">
-  <div class="scroll-progress"><div class="scroll-progress-bar" id="scroll-bar"></div></div>
+<!-- Notes Panel -->
+<div id="panel-notes" class="panel hidden">
+  <div class="panel-header">
+    <div class="panel-title">My Notes</div>
+  </div>
+  <div class="panel-content" id="notes-list">
+    <div class="empty-state">No notes yet</div>
+  </div>
+</div>
 
-  <div class="top-bar">
-    <button class="top-btn" onclick="UI.switchTab('settings')" title="Settings">
-      <i data-lucide="settings-2" style="width:14px;height:14px"></i>
+<!-- Main Content Area -->
+<div id="main">
+  <!-- Home View -->
+  <div id="view-home">
+    <div class="hero">
+      <h1 class="hero-title">القرآن الكريم</h1>
+      <p class="hero-subtitle">Read, listen, and study the Holy Quran</p>
+      
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-value">114</div>
+          <div class="stat-label">Surahs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">6,236</div>
+          <div class="stat-label">Ayahs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-read">0</div>
+          <div class="stat-label">Read Today</div>
+        </div>
+      </div>
+      
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="UI.togglePanel('surahs')">
+          <i data-lucide="book-open"></i>
+          Browse Surahs
+        </button>
+        <button class="btn btn-secondary" onclick="App.continueLast()">
+          <i data-lucide="play"></i>
+          Continue Reading
+        </button>
+        <button class="btn btn-secondary" onclick="App.randomSurah()">
+          <i data-lucide="shuffle"></i>
+          Random Surah
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Surah View -->
+  <div id="view-surah" class="hidden"></div>
+</div>
+
+<!-- Audio HUD (Bottom Player) -->
+<div class="hud">
+  <div class="hud-art" id="hud-art">—</div>
+  <div class="hud-info">
+    <div class="hud-title" id="hud-title">No audio playing</div>
+    <div class="hud-meta" id="hud-meta">Select an ayah to begin</div>
+  </div>
+  
+  <div class="hud-controls">
+    <button class="hud-btn" onclick="AudioPlayer.prev()">
+      <i data-lucide="skip-back"></i>
+    </button>
+    <button class="play-btn" id="play-btn" onclick="AudioPlayer.togglePlay()">
+      <i data-lucide="play"></i>
+    </button>
+    <button class="hud-btn" onclick="AudioPlayer.next()">
+      <i data-lucide="skip-forward"></i>
     </button>
   </div>
+  
+  <div class="hud-time" id="hud-time">0:00 / 0:00</div>
+  
+  <div class="hud-extras">
+    <button class="hud-btn" onclick="AudioPlayer.toggleRepeat()" id="repeat-btn">
+      <i data-lucide="repeat"></i>
+    </button>
+    <button class="hud-btn" onclick="UI.openSettings()">
+      <i data-lucide="settings"></i>
+    </button>
+  </div>
+</div>
 
-  <main id="main-scroll" onscroll="UI.updateScrollBar(this)">
-    <div id="view"></div>
-  </main>
-
-  <!-- HUD PLAYER -->
-  <div class="hud">
-    <div class="hud-glow"></div>
-    <div class="hud-art" id="hud-art">﷽</div>
-    <div class="wave" id="wave">
-      <div class="wb"></div><div class="wb"></div><div class="wb"></div>
-      <div class="wb"></div><div class="wb"></div><div class="wb"></div>
+<!-- Settings Modal -->
+<div class="modal-overlay" id="modal-settings">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <h2 class="modal-title">Settings</h2>
+      <button class="modal-close" onclick="UI.closeModal('settings')">
+        <i data-lucide="x"></i>
+      </button>
     </div>
-    <div class="hud-mid">
-      <div class="hud-meta">
-        <span class="hud-title" id="hud-title">SELECT A SURAH</span>
-        <span class="hud-time" id="hud-time">0:00 / 0:00</span>
+    <div class="modal-body">
+      <div class="setting-group">
+        <label class="setting-label">Appearance</label>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-name">Dark Mode</div>
+            <div class="setting-desc">Use dark theme</div>
+          </div>
+          <div class="pill on" id="pill-theme" onclick="Theme.toggle()"></div>
+        </div>
       </div>
-      <div class="hud-reciter" id="hud-sub"></div>
-      <div class="prog-bg" id="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
-    </div>
-    <div class="hud-ctrl">
-      <button class="hbtn" onclick="AudioPlayer.prev()"><i data-lucide="skip-back" style="width:15px;height:15px"></i></button>
-      <button class="play-btn" id="btn-play" onclick="AudioPlayer.togglePlay()"><i data-lucide="play" style="width:16px;height:16px"></i></button>
-      <button class="hbtn" onclick="AudioPlayer.next()"><i data-lucide="skip-forward" style="width:15px;height:15px"></i></button>
-    </div>
-    <div class="hud-extras">
-      <button class="hbtn" id="btn-repeat" onclick="AudioPlayer.toggleRepeat()"><i data-lucide="repeat-1" style="width:14px;height:14px"></i></button>
-      <button class="hbtn on" id="btn-auto" onclick="AudioPlayer.toggleAuto()"><i data-lucide="list-music" style="width:14px;height:14px"></i></button>
-      <button class="hbtn" onclick="Features.selectReciter()"><i data-lucide="mic" style="width:14px;height:14px"></i></button>
+      
+      <div class="setting-group">
+        <label class="setting-label">Reading</label>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-name">Arabic Font Size</div>
+            <div class="setting-desc">Adjust Arabic text size</div>
+          </div>
+          <select onchange="Settings.setArabicSize(this.value)" style="padding:8px;border-radius:8px;background:var(--surf2);border:1px solid var(--border);color:var(--text);">
+            <option value="1.6rem">Small</option>
+            <option value="2rem" selected>Medium</option>
+            <option value="2.4rem">Large</option>
+            <option value="3rem">Extra Large</option>
+          </select>
+        </div>
+        
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-name">Show Translation</div>
+            <div class="setting-desc">Display English translation</div>
+          </div>
+          <div class="pill on" id="pill-translation" onclick="Settings.toggleTranslation()"></div>
+        </div>
+        
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-name">Word-by-Word</div>
+            <div class="setting-desc">Show word translations</div>
+          </div>
+          <div class="pill" id="pill-wbw" onclick="Settings.toggleWBW()"></div>
+        </div>
+      </div>
+      
+      <div class="setting-group">
+        <label class="setting-label">Audio</label>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-name">Auto-play Next</div>
+            <div class="setting-desc">Continue to next ayah automatically</div>
+          </div>
+          <div class="pill on" id="pill-autoplay" onclick="Settings.toggleAutoplay()"></div>
+        </div>
+        
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-name">Reciter</div>
+            <div class="setting-desc">Select your preferred reciter</div>
+          </div>
+          <select onchange="Settings.setReciter(this.value)" id="reciter-select" style="padding:8px;border-radius:8px;background:var(--surf2);border:1px solid var(--border);color:var(--text);">
+            <option value="ar.alafasy">Mishary Alafasy</option>
+            <option value="ar.abdulbasitmurattal">Abdul Basit</option>
+            <option value="ar.minshawi">Al-Minshawi</option>
+            <option value="ar.husary">Al-Husary</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="setting-group">
+        <label class="setting-label">Data</label>
+        <button class="btn btn-secondary" style="width:100%;" onclick="App.resetProgress()">
+          <i data-lucide="trash-2"></i>
+          Clear All Data
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
-<audio id="audio-el" preload="none"></audio>
+<!-- Adhan Banner -->
+<div class="adhan-banner" id="adhan-banner">
+  <div id="adhan-banner-title" style="font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:4px;">🕌 Azan</div>
+  <div id="adhan-banner-sub" style="font-size:0.85rem;color:var(--text3);">It is time for prayer</div>
+  <button class="btn btn-secondary" style="margin-top:8px;" onclick="Adhan.dismissBanner()">Dismiss</button>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
 
 <script>
-// ═══════════════════════════════════════════════
-// CONSTANTS & STATE (FIXED & IMPROVED)
-// ═══════════════════════════════════════════════
-const STORAGE = {
-  BOOKMARKS:'zpu_bookmarks', STATS:'zpu_stats', SETTINGS:'zpu_settings',
-  GOALS:'zpu_goals', GROUPS:'zpu_groups', CHALLENGES:'zpu_challenges',
-  ACHIEVEMENTS:'zpu_achievements', HEATMAP:'zpu_heatmap',
-  HIGHLIGHTS:'zpu_highlights', NOTES:'zpu_notes', PRAYER_TIMES:'zpu_prayer',
-  ADHAN:'zpu_adhan'
-};
-
-const RECITERS = [
-  { id:'alafasy',  name:'Mishary Alafasy',       style:'Murattal', cdn: n => `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${n}.mp3` },
-  { id:'husary',   name:'Mahmoud Husary',         style:'Hafs',     cdn: n => `https://cdn.islamic.network/quran/audio/128/ar.husary/${n}.mp3` },
-  { id:'minshawi', name:'Mohamed Minshawi',       style:'Murattal', cdn: n => `https://cdn.islamic.network/quran/audio/128/ar.minshawi/${n}.mp3` },
-  { id:'sudais',   name:'Abdul Rahman Sudais',    style:'Hafs',     cdn: n => `https://cdn.islamic.network/quran/audio/128/ar.abdurrahmaansudais/${n}.mp3` },
-  { id:'shuraim',  name:'Saud Al-Shuraim',        style:'Hafs',     cdn: n => `https://cdn.islamic.network/quran/audio/128/ar.shuraim/${n}.mp3` },
-  { id:'basfar',   name:'Abdullah Basfar',        style:'Hafs',     cdn: n => `https://cdn.islamic.network/quran/audio/128/ar.abdullahbasfar/${n}.mp3` },
-];
-
-const ACHIEVEMENTS_DEF = [
-  { id:'first_read',  name:'First Steps',  icon:'📖', desc:'Read your first Surah',     check: s => s.surahs.length >= 1 },
-  { id:'week_streak', name:'Dedicated',    icon:'🔥', desc:'7-day streak',              check: s => s.streak >= 7 },
-  { id:'month_streak',name:'Committed',    icon:'💪', desc:'30-day streak',             check: s => s.streak >= 30 },
-  { id:'10_surahs',   name:'10 Surahs',    icon:'📚', desc:'Read 10 surahs',            check: s => s.surahs.length >= 10 },
-  { id:'50_surahs',   name:'Half Way',     icon:'🌟', desc:'Read 50 surahs',            check: s => s.surahs.length >= 50 },
-  { id:'all_surahs',  name:'Complete',     icon:'🏆', desc:'Read all 114 Surahs',       check: s => s.surahs.length >= 114 },
-  { id:'100_bookmarks',name:'Collector',   icon:'📌', desc:'100 bookmarks',             check: s => s.bookmarks >= 100 },
-  { id:'1000_ayahs',  name:'Listener',     icon:'🎧', desc:'1000 ayahs heard',          check: s => s.listened >= 1000 },
-  { id:'night_owl',   name:'Night Owl',    icon:'🦉', desc:'Read after midnight',       check: s => s.nightReads >= 1 },
-];
-
-const WBW_DATA = { 
-  sample: [
-    { ar:'بِسْمِ', en:'In the name', trans:'Bismi' },
-    { ar:'اللَّهِ', en:'of Allah', trans:'Allahi' },
-    { ar:'الرَّحْمَٰنِ', en:'the Most Gracious', trans:'Ar-Rahmani' },
-    { ar:'الرَّحِيمِ', en:'the Most Merciful', trans:'Ar-Raheem' },
-  ]
-};
-
-const VOCAB_DATABASE = [
-  { ar:'صَلَاة', root:'ص ل و', meaning:'Prayer, connection with Allah', examples:'Used 99 times in the Quran' },
-  { ar:'صَبْر', root:'ص ب ر', meaning:'Patience, perseverance', examples:'Mentioned in 2:45, 2:153, 3:200' },
-  { ar:'رَحْمَة', root:'ر ح م', meaning:'Mercy, compassion', examples:'Root of Ar-Rahman, Ar-Raheem' },
-  { ar:'شُكْر', root:'ش ك ر', meaning:'Gratitude, thankfulness', examples:'Related to Al-Shakoor' },
-  { ar:'إِيمَان', root:'أ م ن', meaning:'Faith, belief, trust', examples:'Core concept, 800+ occurrences' },
-];
-
-// ═══════════════════════════════════════════════
-// STATE (FIXED)
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// GLOBAL STATE & CONFIGURATION
+// ══════════════════════════════════════════════
 const State = {
-  surahs: [], 
-  currentSurah: null, 
-  currentAyahs: [], 
-  currentIdx: -1,
-  
-  settings: { 
-    reciter: 'alafasy', 
-    wbw: false, 
-    tajweed: false, 
-    translit: false,
-    readingMode: false, 
-    multiTrans: false, 
-    dyslexia: false, 
-    largeText: false, 
-    nightLight: false, 
-    arabicFont: 'uthmani' 
+  currentSurah: null,
+  currentAyahs: [],
+  bookmarks: [],
+  notes: [],
+  readToday: 0,
+  lastRead: null,
+  settings: {
+    theme: 'dark',
+    arabicSize: '2rem',
+    showTranslation: true,
+    showWBW: false,
+    autoplay: true,
+    reciter: 'ar.alafasy'
   },
-  
-  bookmarkFolders: [{ id: 'default', name: 'My Bookmarks', bookmarks: [] }],
-  highlights: {}, 
-  notes: {},
-  goals: { type: 'surahs', target: 20, current: 0, lastReset: null },
-  challenges: [], 
-  achievements: [],
-  
-  stats: { 
-    surahs: [], 
-    listened: 0, 
-    minutes: 0, 
-    streak: 0, 
-    lastDate: null, 
-    bookmarks: 0, 
-    nightReads: 0 
-  },
-  
-  heatmap: {}, 
-  groups: [], 
-  prayerTimes: null, 
-  prayerLocation: null, 
-  searchFilters: [], 
-  memorizing: [],
-
-  load() {
-    try {
-      // Helper function to safely parse JSON
-      const getItem = (key, defaultValue = null) => {
-        const item = localStorage.getItem(key);
-        if (!item) return defaultValue;
-        try {
-          return JSON.parse(item);
-        } catch {
-          return defaultValue;
-        }
-      };
-
-      const settings = getItem(STORAGE.SETTINGS);
-      if (settings) this.settings = { ...this.settings, ...settings };
-      
-      const bookmarks = getItem(STORAGE.BOOKMARKS);
-      if (bookmarks) this.bookmarkFolders = bookmarks;
-      
-      const goals = getItem(STORAGE.GOALS);
-      if (goals) this.goals = { ...this.goals, ...goals };
-      
-      const achievements = getItem(STORAGE.ACHIEVEMENTS);
-      if (achievements) this.achievements = achievements;
-      
-      const heatmap = getItem(STORAGE.HEATMAP);
-      if (heatmap) this.heatmap = heatmap;
-      
-      const stats = getItem(STORAGE.STATS);
-      if (stats) this.stats = { ...this.stats, ...stats };
-      
-      const highlights = getItem(STORAGE.HIGHLIGHTS);
-      if (highlights) this.highlights = highlights;
-      
-      const notes = getItem(STORAGE.NOTES);
-      if (notes) this.notes = notes;
-      
-      const groups = getItem(STORAGE.GROUPS);
-      if (groups) this.groups = groups;
-      
-      const challenges = getItem(STORAGE.CHALLENGES);
-      if (challenges) this.challenges = challenges;
-      
-      const prayer = getItem(STORAGE.PRAYER_TIMES);
-      if (prayer) {
-        this.prayerTimes = prayer.times;
-        this.prayerLocation = prayer.location;
-      }
-    } catch(e) { 
-      console.error('Load error', e); 
-    }
-  },
-
-  save(key) {
-    try {
-      const saveMap = {
-        settings: () => localStorage.setItem(STORAGE.SETTINGS, JSON.stringify(this.settings)),
-        bookmarks: () => localStorage.setItem(STORAGE.BOOKMARKS, JSON.stringify(this.bookmarkFolders)),
-        goals: () => localStorage.setItem(STORAGE.GOALS, JSON.stringify(this.goals)),
-        achievements: () => localStorage.setItem(STORAGE.ACHIEVEMENTS, JSON.stringify(this.achievements)),
-        heatmap: () => localStorage.setItem(STORAGE.HEATMAP, JSON.stringify(this.heatmap)),
-        stats: () => localStorage.setItem(STORAGE.STATS, JSON.stringify(this.stats)),
-        highlights: () => localStorage.setItem(STORAGE.HIGHLIGHTS, JSON.stringify(this.highlights)),
-        notes: () => localStorage.setItem(STORAGE.NOTES, JSON.stringify(this.notes)),
-        groups: () => localStorage.setItem(STORAGE.GROUPS, JSON.stringify(this.groups)),
-        challenges: () => localStorage.setItem(STORAGE.CHALLENGES, JSON.stringify(this.challenges)),
-        prayer: () => localStorage.setItem(STORAGE.PRAYER_TIMES, JSON.stringify({times: this.prayerTimes, location: this.prayerLocation})),
-      };
-      
-      if (saveMap[key]) saveMap[key]();
-    } catch(e) {
-      console.error('Save error', e);
-    }
-  },
-
-  updateHeatmap() { 
-    const t = new Date().toDateString(); 
-    this.heatmap[t] = (this.heatmap[t] || 0) + 1; 
-    this.save('heatmap'); 
-  },
-  
-  checkGoalReset() { 
-    const t = new Date().toDateString(); 
-    if (this.goals.lastReset !== t) { 
-      this.goals.current = 0; 
-      this.goals.lastReset = t; 
-      this.save('goals'); 
-    }
-  },
-  
-  updateStreak() {
-    const today = new Date().toDateString();
-    const yest = new Date(); 
-    yest.setDate(yest.getDate() - 1);
-    
-    if (this.stats.lastDate === today) return;
-    
-    if (this.stats.lastDate === yest.toDateString()) {
-      this.stats.streak++;
-    } else {
-      this.stats.streak = 1;
-    }
-    
-    this.stats.lastDate = today; 
-    this.save('stats');
-  },
-  
-  checkAchievements() {
-    const statsObj = { 
-      surahs: this.stats.surahs, 
-      streak: this.stats.streak, 
-      bookmarks: this.stats.bookmarks, 
-      listened: this.stats.listened, 
-      nightReads: this.stats.nightReads 
-    };
-    
-    ACHIEVEMENTS_DEF.forEach(a => {
-      if (!this.achievements.includes(a.id) && a.check(statsObj)) { 
-        this.achievements.push(a.id); 
-        this.save('achievements'); 
-        UI.toast(`🏆 Achievement: ${a.name}!`); 
-        setTimeout(() => UI.renderStats(), 600); 
-      }
-    });
-  },
+  groups: []
 };
 
-// ═══════════════════════════════════════════════
-// API (FIXED WITH BETTER ERROR HANDLING)
-// ═══════════════════════════════════════════════
+// Load state from localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('quran-app-state');
+    if (saved) {
+      const data = JSON.parse(saved);
+      Object.assign(State, data);
+    }
+  } catch (e) {
+    console.warn('Failed to load state:', e);
+  }
+}
+
+// Save state to localStorage
+function saveState() {
+  try {
+    localStorage.setItem('quran-app-state', JSON.stringify(State));
+  } catch (e) {
+    console.warn('Failed to save state:', e);
+  }
+}
+
+// ══════════════════════════════════════════════
+// API CLIENT
+// ══════════════════════════════════════════════
 const API = {
-  _cache: new Map(),
+  BASE: 'https://api.alquran.cloud/v1',
   
-  async fetch(url) {
-    if (this._cache.has(url)) return this._cache.get(url);
-    
+  async getSurahList() {
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch(`${this.BASE}/surah`);
       const data = await res.json();
-      this._cache.set(url, data);
-      // Limit cache size
-      if (this._cache.size > 120) { 
-        const firstKey = this._cache.keys().next().value;
-        this._cache.delete(firstKey); 
-      }
-      return data;
-    } catch (error) {
-      console.error('API fetch error:', error);
-      throw error;
+      return data.data;
+    } catch (e) {
+      console.error('Failed to fetch surahs:', e);
+      return [];
     }
   },
   
-  async getSurahList() { 
-    const d = await this.fetch('https://api.alquran.cloud/v1/surah'); 
-    return d.data; 
+  async getSurah(number) {
+    try {
+      const [arabic, translation] = await Promise.all([
+        fetch(`${this.BASE}/surah/${number}`).then(r => r.json()),
+        fetch(`${this.BASE}/surah/${number}/en.asad`).then(r => r.json())
+      ]);
+      
+      return {
+        arabic: arabic.data,
+        translation: translation.data
+      };
+    } catch (e) {
+      console.error('Failed to fetch surah:', e);
+      return null;
+    }
   },
   
-  async getSurah(n, ed = 'quran-uthmani') { 
-    const d = await this.fetch(`https://api.alquran.cloud/v1/surah/${n}/${ed}`); 
-    return d.data; 
-  },
+  async searchQuran(query) {
+    try {
+      const res = await fetch(`${this.BASE}/search/${encodeURIComponent(query)}/all/en`);
+      const data = await res.json();
+      return data.data?.matches || [];
+    } catch (e) {
+      console.error('Search failed:', e);
+      return [];
+    }
+  }
 };
 
-// ═══════════════════════════════════════════════
-// AUDIO PLAYER (FIXED)
-// ═══════════════════════════════════════════════
-const AudioPlayer = {
-  el: null, 
-  currentIdx: -1, 
-  repeat: false, 
-  autoplay: true,
-
-  init() {
-    this.el = document.getElementById('audio-el');
-    if (!this.el) return;
+// ══════════════════════════════════════════════
+// THEME MANAGER
+// ══════════════════════════════════════════════
+const Theme = {
+  toggle() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    State.settings.theme = next;
+    saveState();
     
-    this.el.ontimeupdate = () => {
-      const cur = this.el.currentTime || 0;
-      const dur = this.el.duration;
-      const pct = (dur && !isNaN(dur)) ? (cur / dur) * 100 : 0;
-      
-      const progFill = document.getElementById('prog-fill');
-      if (progFill) progFill.style.width = pct + '%';
-      
-      const fmt = (s) => {
-        if (isNaN(s) || !isFinite(s)) return '0:00';
-        return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
-      };
-      
-      const hudTime = document.getElementById('hud-time');
-      if (hudTime) hudTime.textContent = `${fmt(cur)} / ${fmt(dur || 0)}`;
-    };
+    // Update pill
+    const pill = document.getElementById('pill-theme');
+    if (pill) pill.classList.toggle('on', next === 'dark');
     
-    this.el.onended = () => {
-      if (this.repeat) { 
-        this.el.currentTime = 0; 
-        this.el.play().catch(() => {}); 
-        return; 
-      }
-      
-      if (this.autoplay && State.currentAyahs.length > 0 && this.currentIdx < State.currentAyahs.length - 1) {
-        this.play(this.currentIdx + 1);
-      } else {
-        document.getElementById('wave')?.classList.remove('go');
-      }
-    };
-    
-    this.el.onplay = () => {
-      document.getElementById('wave')?.classList.add('go');
-      const btnPlay = document.getElementById('btn-play');
-      if (btnPlay) {
-        const icon = btnPlay.querySelector('i');
-        if (icon) {
-          icon.setAttribute('data-lucide', 'pause');
-          lucide.createIcons();
-        }
-      }
-    };
-    
-    this.el.onpause = () => {
-      document.getElementById('wave')?.classList.remove('go');
-      const btnPlay = document.getElementById('btn-play');
-      if (btnPlay) {
-        const icon = btnPlay.querySelector('i');
-        if (icon) {
-          icon.setAttribute('data-lucide', 'play');
-          lucide.createIcons();
-        }
-      }
-    };
-    
-    this.el.onerror = () => {
-      document.getElementById('wave')?.classList.remove('go');
-      UI.toast('⚠️ Audio failed — try another reciter');
-    };
-    
-    const progBg = document.getElementById('prog-bg');
-    if (progBg) {
-      progBg.onclick = (e) => {
-        const dur = this.el.duration; 
-        if (!dur || isNaN(dur)) return;
-        const r = e.currentTarget.getBoundingClientRect();
-        this.el.currentTime = ((e.clientX - r.left) / r.width) * dur;
-      };
+    // Update icon
+    const icon = document.querySelector('#rail .rail-btn:last-child i');
+    if (icon) {
+      icon.setAttribute('data-lucide', next === 'dark' ? 'moon' : 'sun');
+      lucide.createIcons();
     }
-  },
+  }
+};
 
-  play(idx) {
-    if (!State.currentAyahs || !State.currentAyahs[idx]) return;
+// ══════════════════════════════════════════════
+// SETTINGS MANAGER
+// ══════════════════════════════════════════════
+const Settings = {
+  setArabicSize(size) {
+    document.documentElement.style.setProperty('--ar-size', size);
+    State.settings.arabicSize = size;
+    saveState();
+  },
+  
+  toggleTranslation() {
+    State.settings.showTranslation = !State.settings.showTranslation;
+    const pill = document.getElementById('pill-translation');
+    if (pill) pill.classList.toggle('on', State.settings.showTranslation);
     
-    this.currentIdx = idx;
-    const ayah = State.currentAyahs[idx];
-    const rec = RECITERS.find(r => r.id === State.settings.reciter) || RECITERS[0];
-    
-    this.el.src = rec.cdn(ayah.number);
-    this.el.play().catch(e => { 
-      console.warn('Play error', e); 
-      UI.toast('⚠️ Audio failed — tap play to retry'); 
+    // Update all translation containers
+    document.querySelectorAll('.translation-container').forEach(el => {
+      el.classList.toggle('show', State.settings.showTranslation);
     });
     
-    const hudTitle = document.getElementById('hud-title');
-    if (hudTitle) hudTitle.textContent = `${State.currentSurah?.englishName || ''} · Ayah ${ayah.numberInSurah}`;
-    
-    const hudArt = document.getElementById('hud-art');
-    if (hudArt) hudArt.textContent = ayah.numberInSurah;
-    
-    State.stats.listened++;
-    if (new Date().getHours() < 6) State.stats.nightReads++;
-    State.save('stats'); 
-    State.checkAchievements();
-    
-    document.querySelectorAll('.ayah-card').forEach(c => c.classList.remove('playing'));
-    const card = document.getElementById(`ac-${idx}`);
-    if (card) { 
-      card.classList.add('playing'); 
-      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); 
-    }
+    saveState();
   },
+  
+  toggleWBW() {
+    State.settings.showWBW = !State.settings.showWBW;
+    const pill = document.getElementById('pill-wbw');
+    if (pill) pill.classList.toggle('on', State.settings.showWBW);
+    
+    // Update all WBW containers
+    document.querySelectorAll('.wbw-container').forEach(el => {
+      el.classList.toggle('show', State.settings.showWBW);
+    });
+    
+    saveState();
+  },
+  
+  toggleAutoplay() {
+    State.settings.autoplay = !State.settings.autoplay;
+    const pill = document.getElementById('pill-autoplay');
+    if (pill) pill.classList.toggle('on', State.settings.autoplay);
+    saveState();
+  },
+  
+  setReciter(reciter) {
+    State.settings.reciter = reciter;
+    saveState();
+  }
+};
 
-  togglePlay() {
-    if (!this.el || !this.el.src || this.el.src === window.location.href || this.currentIdx < 0) {
-      if (State.currentAyahs && State.currentAyahs.length > 0) {
-        this.play(0);
-      } else {
-        UI.toast('⚠️ Select a Surah first');
+// ══════════════════════════════════════════════
+// AUDIO PLAYER
+// ══════════════════════════════════════════════
+const AudioPlayer = {
+  el: null,
+  currentIndex: -1,
+  
+  init() {
+    this.el = new Audio();
+    this.el.addEventListener('ended', () => {
+      if (State.settings.autoplay) {
+        this.next();
       }
+    });
+    
+    this.el.addEventListener('timeupdate', () => {
+      this.updateTime();
+    });
+  },
+  
+  play(surah, ayahNum) {
+    const paddedSurah = String(surah).padStart(3, '0');
+    const paddedAyah = String(ayahNum).padStart(3, '0');
+    const url = `https://cdn.islamic.network/quran/audio-surah/128/${State.settings.reciter}/${paddedSurah}${paddedAyah}.mp3`;
+    
+    this.el.src = url;
+    this.el.play();
+    
+    this.currentIndex = ayahNum - 1;
+    
+    // Update HUD
+    document.getElementById('hud-art').textContent = surah;
+    document.getElementById('hud-title').textContent = `Surah ${surah}, Ayah ${ayahNum}`;
+    document.getElementById('hud-meta').textContent = State.currentAyahs[this.currentIndex]?.text?.substring(0, 50) + '...' || '';
+    
+    // Update play button
+    const playBtn = document.getElementById('play-btn');
+    if (playBtn) {
+      playBtn.querySelector('i').setAttribute('data-lucide', 'pause');
+      lucide.createIcons();
+    }
+    
+    // Highlight current ayah
+    document.querySelectorAll('.ayah-card').forEach(el => el.classList.remove('playing'));
+    document.getElementById(`ac-${this.currentIndex}`)?.classList.add('playing');
+    
+    // Increment read count
+    State.readToday++;
+    document.getElementById('stat-read').textContent = State.readToday;
+    saveState();
+  },
+  
+  togglePlay() {
+    if (!this.el || !this.el.src) {
+      UI.toast('No audio selected');
       return;
     }
     
     if (this.el.paused) {
-      this.el.play().catch(() => UI.toast('⚠️ Playback blocked — tap to retry'));
+      this.el.play();
+      document.getElementById('play-btn').querySelector('i').setAttribute('data-lucide', 'pause');
     } else {
       this.el.pause();
+      document.getElementById('play-btn').querySelector('i').setAttribute('data-lucide', 'play');
+    }
+    lucide.createIcons();
+  },
+  
+  next() {
+    if (this.currentIndex < State.currentAyahs.length - 1) {
+      this.play(State.currentSurah, this.currentIndex + 2);
     }
   },
-
-  prev() { 
-    if (!State.currentAyahs || !State.currentAyahs.length) return; 
-    if (this.el.currentTime > 3) { 
-      this.el.currentTime = 0; 
-      return; 
-    } 
-    if (this.currentIdx > 0) this.play(this.currentIdx - 1); 
+  
+  prev() {
+    if (this.currentIndex > 0) {
+      this.play(State.currentSurah, this.currentIndex);
+    }
   },
   
-  next() { 
-    if (!State.currentAyahs || !State.currentAyahs.length) return; 
-    if (this.currentIdx < State.currentAyahs.length - 1) this.play(this.currentIdx + 1); 
+  updateTime() {
+    if (!this.el) return;
+    
+    const current = this.formatTime(this.el.currentTime);
+    const total = this.formatTime(this.el.duration);
+    document.getElementById('hud-time').textContent = `${current} / ${total}`;
   },
   
-  toggleRepeat() { 
-    this.repeat = !this.repeat; 
-    document.getElementById('btn-repeat')?.classList.toggle('on', this.repeat); 
-    UI.toast(this.repeat ? '🔁 Repeat ON' : 'Repeat OFF'); 
+  formatTime(seconds) {
+    if (!seconds || !isFinite(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   },
   
-  toggleAuto() { 
-    this.autoplay = !this.autoplay; 
-    document.getElementById('btn-auto')?.classList.toggle('on', this.autoplay); 
-    UI.toast(this.autoplay ? '▶ Autoplay ON' : 'Autoplay OFF'); 
-  },
+  toggleRepeat() {
+    this.el.loop = !this.el.loop;
+    const btn = document.getElementById('repeat-btn');
+    if (btn) btn.classList.toggle('active', this.el.loop);
+  }
 };
 
-// ═══════════════════════════════════════════════
-// UI (FIXED)
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// UI MANAGER
+// ══════════════════════════════════════════════
 const UI = {
-  currentTab: 'surahs', 
-  panelOpen: true,
-
-  init() {
-    lucide.createIcons();
-    AudioPlayer.init();
+  currentPanel: null,
+  
+  showView(view) {
+    // Hide all views
+    document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
     
-    const s = State.settings;
-    const classMap = { 
-      wbw: 'show-wbw', 
-      translit: 'show-translit', 
-      multiTrans: 'show-multi-trans',
-      readingMode: 'reading-mode', 
-      dyslexia: 'dyslexia-mode', 
-      largeText: 'large-text-mode', 
-      nightLight: 'night-light-mode' 
-    };
+    // Show selected view
+    const viewEl = document.getElementById(`view-${view}`);
+    if (viewEl) viewEl.classList.remove('hidden');
     
-    Object.entries(classMap).forEach(([k, cls]) => {
-      if (s[k]) { 
-        document.body.classList.add(cls); 
-        const p = document.getElementById(`pill-${k}`); 
-        if (p) p.classList.add('on'); 
-      }
-    });
-    
-    // Set initial font
-    document.querySelectorAll('.ar').forEach(el => el.classList.add(`font-${s.arabicFont}`));
-    
-    const fontNames = { 
-      uthmani: 'Uthmani', 
-      amiri: 'Amiri', 
-      indopak: 'Indo-Pak', 
-      naskh: 'Noto Naskh', 
-      simple: 'Bold', 
-      warsh: 'Warsh' 
-    };
-    
-    const fl = document.getElementById('font-label'); 
-    if (fl) fl.textContent = fontNames[s.arabicFont] || 'Uthmani';
-    
-    const rec = RECITERS.find(r => r.id === s.reciter) || RECITERS[0];
-    const hudSub = document.getElementById('hud-sub'); 
-    if (hudSub) hudSub.textContent = `🎙 ${rec.name}`;
-    
-    lucide.createIcons();
+    // Update rail buttons
+    document.querySelectorAll('.rail-btn').forEach(el => el.classList.remove('active'));
   },
-
-  updateScrollBar(el) {
-    if (!el) return;
-    const pct = el.scrollTop / (el.scrollHeight - el.clientHeight) * 100;
-    const bar = document.getElementById('scroll-bar'); 
-    if (bar) bar.style.width = (isNaN(pct) ? 0 : pct) + '%';
-  },
-
-  switchTab(name) {
-    if (this.currentTab === name && this.panelOpen) { 
-      this.closePanel(); 
-      return; 
+  
+  togglePanel(panel) {
+    const panelEl = document.getElementById(`panel-${panel}`);
+    if (!panelEl) return;
+    
+    // Close current panel if different
+    if (this.currentPanel && this.currentPanel !== panel) {
+      document.getElementById(`panel-${this.currentPanel}`)?.classList.add('hidden');
     }
     
-    this.currentTab = name; 
-    this.panelOpen = true;
+    // Toggle selected panel
+    const isOpen = !panelEl.classList.contains('hidden');
+    panelEl.classList.toggle('hidden');
     
-    const panel = document.getElementById('panel');
-    if (panel) panel.classList.add('open');
-    
-    document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
-    const rb = document.getElementById(`rail-${name}`); 
-    if (rb) rb.classList.add('active');
-    
-    document.querySelectorAll('.panel-section').forEach(p => { 
-      p.style.display = (p.id === `panel-${name}`) ? 'flex' : 'none'; 
-    });
-    
-    // Render appropriate panel content
-    const renderMap = {
-      stats: () => this.renderStats(),
-      bookmarks: () => this.renderBookmarks(),
-      goals: () => this.renderGoals(),
-      social: () => LiveRoom.renderPanel(),
-      adhan: () => Adhan.renderPanel(),
-      learn: () => this.renderLearn(),
-      search: () => this.renderSearch()
-    };
-    
-    if (renderMap[name]) renderMap[name]();
-    
-    lucide.createIcons();
-  },
-
-  closePanel() {
-    this.panelOpen = false;
-    const panel = document.getElementById('panel');
-    if (panel) panel.classList.remove('open');
-    document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
-  },
-
-  setTheme(name) {
-    document.documentElement.setAttribute('data-theme', name);
-    localStorage.setItem('theme', name);
-    
-    document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
-    const sw = document.getElementById(`swatch-${name}`); 
-    if (sw) sw.classList.add('active');
-    
-    // Update favicon
-    const bgMap = {
-      dark: '%23080c14', midnight: '%2307071a', desert: '%230e0a04', 
-      emerald: '%23030c07', rose: '%230e0509', light: '%23e8edf8', sepia: '%23f2ece0'
-    };
-    const acMap = {
-      dark: '%2338bdf8', midnight: '%23a78bfa', desert: '%23f59e0b', 
-      emerald: '%2334d399', rose: '%23fb7185', light: '%232563eb', sepia: '%237c3a14'
-    };
-    const bg2Map = {
-      dark: '%23080c14', midnight: '%2307071a', desert: '%230e0a04', 
-      emerald: '%23030c07', rose: '%230e0509', light: '%23e8edf8', sepia: '%23f2ece0'
-    };
-    
-    const bg = bgMap[name] || '%23080c14';
-    const ac = acMap[name] || '%2338bdf8';
-    const bg2 = bg2Map[name] || bg;
-    
-    const favicon = document.getElementById('favicon');
-    if (favicon) {
-      favicon.href = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='${bg}'/%3E%3Ccircle cx='14' cy='16' r='8' fill='${ac}'/%3E%3Ccircle cx='17.5' cy='13' r='6' fill='${bg2}'/%3E%3Cpolygon points='24,6 24.9,8.7 27.6,8.7 25.4,10.4 26.3,13 24,11.3 21.7,13 22.6,10.4 20.4,8.7 23.1,8.7' fill='${ac}'/%3E%3C/svg%3E`;
+    // Update main margin
+    const main = document.getElementById('main');
+    const hud = document.querySelector('.hud');
+    if (isOpen) {
+      main.classList.remove('panel-open');
+      hud.classList.remove('panel-open');
+      this.currentPanel = null;
+    } else {
+      main.classList.add('panel-open');
+      hud.classList.add('panel-open');
+      this.currentPanel = panel;
     }
-    
-    // Update rail logo
-    const accentHex = {
-      dark: 'rgba(56,189,248,0.9)', midnight: 'rgba(167,139,250,0.9)', 
-      desert: 'rgba(245,158,11,0.9)', emerald: 'rgba(52,211,153,0.9)', 
-      rose: 'rgba(251,113,133,0.9)', light: 'rgba(37,99,235,0.9)', 
-      sepia: 'rgba(124,58,20,0.9)'
-    };
-    const logoColor = accentHex[name] || 'rgba(56,189,248,0.9)';
-    
-    document.querySelectorAll('.rail-logo svg path, .rail-logo svg polygon').forEach(el => {
-      el.setAttribute('fill', logoColor);
-    });
   },
-
-  toast(msg) {
-    const el = document.createElement('div'); 
-    el.className = 'toast-item'; 
-    el.textContent = msg;
+  
+  openSettings() {
+    this.openModal('settings');
     
-    const toastWrap = document.getElementById('toast-wrap');
-    if (!toastWrap) return;
+    // Update pill states
+    document.getElementById('pill-theme')?.classList.toggle('on', State.settings.theme === 'dark');
+    document.getElementById('pill-translation')?.classList.toggle('on', State.settings.showTranslation);
+    document.getElementById('pill-wbw')?.classList.toggle('on', State.settings.showWBW);
+    document.getElementById('pill-autoplay')?.classList.toggle('on', State.settings.autoplay);
     
-    toastWrap.appendChild(el);
-    
-    requestAnimationFrame(() => el.classList.add('show'));
-    setTimeout(() => { 
-      el.classList.remove('show'); 
-      setTimeout(() => el.remove(), 300); 
-    }, 2600);
+    // Update reciter select
+    const reciterSelect = document.getElementById('reciter-select');
+    if (reciterSelect) reciterSelect.value = State.settings.reciter;
   },
-
-  showModal(title, content, size = 'md') {
-    const ov = document.getElementById('main-overlay');
-    if (!ov) return;
-    
-    ov.innerHTML = `
-      <div class="modal modal-${size}">
-        <div class="modal-header">
-          <div class="modal-title">${title}</div>
-          <button class="modal-close" onclick="UI.closeModal()">
-            <i data-lucide="x" style="width:15px;height:15px"></i>
-          </button>
-        </div>
-        <div class="modal-body">${content}</div>
-      </div>
-    `;
-    
-    ov.classList.add('open'); 
-    lucide.createIcons();
+  
+  openModal(id) {
+    const modal = document.getElementById(`modal-${id}`);
+    if (modal) {
+      modal.classList.add('show');
+      lucide.createIcons();
+    }
   },
-
-  closeModal() { 
-    document.getElementById('main-overlay')?.classList.remove('open'); 
+  
+  closeModal(id) {
+    const modal = document.getElementById(`modal-${id}`);
+    if (modal) modal.classList.remove('show');
   },
-
-  renderSurahList(surahs) {
-    const list = document.getElementById('surah-list');
+  
+  toast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.remove(), 3000);
+  },
+  
+  async renderSurahs() {
+    const list = document.getElementById('surahs-list');
     if (!list) return;
     
+    list.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><div>Loading surahs...</div></div>';
+    
+    const surahs = await API.getSurahList();
+    
     list.innerHTML = surahs.map(s => `
-      <div class="surah-item" id="si-${s.number}" onclick="App.loadSurah(${s.number})">
-        <div class="sn">${s.number}</div>
-        <div class="sm">
-          <div class="sn-name">${s.englishName}</div>
-          <div class="sn-sub">${s.revelationType} · ${s.numberOfAyahs}</div>
+      <div class="surah-card" onclick="App.loadSurah(${s.number})">
+        <div class="surah-num">${s.number}</div>
+        <div class="surah-info">
+          <div class="surah-name">${s.englishName}</div>
+          <div class="surah-meta">${s.englishNameTranslation} • ${s.numberOfAyahs} ayahs</div>
         </div>
-        <div class="sar">${s.name}</div>
-      </div>
-    `).join('');
-    
-    lucide.createIcons();
-  },
-
-  renderSurah(arData, enData) {
-    const hasBismillah = arData.number !== 1 && arData.number !== 9;
-    
-    const html = `<div class="surah-wrap">
-      <div class="surah-hdr">
-        <div class="sh-ar">${arData.name}</div>
-        <div class="sh-name">${arData.englishName}</div>
-        <div class="sh-sub">${arData.englishNameTranslation}</div>
-        <div class="sh-pills">
-          <span class="sh-pill" style="background:rgba(var(--accent-rgb),0.1);color:var(--accent);border:1px solid rgba(var(--accent-rgb),0.2);">${arData.revelationType.toUpperCase()}</span>
-          <span class="sh-pill" style="background:rgba(var(--gold-rgb),0.1);color:var(--gold);border:1px solid rgba(var(--gold-rgb),0.2);">${arData.numberOfAyahs} VERSES</span>
-          <span class="sh-pill" style="background:rgba(255,255,255,0.05);color:var(--text2);border:1px solid var(--border);">SURAH ${arData.number}</span>
-        </div>
-      </div>
-      ${hasBismillah ? `<div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>` : ''}
-      ${arData.ayahs.map((a, i) => {
-        const key = `${arData.number}:${a.numberInSurah}`;
-        const hl = State.highlights[key] || '';
-        const hasNote = State.notes[key];
-        
-        return `<div class="ayah-card" id="ac-${i}">
-          <div class="ayah-top">
-            <span class="ayah-num">AYAH ${a.numberInSurah}</span>
-            <div class="ayah-btns">
-              <button class="ib" onclick="Features.bookmarkAyah(${arData.number},${a.numberInSurah},${i})" title="Bookmark"><i data-lucide="bookmark" style="width:11px;height:11px"></i></button>
-              <button class="ib ${hl ? 'active' : ''}" onclick="Features.highlightAyah(${arData.number},${a.numberInSurah},${i})" title="Highlight"><i data-lucide="highlighter" style="width:11px;height:11px"></i></button>
-              <button class="ib ${hasNote ? 'active' : ''}" onclick="Features.toggleNote(${arData.number},${a.numberInSurah},${i})" title="Note"><i data-lucide="sticky-note" style="width:11px;height:11px"></i></button>
-              <button class="ib" onclick="Features.copyAyah(${i})" title="Copy"><i data-lucide="copy" style="width:11px;height:11px"></i></button>
-              <button class="ib" onclick="Features.shareAyah(${i})" title="Share"><i data-lucide="share-2" style="width:11px;height:11px"></i></button>
-            </div>
-          </div>
-          <p class="ar font-${State.settings.arabicFont} ${hl}" id="ar-${i}">${a.text}</p>
-          <p class="translit" id="tl-${i}"></p>
-          <div class="wbw-container" id="wbw-${i}">
-            ${WBW_DATA.sample.map(w => `
-              <div class="wbw-word">
-                <div class="wbw-ar">${w.ar}</div>
-                <div class="wbw-en">${w.en}</div>
-                <div class="wbw-translit">${w.trans}</div>
-              </div>
-            `).join('')}
-          </div>
-          <p class="en">${enData.ayahs[i].text}</p>
-          <div class="translation-container" id="trans-${i}"></div>
-          <div class="ayah-footer">
-            <button class="abtn" onclick="AudioPlayer.play(${i})"><i data-lucide="play" style="width:10px;height:10px"></i> Play</button>
-            <button class="abtn" onclick="Features.showTafsir(${i},${a.number})"><i data-lucide="book-open" style="width:10px;height:10px"></i> Tafsir</button>
-            <button class="abtn" onclick="Features.memorizeAyah(${arData.number},${a.numberInSurah},${i})"><i data-lucide="brain" style="width:10px;height:10px"></i> Memorize</button>
-          </div>
-          <div class="note-wrap" id="note-${i}">
-            <textarea class="note-textarea" placeholder="Add your note…" oninput="Features.saveNote('${key}',this.value)">${State.notes[key] || ''}</textarea>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-    
-    const view = document.getElementById('view');
-    if (view) view.innerHTML = html;
-    
-    lucide.createIcons();
-    
-    if (State.settings.tajweed) Features.applyTajweed();
-    if (State.settings.translit) Features.loadTransliterations(arData.number);
-    if (State.settings.multiTrans) Features.loadMultipleTranslations(arData.number);
-  },
-
-  renderStats() {
-    document.getElementById('s-streak') && (document.getElementById('s-streak').textContent = `${State.stats.streak}🔥`);
-    document.getElementById('s-listened') && (document.getElementById('s-listened').textContent = State.stats.listened);
-    
-    const bookmarkCount = State.bookmarkFolders.reduce((s, f) => s + f.bookmarks.length, 0);
-    document.getElementById('s-bookmarks') && (document.getElementById('s-bookmarks').textContent = bookmarkCount);
-    document.getElementById('s-surahs') && (document.getElementById('s-surahs').textContent = State.stats.surahs.length);
-    
-    // Generate heatmap
-    const days = []; 
-    for (let i = 27; i >= 0; i--) { 
-      const d = new Date(); 
-      d.setDate(d.getDate() - i); 
-      days.push(d.toDateString()); 
-    }
-    
-    const heatmap = document.getElementById('heatmap');
-    if (heatmap) {
-      heatmap.innerHTML = days.map(day => {
-        const c = State.heatmap[day] || 0;
-        return `<div class="heatmap-day" data-level="${Math.min(4, Math.floor(c / 5))}" title="${day}: ${c}"></div>`;
-      }).join('');
-    }
-    
-    const achievements = document.getElementById('achievements');
-    if (achievements) {
-      achievements.innerHTML = ACHIEVEMENTS_DEF.map(a => {
-        const u = State.achievements.includes(a.id);
-        return `<div class="achievement-badge ${u ? 'unlocked' : 'locked'}" title="${a.desc}"><div class="achievement-icon">${a.icon}</div><div class="achievement-name">${a.name}</div></div>`;
-      }).join('');
-    }
-    
-    lucide.createIcons();
-  },
-
-  renderBookmarks() {
-    const container = document.getElementById('bookmark-folders');
-    if (!container) return;
-    
-    container.innerHTML = State.bookmarkFolders.map(folder => `
-      <div class="bookmark-folder">
-        <div class="folder-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-          <div class="folder-name"><i data-lucide="folder" style="width:12px;height:12px"></i>${folder.name}</div>
-          <div class="folder-count">${folder.bookmarks.length}</div>
-        </div>
-        <div class="folder-items" style="display:block;">
-          ${folder.bookmarks.length ? folder.bookmarks.map((b, idx) => `
-            <div class="bookmark-item" onclick="Features.gotoBookmark(${b.surahNum},${b.ayahNum})">
-              <div>
-                <div style="font-size:0.76rem;font-weight:600;">${b.surahName} · Ayah ${b.ayahNum}</div>
-                <div style="font-size:0.66rem;color:var(--text3);margin-top:1px;">${b.preview || 'No preview'}</div>
-              </div>
-              <button class="ib" onclick="event.stopPropagation();Features.deleteBookmark('${folder.id}',${idx})"><i data-lucide="trash-2" style="width:10px;height:10px"></i></button>
-            </div>
-          `).join('') : '<div style="padding:8px;font-size:0.7rem;color:var(--text3);">No bookmarks yet</div>'}
-        </div>
-      </div>
-    `).join('');
-    
-    lucide.createIcons();
-  },
-
-  renderGoals() {
-    const pct = Math.min(100, (State.goals.current / State.goals.target * 100));
-    
-    const goalBarFill = document.getElementById('goal-bar-fill');
-    if (goalBarFill) goalBarFill.style.width = pct + '%';
-    
-    document.getElementById('goal-current') && (document.getElementById('goal-current').textContent = State.goals.current);
-    document.getElementById('goal-target') && (document.getElementById('goal-target').textContent = State.goals.target);
-    document.getElementById('goal-percentage') && (document.getElementById('goal-percentage').textContent = Math.floor(pct) + '%');
-    
-    const challengesList = document.getElementById('challenges-list');
-    if (challengesList) {
-      challengesList.innerHTML = State.challenges.length ? State.challenges.map(c => {
-        const p = Math.min(100, (c.current / c.target * 100));
-        const t = Math.max(0, Math.floor((c.endDate - Date.now()) / (1000 * 60 * 60 * 24)));
-        return `<div class="challenge-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <div class="challenge-title">${c.title}</div>
-            <div class="challenge-timer">${t}d left</div>
-          </div>
-          <div class="challenge-desc">${c.desc}</div>
-          <div class="ch-bar"><div class="ch-fill" style="width:${p}%"></div></div>
-          <div class="ch-reward">🏆 ${c.reward}</div>
-        </div>`;
-      }).join('') : '<div class="empty-state">No active challenges</div>';
-    }
-    
-    lucide.createIcons();
-  },
-
-  renderLearn() {
-    const learnContent = document.getElementById('learn-content');
-    if (!learnContent) return;
-    
-    learnContent.innerHTML = VOCAB_DATABASE.map(v => `
-      <div class="vocab-card" onclick="Features.studyWord('${v.ar}')">
-        <div class="vocab-ar">${v.ar}</div>
-        <div class="vocab-root">Root: ${v.root}</div>
-        <div class="vocab-meaning">${v.meaning}</div>
-        <div class="vocab-examples">${v.examples}</div>
+        <div class="surah-ar">${s.name}</div>
       </div>
     `).join('');
   },
-
-  renderSearch() {
-    const searchResults = document.getElementById('search-results');
-    if (searchResults) {
-      searchResults.innerHTML = '<div class="empty-state">Enter keywords above and tap Search</div>';
-    }
-  },
+  
+  filterSurahs(query) {
+    const cards = document.querySelectorAll('.surah-card');
+    const q = query.toLowerCase();
+    
+    cards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(q) ? '' : 'none';
+    });
+  }
 };
 
-// ═══════════════════════════════════════════════
-// FEATURES (FIXED)
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// FEATURES
+// ══════════════════════════════════════════════
 const Features = {
-  // Fonts
-  showFontPicker() {
-    const fonts = [
-      { id: 'uthmani', name: 'Uthmani (Hafs)', desc: 'Standard Madina Mushaf script', sample: 'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ' },
-      { id: 'amiri',   name: 'Amiri',          desc: 'Classic refined Arabic naskh',  sample: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ' },
-      { id: 'indopak', name: 'Indo-Pak',        desc: 'South Asian calligraphic style', sample: 'بِسْمِ اللّٰہِ الرَّحْمٰنِ' },
-      { id: 'naskh',   name: 'Noto Naskh',      desc: 'Universal clarity, clean lines', sample: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ' },
-      { id: 'simple',  name: 'Bold Naskh',      desc: 'Bold weight, high legibility',   sample: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ' },
-      { id: 'warsh',   name: 'Warsh',           desc: 'Warsh riwayah style variant',    sample: 'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ' },
-    ];
-    
-    const fontFamilies = { 
-      uthmani: 'Amiri Quran', 
-      amiri: 'Amiri', 
-      indopak: 'Scheherazade New', 
-      naskh: 'Noto Naskh Arabic', 
-      simple: 'Scheherazade New', 
-      warsh: 'Amiri Quran' 
-    };
-    
-    const html = `<div style="display:flex;flex-direction:column;gap:8px;">
-      ${fonts.map(f => `
-        <div onclick="Features.selectFont('${f.id}');UI.closeModal();" 
-             style="padding:14px 16px;background:var(--surf2);border:2px solid ${State.settings.arabicFont === f.id ? 'var(--accent)' : 'var(--border)'};border-radius:14px;cursor:pointer;transition:all 0.18s;display:flex;justify-content:space-between;align-items:center;gap:14px;" 
-             onmouseover="this.style.borderColor='var(--accent)'" 
-             onmouseout="this.style.borderColor='${State.settings.arabicFont === f.id ? 'var(--accent)' : 'var(--border)'}'">
-          <div>
-            <div style="font-size:0.8rem;font-weight:700;margin-bottom:2px;">${f.name}${State.settings.arabicFont === f.id ? ' <span style="font-size:0.6rem;color:var(--accent);font-weight:600;">● ACTIVE</span>' : ''}</div>
-            <div style="font-size:0.65rem;color:var(--text3);">${f.desc}</div>
-          </div>
-          <div style="font-family:'${fontFamilies[f.id]}',serif;font-size:1.3rem;color:var(--accent);direction:rtl;text-align:right;white-space:nowrap;flex-shrink:0;max-width:140px;overflow:hidden;">${f.sample}</div>
-        </div>
-      `).join('')}
-    </div>`;
-    
-    UI.showModal('Arabic Font', html, 'md');
-  },
-
-  selectFont(id) {
-    const names = { 
-      uthmani: 'Uthmani', 
-      amiri: 'Amiri', 
-      indopak: 'Indo-Pak', 
-      naskh: 'Noto Naskh', 
-      simple: 'Bold', 
-      warsh: 'Warsh' 
-    };
-    
-    const all = ['uthmani','amiri','indopak','naskh','simple','warsh'];
-    
-    State.settings.arabicFont = id; 
-    State.save('settings');
-    
-    document.querySelectorAll('.ar').forEach(el => { 
-      all.forEach(f => el.classList.remove(`font-${f}`)); 
-      el.classList.add(`font-${id}`); 
-    });
-    
-    const fl = document.getElementById('font-label'); 
-    if (fl) fl.textContent = names[id];
-    
-    UI.toast(`✓ Font: ${names[id]}`);
-  },
-
-  toggleWBW() { 
-    State.settings.wbw = !State.settings.wbw; 
-    document.body.classList.toggle('show-wbw', State.settings.wbw); 
-    const p = document.getElementById('pill-wbw'); 
-    if (p) p.classList.toggle('on', State.settings.wbw); 
-    State.save('settings'); 
-    UI.toast(State.settings.wbw ? '✓ Word-by-Word ON' : 'Word-by-Word OFF'); 
-  },
-  
-  toggleTajweed() { 
-    State.settings.tajweed = !State.settings.tajweed; 
-    const p = document.getElementById('pill-tajweed'); 
-    if (p) p.classList.toggle('on', State.settings.tajweed); 
-    State.save('settings'); 
-    if (State.settings.tajweed) {
-      this.applyTajweed(); 
-    } else {
-      document.querySelectorAll('[class*="tajweed-"]').forEach(el => el.className = ''); 
-    }
-    UI.toast(State.settings.tajweed ? '✓ Tajweed ON' : 'Tajweed OFF'); 
-  },
-  
-  toggleReadingMode() { 
-    State.settings.readingMode = !State.settings.readingMode; 
-    document.body.classList.toggle('reading-mode', State.settings.readingMode); 
-    const p = document.getElementById('pill-readingMode'); 
-    if (p) p.classList.toggle('on', State.settings.readingMode); 
-    State.save('settings'); 
-    UI.toast(State.settings.readingMode ? '📖 Reading Mode ON' : 'Reading Mode OFF'); 
-  },
-  
-  toggleMultiTrans() { 
-    State.settings.multiTrans = !State.settings.multiTrans; 
-    document.body.classList.toggle('show-multi-trans', State.settings.multiTrans); 
-    const p = document.getElementById('pill-multiTrans'); 
-    if (p) p.classList.toggle('on', State.settings.multiTrans); 
-    State.save('settings'); 
-    if (State.settings.multiTrans && State.currentSurah) {
-      this.loadMultipleTranslations(State.currentSurah.number); 
-    }
-    UI.toast(State.settings.multiTrans ? '✓ Multi-Trans ON' : 'OFF'); 
-  },
-  
-  toggleTranslit() { 
-    State.settings.translit = !State.settings.translit; 
-    document.body.classList.toggle('show-translit', State.settings.translit); 
-    const p = document.getElementById('pill-translit'); 
-    if (p) p.classList.toggle('on', State.settings.translit); 
-    State.save('settings'); 
-    if (State.settings.translit && State.currentSurah) {
-      this.loadTransliterations(State.currentSurah.number); 
-    }
-    UI.toast(State.settings.translit ? '✓ Transliteration ON' : 'OFF'); 
-  },
-  
-  toggleDyslexiaMode() { 
-    State.settings.dyslexia = !State.settings.dyslexia; 
-    document.body.classList.toggle('dyslexia-mode', State.settings.dyslexia); 
-    const p = document.getElementById('pill-dyslexia'); 
-    if (p) p.classList.toggle('on', State.settings.dyslexia); 
-    State.save('settings'); 
-    UI.toast(State.settings.dyslexia ? '✓ Dyslexia Mode ON' : 'OFF'); 
-  },
-  
-  toggleLargeText() { 
-    State.settings.largeText = !State.settings.largeText; 
-    document.body.classList.toggle('large-text-mode', State.settings.largeText); 
-    const p = document.getElementById('pill-largeText'); 
-    if (p) p.classList.toggle('on', State.settings.largeText); 
-    State.save('settings'); 
-    UI.toast(State.settings.largeText ? '✓ Large Text ON' : 'OFF'); 
-  },
-  
-  toggleNightLight() { 
-    State.settings.nightLight = !State.settings.nightLight; 
-    document.body.classList.toggle('night-light-mode', State.settings.nightLight); 
-    const p = document.getElementById('pill-nightLight'); 
-    if (p) p.classList.toggle('on', State.settings.nightLight); 
-    State.save('settings'); 
-    UI.toast(State.settings.nightLight ? '🌙 Night Light ON' : 'OFF'); 
-  },
-
-  applyTajweed() {
-    const ghunna_chars = ['ن','م']; 
-    const qalq = ['ق','ط','ب','ج','د'];
-    
-    document.querySelectorAll('.ar').forEach(el => {
-      let t = el.textContent; 
-      let out = '';
-      for (let ch of t) {
-        if (ghunna_chars.includes(ch)) {
-          out += `<span class="tajweed-ghunna">${ch}</span>`;
-        } else if (qalq.includes(ch)) {
-          out += `<span class="tajweed-qalqalah">${ch}</span>`;
-        } else {
-          out += ch;
-        }
-      }
-      el.innerHTML = out;
-    });
-  },
-
-  async loadTransliterations(n) { 
-    try { 
-      const d = await API.getSurah(n, 'en.transliteration'); 
-      d.ayahs.forEach((a, i) => { 
-        const el = document.getElementById(`tl-${i}`); 
-        if (el) el.textContent = a.text; 
-      }); 
-    } catch(e) {} 
-  },
-  
-  async loadMultipleTranslations(n) {
-    try {
-      const [yusuf, pickthall] = await Promise.all([
-        API.getSurah(n, 'en.yusufali'), 
-        API.getSurah(n, 'en.pickthall')
-      ]);
-      
-      yusuf.ayahs.forEach((a, i) => { 
-        const el = document.getElementById(`trans-${i}`); 
-        if (el) {
-          el.innerHTML = `
-            <div class="translation-row">
-              <div class="translation-label">YUSUF ALI</div>
-              <div class="translation-text">${a.text}</div>
-            </div>
-            <div class="translation-row">
-              <div class="translation-label">PICKTHALL</div>
-              <div class="translation-text">${pickthall.ayahs[i]?.text || ''}</div>
-            </div>
-          `;
-        }
-      });
-    } catch(e) {}
-  },
-
-  highlightAyah(sn, an, ci) {
-    const key = `${sn}:${an}`;
-    const colors = ['', 'hl-yellow', 'hl-green', 'hl-blue', 'hl-pink', 'hl-purple'];
-    const cur = State.highlights[key] || '';
-    const next = colors[(colors.indexOf(cur) + 1) % colors.length];
-    
-    if (next) {
-      State.highlights[key] = next;
-    } else {
-      delete State.highlights[key];
+  async search(query) {
+    if (!query || query.length < 3) {
+      document.getElementById('search-results').innerHTML = '<div class="empty-state">Enter at least 3 characters</div>';
+      return;
     }
     
-    State.save('highlights');
+    document.getElementById('search-results').innerHTML = '<div class="loading-spinner"><div class="spinner"></div><div>Searching...</div></div>';
     
-    const el = document.getElementById(`ar-${ci}`); 
-    if (el) { 
-      colors.forEach(c => { if (c) el.classList.remove(c); }); 
-      if (next) el.classList.add(next); 
+    const results = await API.searchQuran(query);
+    
+    if (results.length === 0) {
+      document.getElementById('search-results').innerHTML = '<div class="empty-state">No results found</div>';
+      return;
     }
     
-    UI.toast(next ? '✓ Highlighted' : 'Highlight removed');
-  },
-
-  memorizeAyah(sn, an, ci) {
-    const el = document.getElementById(`ar-${ci}`); 
-    if (!el) return;
-    
-    el.classList.toggle('memo-blur');
-    
-    if (el.classList.contains('memo-blur')) {
-      el.onclick = () => el.classList.add('revealed');
-    } else { 
-      el.classList.remove('revealed'); 
-      el.onclick = null; 
-    }
-    
-    UI.toast(el.classList.contains('memo-blur') ? '🧠 Memorize mode — click to reveal' : 'Memorize mode OFF');
-  },
-
-  searchSurahs(q) {
-    const term = q.toLowerCase().trim();
-    
-    document.querySelectorAll('.surah-item').forEach(item => {
-      const name = item.querySelector('.sn-name')?.textContent.toLowerCase() || '';
-      const num = item.querySelector('.sn')?.textContent || '';
-      
-      if (term.length > 0 && !name.includes(term) && !num.includes(term)) {
-        item.classList.add('hidden');
-      } else {
-        item.classList.remove('hidden');
-      }
-    });
-  },
-
-  toggleFilter(el, filter) { 
-    el.classList.toggle('on'); 
-    const idx = State.searchFilters.indexOf(filter); 
-    if (idx > -1) {
-      State.searchFilters.splice(idx, 1);
-    } else {
-      State.searchFilters.push(filter);
-    }
-  },
-
-  performSearch() {
-    const q = document.getElementById('adv-search-inp')?.value.trim();
-    if (!q) { 
-      UI.toast('⚠️ Enter search term'); 
-      return; 
-    }
-    
-    const results = State.surahs.filter(s => 
-      s.englishName.toLowerCase().includes(q.toLowerCase()) || 
-      s.englishNameTranslation.toLowerCase().includes(q.toLowerCase())
-    );
-    
-    const searchResults = document.getElementById('search-results');
-    if (!searchResults) return;
-    
-    searchResults.innerHTML = results.length ? results.map(s => `
-      <div class="surah-item" onclick="App.loadSurah(${s.number});UI.switchTab('surahs')">
-        <div class="sn">${s.number}</div>
-        <div class="sm">
-          <div class="sn-name">${s.englishName}</div>
-          <div class="sn-sub">${s.revelationType} · ${s.numberOfAyahs}</div>
-        </div>
-        <div class="sar">${s.name}</div>
-      </div>
-    `).join('') : '<div class="empty-state">No results found</div>';
-    
-    lucide.createIcons();
-  },
-
-  bookmarkAyah(sn, an, ci) {
-    const f = State.bookmarkFolders[0]; 
-    const ay = State.currentAyahs[ci];
-    
-    if (!f || !ay) return;
-    
-    const ex = f.bookmarks.findIndex(b => b.surahNum === sn && b.ayahNum === an);
-    
-    if (ex > -1) { 
-      f.bookmarks.splice(ex, 1); 
-      UI.toast('Bookmark removed'); 
-    } else { 
-      f.bookmarks.push({ 
-        surahNum: sn, 
-        ayahNum: an, 
-        surahName: State.currentSurah?.englishName || '', 
-        preview: (ay.enText || ay.text || '').substring(0, 60) + '…' 
-      }); 
-      UI.toast('⭐ Bookmarked!'); 
-    }
-    
-    State.stats.bookmarks = f.bookmarks.length; 
-    State.save('bookmarks'); 
-    State.save('stats'); 
-    State.checkAchievements();
-  },
-
-  createBookmarkFolder() { 
-    const n = prompt('Folder name:'); 
-    if (!n) return; 
-    State.bookmarkFolders.push({ id: Date.now().toString(), name: n, bookmarks: [] }); 
-    State.save('bookmarks'); 
-    UI.renderBookmarks(); 
-    UI.toast('📁 Folder created'); 
-  },
-  
-  gotoBookmark(sn, an) { 
-    UI.switchTab('surahs'); 
-    App.loadSurah(sn).then(() => { 
-      setTimeout(() => { 
-        const c = document.querySelectorAll('.ayah-card')[an - 1]; 
-        if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-      }, 600); 
-    }); 
-  },
-  
-  deleteBookmark(fid, idx) { 
-    const f = State.bookmarkFolders.find(f => f.id === fid); 
-    if (f) { 
-      f.bookmarks.splice(idx, 1); 
-      State.save('bookmarks'); 
-      UI.renderBookmarks(); 
-      UI.toast('Removed'); 
-    } 
-  },
-
-  toggleNote(sn, an, ci) { 
-    const el = document.getElementById(`note-${ci}`); 
-    if (el) {
-      el.style.display = el.style.display !== 'none' ? 'none' : 'block'; 
-    }
-  },
-  
-  saveNote(key, val) { 
-    State.notes[key] = val; 
-    State.save('notes'); 
-  },
-
-  copyAyah(ci) {
-    const a = State.currentAyahs[ci]; 
-    if (!a) return;
-    
-    navigator.clipboard?.writeText(
-      `${a.text}\n\n"${a.enText}"\n\n— ${State.currentSurah?.englishName} · Ayah ${a.numberInSurah}`
-    ).then(() => UI.toast('📋 Copied!'));
-  },
-  
-  shareAyah(ci) {
-    const a = State.currentAyahs[ci]; 
-    if (!a) return;
-    
-    const t = `"${a.enText}"\n— ${State.currentSurah?.englishName} · Ayah ${a.numberInSurah}`;
-    
-    if (navigator.share) {
-      navigator.share({ text: t }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(t).then(() => UI.toast('📋 Copied!'));
-    }
-  },
-  
-  exportData() {
-    const data = {
-      bookmarks: State.bookmarkFolders,
-      settings: State.settings,
-      goals: State.goals,
-      achievements: State.achievements,
-      stats: State.stats,
-      highlights: State.highlights,
-      notes: State.notes,
-      exportDate: new Date().toISOString()
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a'); 
-    a.href = URL.createObjectURL(blob); 
-    a.download = `zenith-${Date.now()}.json`; 
-    a.click(); 
-    URL.revokeObjectURL(a.href); 
-    UI.toast('💾 Exported!');
-  },
-  
-  importData() {
-    const inp = document.createElement('input'); 
-    inp.type = 'file'; 
-    inp.accept = '.json';
-    
-    inp.onchange = e => { 
-      const f = e.target.files[0]; 
-      if (!f) return; 
-      
-      const r = new FileReader(); 
-      r.onload = ev => { 
-        try { 
-          const d = JSON.parse(ev.target.result); 
-          Object.assign(State, {
-            bookmarkFolders: d.bookmarks || State.bookmarkFolders,
-            settings: { ...State.settings, ...d.settings },
-            goals: d.goals || State.goals,
-            achievements: d.achievements || State.achievements,
-            stats: { ...State.stats, ...d.stats },
-            highlights: d.highlights || State.highlights,
-            notes: d.notes || State.notes
-          }); 
-          
-          ['bookmarks','settings','goals','achievements','stats','highlights','notes'].forEach(k => State.save(k)); 
-          UI.toast('✓ Imported!'); 
-          setTimeout(() => location.reload(), 1000); 
-        } catch(e) { 
-          UI.toast('❌ Import failed'); 
-        } 
-      }; 
-      r.readAsText(f); 
-    }; 
-    
-    inp.click();
-  },
-  
-  cloudSync() { 
-    UI.showModal('☁️ Cloud Sync', 
-      '<p style="color:var(--text2);margin-bottom:16px;">Sync your bookmarks, notes and progress across devices.</p>' +
-      '<button class="btn btn-primary" onclick="Features.performSync()">Sync Now</button>', 
-      'sm'); 
-  },
-  
-  performSync() { 
-    UI.toast('☁️ Syncing…'); 
-    setTimeout(() => { 
-      UI.toast('✓ Sync complete!'); 
-      UI.closeModal(); 
-    }, 2000); 
-  },
-
-  selectReciter() {
-    const html = `<div style="display:flex;flex-direction:column;gap:7px;">
-      ${RECITERS.map(r => `
-        <div onclick="Features.setReciter('${r.id}');UI.closeModal();" 
-             style="padding:12px 14px;background:var(--surf2);border:2px solid ${State.settings.reciter === r.id ? 'var(--accent)' : 'var(--border)'};border-radius:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all 0.18s;" 
-             onmouseover="this.style.borderColor='var(--accent)'" 
-             onmouseout="this.style.borderColor='${State.settings.reciter === r.id ? 'var(--accent)' : 'var(--border)'}'">
-          <div>
-            <div style="font-size:0.8rem;font-weight:700;">${r.name}${State.settings.reciter === r.id ? ' <span style="font-size:0.6rem;color:var(--accent);">● ACTIVE</span>' : ''}</div>
-            <div style="font-size:0.65rem;color:var(--text3);margin-top:1px;">${r.style}</div>
-          </div>
-          <i data-lucide="${State.settings.reciter === r.id ? 'check' : 'play'}" style="width:14px;height:14px;color:var(--accent);opacity:${State.settings.reciter === r.id ? 1 : 0.4}"></i>
-        </div>
-      `).join('')}
-    </div>`;
-    
-    UI.showModal('🎙 Select Reciter', html, 'sm');
-  },
-
-  setReciter(id) {
-    State.settings.reciter = id; 
-    State.save('settings');
-    
-    const rec = RECITERS.find(r => r.id === id) || RECITERS[0];
-    const hudSub = document.getElementById('hud-sub'); 
-    if (hudSub) hudSub.textContent = `🎙 ${rec.name}`;
-    
-    UI.toast(`✓ ${rec.name}`);
-  },
-
-  createChallenge() {
-    UI.showModal('New Challenge',
-      `<div style="display:flex;flex-direction:column;gap:10px;">
-        <input type="text" id="ch-title" placeholder="Challenge title" class="note-textarea" style="min-height:auto;">
-        <input type="text" id="ch-desc" placeholder="Description" class="note-textarea" style="min-height:auto;">
-        <input type="text" id="ch-reward" placeholder="Reward" class="note-textarea" style="min-height:auto;">
-        <input type="number" id="ch-target" placeholder="Target (days)" value="30" class="note-textarea" style="min-height:auto;">
-        <button class="btn btn-primary" onclick="Features.saveChallenge()">Create</button>
-      </div>`,
-      'sm');
-  },
-  
-  saveChallenge() {
-    const t = document.getElementById('ch-title')?.value;
-    const d = document.getElementById('ch-desc')?.value;
-    const r = document.getElementById('ch-reward')?.value;
-    const tg = parseInt(document.getElementById('ch-target')?.value) || 30;
-    
-    if (!t) { 
-      UI.toast('⚠️ Add a title'); 
-      return; 
-    }
-    
-    State.challenges.push({
-      id: Date.now().toString(),
-      title: t,
-      desc: d || '',
-      reward: r || 'Completion',
-      target: tg,
-      current: 0,
-      endDate: Date.now() + (tg * 86400000)
-    });
-    
-    State.save('challenges'); 
-    UI.closeModal(); 
-    UI.renderGoals(); 
-    UI.toast('✓ Challenge created!');
-  },
-
-  async showTafsir(ci, gn) {
-    UI.toast('📖 Loading tafsir…');
-    
-    setTimeout(() => {
-      UI.showModal('📖 Tafsir',
-        `<div class="tafsir-tabs">
-          <button class="tafsir-tab active" onclick="this.parentNode.querySelectorAll('.tafsir-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Maududi</button>
-          <button class="tafsir-tab" onclick="this.parentNode.querySelectorAll('.tafsir-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Ibn Kathir</button>
-          <button class="tafsir-tab" onclick="this.parentNode.querySelectorAll('.tafsir-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">Qurtubi</button>
-        </div>
-        <div style="color:var(--text2);line-height:1.9;font-size:0.88rem;">
-          <p style="margin-bottom:12px;">This verse emphasizes patience and perseverance in faith. Believers are reminded that trials are tests, and through steadfastness one achieves spiritual growth and ultimate success.</p>
-          <p>Historical context: Revealed during a period of hardship for the early Muslim community, serving as comfort and encouragement to remain steadfast in their conviction.</p>
-        </div>`,
-        'lg');
-    }, 600);
-  },
-
-  tajweedLessons() {
-    UI.showModal('Tajweed Rules',
-      `<div style="color:var(--text2);line-height:1.9;font-size:0.88rem;">
-        <div style="margin-bottom:10px;"><strong style="color:var(--accent);">Ghunna (غُنَّة)</strong> — Nasal sound, applies to ن and م when followed by certain letters</div>
-        <div style="margin-bottom:10px;"><strong style="color:var(--accent);">Qalqalah (قَلْقَلَة)</strong> — Echoing bounce sound: ق ط ب ج د</div>
-        <div style="margin-bottom:10px;"><strong style="color:var(--accent);">Madd (مَدّ)</strong> — Prolongation with alef, waw, ya: ا و ي</div>
-        <div style="margin-bottom:10px;"><strong style="color:var(--accent);">Ikhfa (إِخْفَاء)</strong> — Concealing/hiding the ن sound before 15 letters</div>
-        <div style="margin-bottom:10px;"><strong style="color:var(--accent);">Idgham (إِدْغَام)</strong> — Merging/assimilation of sounds</div>
-        <p style="margin-top:16px;font-size:0.8rem;color:var(--text3);">Enable Tajweed Colors in Settings to highlight these rules while reading.</p>
-      </div>`,
-      'md');
-  },
-
-  quizMe() {
-    const qs = [
-      { q: 'How many surahs are in the Quran?', a: ['114', '110', '120', '100'], c: 0 },
-      { q: 'Which surah is called the heart of the Quran?', a: ['Ya-Sin', 'Al-Fatiha', 'Al-Baqarah', 'Al-Ikhlas'], c: 0 },
-      { q: 'How many verses does Al-Fatiha have?', a: ['7', '5', '10', '6'], c: 0 },
-      { q: 'Which surah was revealed last?', a: ['Al-Maidah', 'Al-Baqarah', 'An-Nasr', 'Al-Ikhlas'], c: 0 },
-      { q: 'What does "Quran" mean?', a: ['The Recitation', 'The Book', 'The Guidance', 'The Light'], c: 0 },
-    ];
-    
-    const q = qs[Math.floor(Math.random() * qs.length)];
-    
-    UI.showModal('Quick Quiz',
-      `<div style="font-size:0.9rem;font-weight:600;margin-bottom:16px;line-height:1.5;">${q.q}</div>
-       <div style="display:flex;flex-direction:column;gap:7px;">
-         ${q.a.map((a, i) => `
-           <button class="btn btn-ghost" style="width:100%;text-align:left;padding:10px 14px;" onclick="Features.checkAnswer(${i},${q.c})">${a}</button>
-         `).join('')}
-       </div>`,
-      'sm');
-  },
-  
-  checkAnswer(s, c) { 
-    UI.toast(s === c ? '✅ Correct!' : '❌ Incorrect — keep studying!'); 
-    setTimeout(() => UI.closeModal(), 1500); 
-  },
-
-  studyWord(w) { 
-    UI.toast(`📖 Studying: ${w}`); 
-  },
-
-  setupPrayerTimes() {
-    UI.showModal('Prayer Times',
-      `<p style="color:var(--text2);margin-bottom:14px;font-size:0.88rem;">Enter your city for daily prayer times:</p>
-       <input type="text" id="prayer-location" placeholder="e.g. Mecca, Saudi Arabia" class="note-textarea" style="min-height:auto;margin-bottom:14px;">
-       <button class="btn btn-primary" style="width:100%;" onclick="Features.calculatePrayerTimes()">Get Prayer Times</button>`,
-      'sm');
-  },
-  
-  calculatePrayerTimes() {
-    const loc = document.getElementById('prayer-location')?.value; 
-    if (!loc) { 
-      UI.toast('⚠️ Enter a location'); 
-      return; 
-    }
-    
-    // Sample prayer times - in production, fetch from API
-    State.prayerTimes = {
-      Fajr: '05:15', 
-      Sunrise: '06:40', 
-      Dhuhr: '12:15', 
-      Asr: '15:30', 
-      Maghrib: '18:05', 
-      Isha: '19:25'
-    }; 
-    
-    State.prayerLocation = loc; 
-    State.save('prayer'); 
-    UI.closeModal(); 
-    this.renderPrayerTimes(); 
-    UI.toast('✓ Prayer times set');
-  },
-  
-  renderPrayerTimes() {
-    if (!State.prayerTimes) return;
-    
-    const container = document.getElementById('prayer-times-container');
-    if (!container) return;
-    
-    container.innerHTML = `
-      <div style="background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:8px;">
-        <div style="font-size:0.6rem;font-weight:700;color:var(--accent);margin-bottom:8px;letter-spacing:0.1em;">PRAYER TIMES</div>
-        ${Object.entries(State.prayerTimes).map(([n, t]) => `
-          <div class="prayer-row">
-            <div class="prayer-name">${n}</div>
-            <div class="prayer-time">${t}</div>
-          </div>
-        `).join('')}
-        <div style="font-size:0.6rem;color:var(--text3);margin-top:6px;">📍 ${State.prayerLocation}</div>
-      </div>
-    `;
-  },
-
-  createGroup() {
-    UI.showModal('Create Group',
-      `<div style="display:flex;flex-direction:column;gap:10px;">
-        <input type="text" id="group-name" placeholder="Group name" class="note-textarea" style="min-height:auto;">
-        <input type="text" id="group-goal" placeholder="Reading goal" class="note-textarea" style="min-height:auto;">
-        <button class="btn btn-primary" onclick="Features.saveGroup()">Create</button>
-      </div>`,
-      'sm');
-  },
-  
-  saveGroup() {
-    const n = document.getElementById('group-name')?.value;
-    const g = document.getElementById('group-goal')?.value;
-    
-    if (!n || !g) { 
-      UI.toast('⚠️ Fill all fields'); 
-      return; 
-    }
-    
-    State.groups.push({
-      id: Date.now().toString(),
-      name: n,
-      goalText: g,
-      members: 1,
-      progress: 0,
-      goal: 100
-    });
-    
-    State.save('groups'); 
-    UI.closeModal(); 
-    UI.renderGroups(); 
-    UI.toast('✓ Group created!');
-  },
-  
-  openGroup(gid) {
-    const g = State.groups.find(g => g.id === gid); 
-    if (!g) return;
-    
-    UI.showModal(`👥 ${g.name}`,
-      `<div style="font-size:0.88rem;color:var(--text2);line-height:1.8;">
-        <p><strong>Members:</strong> ${g.members}</p>
-        <p style="margin-top:8px;"><strong>Goal:</strong> ${g.goalText}</p>
-        <p style="margin-top:14px;color:var(--text3);">Full group features including shared progress and discussion available in the full version.</p>
-      </div>`,
-      'md');
-  },
-};
-
-// ═══════════════════════════════════════════════
-// APP (FIXED)
-// ═══════════════════════════════════════════════
-const App = {
-  async init() {
-    State.load();
-    State.checkGoalReset();
-    Adhan.load();
-    UI.init();
-    
-    const theme = localStorage.getItem('theme') || 'dark';
-    UI.setTheme(theme);
-
-    const view = document.getElementById('view');
-    if (view) {
-      view.innerHTML = `
-        <div class="hero">
-          <div class="hero-inner">
-            <div class="hero-badge">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
-              ZENITH PRO · 70+ FEATURES
-            </div>
-            <h1 class="hero-title">القرآن الكريم</h1>
-            <p class="hero-sub">The ultimate Quran experience — beautiful recitation, word-by-word translation, tajweed colors, and powerful study tools.</p>
-            <div class="hero-stats">
-              <div class="hero-stat"><div class="hero-stat-num">114</div><div class="hero-stat-lbl">Surahs</div></div>
-              <div class="hero-stat"><div class="hero-stat-num">6,236</div><div class="hero-stat-lbl">Verses</div></div>
-              <div class="hero-stat"><div class="hero-stat-num">6</div><div class="hero-stat-lbl">Reciters</div></div>
-            </div>
-            <div class="hero-actions">
-              <button class="btn-hero-primary" onclick="UI.switchTab('surahs');document.getElementById('search-inp')?.focus()">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                Start Reading
-              </button>
-              <button class="btn-hero-secondary" onclick="UI.switchTab('settings')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                Customize
-              </button>
-            </div>
-          </div>
-        </div>`;
-    }
-    
-    lucide.createIcons();
-
-    try {
-      const surahs = await API.getSurahList();
-      State.surahs = surahs; 
-      UI.renderSurahList(surahs);
-      State.updateStreak();
-      
-      if (State.prayerTimes) Features.renderPrayerTimes();
-      
-      // Start adhan background check
-      if (Adhan.times) {
-        setInterval(() => Adhan._updateNextPrayer(), 30000);
-      }
-    } catch(e) {
-      const surahList = document.getElementById('surah-list');
-      if (surahList) {
-        surahList.innerHTML = `
-          <div class="error-state">
-            <div style="font-size:2rem;">⚠️</div>
-            <div style="font-weight:600;margin-top:6px;">Connection failed</div>
-            <div style="font-size:0.76rem;margin-top:4px;">Check your network</div>
-            <button class="btn btn-primary" style="margin-top:14px;" onclick="App.init()">Retry</button>
-          </div>`;
-      }
-    }
-  },
-
-  async loadSurah(num) {
-    const view = document.getElementById('view');
-    if (!view) return;
-    
-    view.innerHTML = `<div class="loading-spinner"><div class="spinner"></div><div style="font-size:0.8rem;color:var(--text3);">Loading Surah…</div></div>`;
-    
-    document.querySelectorAll('.surah-item').forEach(i => i.classList.remove('active'));
-    const si = document.getElementById(`si-${num}`); 
-    if (si) si.classList.add('active');
-    
-    const timeout = setTimeout(() => {
-      if (!State.currentSurah || State.currentSurah._num !== num) {
-        view.innerHTML = `
-          <div class="error-state">
-            <div style="font-size:2rem;">⏱️</div>
-            <div style="font-weight:600;">Slow connection</div>
-            <button class="btn btn-primary" style="margin-top:14px;" onclick="App.loadSurah(${num})">Retry</button>
-          </div>`;
-      }
-    }, 9000);
-    
-    try {
-      const [arData, enData] = await Promise.all([
-        API.getSurah(num, 'quran-uthmani'), 
-        API.getSurah(num, 'en.sahih')
-      ]);
-      
-      clearTimeout(timeout);
-      arData._num = num;
-      
-      State.currentSurah = arData;
-      State.currentAyahs = arData.ayahs.map((a, i) => ({ ...a, enText: enData.ayahs[i].text }));
-      
-      UI.renderSurah(arData, enData);
-      
-      if (!State.stats.surahs.includes(num)) State.stats.surahs.push(num);
-      State.goals.current = Math.min(State.goals.target, State.goals.current + 1);
-      State.save('stats'); 
-      State.save('goals');
-      State.updateHeatmap(); 
-      State.checkAchievements();
-      
-      const mainScroll = document.getElementById('main-scroll');
-      if (mainScroll) mainScroll.scrollTop = 0;
-      
-      const scrollBar = document.getElementById('scroll-bar');
-      if (scrollBar) scrollBar.style.width = '0%';
-      
-    } catch(e) {
-      clearTimeout(timeout);
-      view.innerHTML = `
-        <div class="error-state">
-          <div style="font-size:2rem;">❌</div>
-          <div style="font-weight:600;">Failed to load</div>
-          <button class="btn btn-primary" style="margin-top:14px;" onclick="App.loadSurah(${num})">Retry</button>
-        </div>`;
-    }
-  },
-};
-
-// ═══════════════════════════════════════════════
-// LIVE ROOM (FIXED)
-// ═══════════════════════════════════════════════
-const LiveRoom = {
-  peer: null, 
-  connections: [], 
-  localStream: null,
-  participants: [], 
-  myName: '', 
-  roomId: '', 
-  micOn: true, 
-  speakerOn: true,
-  remoteStreams: {}, 
-  audioEls: {},
-
-  _loadPeerJS(cb) {
-    if (window.Peer) { 
-      cb(); 
-      return; 
-    }
-    
-    const s = document.createElement('script');
-    s.src = 'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js';
-    s.onload = cb; 
-    s.onerror = () => UI.toast('⚠️ Could not load PeerJS');
-    document.head.appendChild(s);
-  },
-
-  join() {
-    const nameInput = document.getElementById('room-name-inp');
-    const ridInput = document.getElementById('room-id-inp');
-    
-    if (!nameInput || !ridInput) return;
-    
-    const name = nameInput.value.trim() || 'Guest';
-    const rid = ridInput.value.trim();
-    
-    this.myName = name;
-    UI.toast('🔗 Connecting…');
-    
-    this._loadPeerJS(() => {
-      const peerId = 'zenith-' + (rid || Math.random().toString(36).slice(2, 8).toUpperCase());
-      this.roomId = peerId;
-      
-      this.peer = new Peer(peerId, { debug: 0 });
-      
-      this.peer.on('open', (id) => {
-        this.roomId = id;
-        this._startMic(() => {
-          this._showRoom();
-          
-          // If joining existing room, connect to it
-          if (rid && rid !== peerId.replace('zenith-', '')) {
-            const conn = this.peer.connect(rid, { metadata: { name: this.myName } });
-            this._setupConn(conn);
-            const call = this.peer.call(rid, this.localStream, { metadata: { name: this.myName } });
-            this._handleCall(call);
-          }
-          UI.toast('✅ Room ready!');
-        });
-      });
-      
-      this.peer.on('connection', (conn) => {
-        this._setupConn(conn);
-        this._addParticipant(conn.peer, conn.metadata?.name || 'Member');
-      });
-      
-      this.peer.on('call', (call) => {
-        if (this.localStream) {
-          call.answer(this.localStream);
-          this._handleCall(call);
-        } else {
-          call.answer();
-          this._handleCall(call);
-        }
-      });
-      
-      this.peer.on('error', (e) => {
-        if (e.type === 'unavailable-id') {
-          // Room exists — join it by using a different ID
-          const joinId = 'zenith-' + (rid || '') + '-' + Math.random().toString(36).slice(2, 5);
-          this.peer.destroy();
-          
-          if (ridInput) ridInput.value = rid || peerId.replace('zenith-', '');
-          
-          // Reconnect with new ID and call the host
-          this.peer = new Peer(joinId);
-          this.peer.on('open', () => {
-            this._startMic(() => {
-              this._showRoom();
-              const targetId = rid.startsWith('zenith-') ? rid : 'zenith-' + rid;
-              const conn = this.peer.connect(targetId, { metadata: { name: this.myName } });
-              this._setupConn(conn);
-              const call = this.peer.call(targetId, this.localStream, { metadata: { name: this.myName } });
-              this._handleCall(call);
-              UI.toast('✅ Joined room!');
-            });
-          });
-        } else { 
-          UI.toast('⚠️ Connection error: ' + e.type); 
-        }
-      });
-    });
-  },
-
-  _startMic(cb) {
-    if (this.localStream) { 
-      cb(); 
-      return; 
-    }
-    
-    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-      .then(s => { 
-        this.localStream = s; 
-        cb(); 
-      })
-      .catch(e => { 
-        console.warn('Mic error:', e);
-        UI.toast('⚠️ Mic access denied — audio disabled'); 
-        this.localStream = null; 
-        cb(); 
-      });
-  },
-
-  _setupConn(conn) {
-    conn.on('open', () => {
-      this.connections.push(conn);
-      this._addParticipant(conn.peer, conn.metadata?.name || 'Member');
-      conn.send({ type: 'hello', name: this.myName });
-    });
-    
-    conn.on('data', (data) => {
-      if (data.type === 'hello') this._addParticipant(conn.peer, data.name);
-      if (data.type === 'chat') this._addChat(data.name, data.msg);
-      if (data.type === 'sync') { 
-        UI.toast(`🔗 ${data.name} synced to ${data.surah}:${data.ayah}`); 
-      }
-      if (data.type === 'bye') this._removeParticipant(conn.peer);
-    });
-    
-    conn.on('close', () => this._removeParticipant(conn.peer));
-  },
-
-  _handleCall(call) {
-    call.on('stream', (remoteStream) => {
-      const id = call.peer;
-      this.remoteStreams[id] = remoteStream;
-      
-      if (!this.audioEls[id]) {
-        const a = document.createElement('audio');
-        a.autoplay = true; 
-        a.srcObject = remoteStream;
-        if (!this.speakerOn) a.muted = true;
-        document.body.appendChild(a);
-        this.audioEls[id] = a;
-      }
-      
-      this._refreshParticipants();
-    });
-  },
-
-  _showRoom() {
-    const statusArea = document.getElementById('room-status-area');
-    const activeArea = document.getElementById('room-active-area');
-    const activeRoomId = document.getElementById('active-room-id');
-    const roomIdDisplay = document.getElementById('room-id-display');
-    
-    if (statusArea) statusArea.style.display = 'none';
-    if (activeArea) activeArea.style.display = 'block';
-    if (activeRoomId) activeRoomId.textContent = this.myName + '\'s Room';
-    
-    const dispId = this.roomId.replace('zenith-', '');
-    if (roomIdDisplay) roomIdDisplay.textContent = dispId;
-    
-    this._addParticipant('local', this.myName);
-    
-    // Initialize button states
-    const micBtn = document.getElementById('mic-btn');
-    const speakerBtn = document.getElementById('speaker-btn');
-    
-    if (micBtn) micBtn.classList.add('on');
-    if (speakerBtn) speakerBtn.classList.add('on');
-    
-    lucide.createIcons();
-  },
-
-  _addParticipant(id, name) {
-    if (!this.participants.find(p => p.id === id)) {
-      this.participants.push({ id, name, muted: false, speaking: false });
-    }
-    this._refreshParticipants();
-  },
-
-  _removeParticipant(id) {
-    this.participants = this.participants.filter(p => p.id !== id);
-    
-    if (this.audioEls[id]) { 
-      this.audioEls[id].remove(); 
-      delete this.audioEls[id]; 
-    }
-    
-    this._refreshParticipants();
-    this._addChatSystem(`A member left the room`);
-  },
-
-  _refreshParticipants() {
-    const el = document.getElementById('participants-list'); 
-    if (!el) return;
-    
-    el.innerHTML = this.participants.map(p => `
-      <div class="participant-row">
-        <div class="participant-avatar ${p.speaking ? 'speaking' : ''}">${p.name.charAt(0).toUpperCase()}</div>
-        <div class="participant-name">${p.name}${p.id === 'local' ? ' <span style="font-size:0.6rem;color:var(--text3);">(you)</span>' : ''}</div>
-        <div class="participant-icons">
-          <div class="p-icon ${p.muted ? 'muted' : 'active'}"><i data-lucide="${p.muted ? 'mic-off' : 'mic'}" style="width:12px;height:12px"></i></div>
+    document.getElementById('search-results').innerHTML = results.slice(0, 20).map(r => `
+      <div class="surah-card" onclick="App.loadSurah(${r.surah.number}, ${r.numberInSurah})">
+        <div class="surah-num">${r.surah.number}:${r.numberInSurah}</div>
+        <div class="surah-info">
+          <div class="surah-name">${r.surah.englishName}</div>
+          <div class="surah-meta">${r.text.substring(0, 100)}...</div>
         </div>
       </div>
-    `).join('') || '<div style="font-size:0.7rem;color:var(--text3);text-align:center;padding:10px;">Waiting for others…</div>';
-    
-    lucide.createIcons();
+    `).join('');
   },
-
-  toggleMic() {
-    this.micOn = !this.micOn;
+  
+  toggleBookmark(surah, ayah) {
+    const key = `${surah}:${ayah}`;
+    const index = State.bookmarks.findIndex(b => b.key === key);
     
-    if (this.localStream) {
-      this.localStream.getAudioTracks().forEach(t => t.enabled = this.micOn);
+    if (index >= 0) {
+      State.bookmarks.splice(index, 1);
+      UI.toast('Bookmark removed');
+    } else {
+      State.bookmarks.push({
+        key,
+        surah,
+        ayah,
+        timestamp: Date.now()
+      });
+      UI.toast('Bookmarked!');
     }
     
-    const btn = document.getElementById('mic-btn');
-    if (btn) { 
-      btn.classList.toggle('on', this.micOn); 
-      const icon = btn.querySelector('i');
-      if (icon) {
-        icon.setAttribute('data-lucide', this.micOn ? 'mic' : 'mic-off');
-        lucide.createIcons();
-      }
-    }
-    
-    const me = this.participants.find(p => p.id === 'local');
-    if (me) { 
-      me.muted = !this.micOn; 
-      this._refreshParticipants(); 
-    }
-    
-    UI.toast(this.micOn ? '🎙 Mic ON' : '🔇 Mic muted');
+    saveState();
+    this.renderBookmarks();
   },
-
-  toggleSpeaker() {
-    this.speakerOn = !this.speakerOn;
+  
+  renderBookmarks() {
+    const list = document.getElementById('bookmarks-list');
+    if (!list) return;
     
-    Object.values(this.audioEls).forEach(a => a.muted = !this.speakerOn);
-    
-    const btn = document.getElementById('speaker-btn');
-    if (btn) { 
-      btn.classList.toggle('on', this.speakerOn); 
-      const icon = btn.querySelector('i');
-      if (icon) {
-        icon.setAttribute('data-lucide', this.speakerOn ? 'volume-2' : 'volume-x');
-        lucide.createIcons();
-      }
+    if (State.bookmarks.length === 0) {
+      list.innerHTML = '<div class="empty-state">No bookmarks yet</div>';
+      return;
     }
     
-    UI.toast(this.speakerOn ? '🔊 Speaker ON' : '🔇 Speaker muted');
+    list.innerHTML = State.bookmarks.map(b => `
+      <div class="surah-card" onclick="App.loadSurah(${b.surah}, ${b.ayah})">
+        <div class="surah-num">${b.surah}:${b.ayah}</div>
+        <div class="surah-info">
+          <div class="surah-name">Surah ${b.surah}, Ayah ${b.ayah}</div>
+          <div class="surah-meta">${new Date(b.timestamp).toLocaleDateString()}</div>
+        </div>
+      </div>
+    `).join('');
   },
-
-  syncAyah() {
-    if (!State.currentSurah) { 
-      UI.toast('⚠️ Open a Surah first'); 
-      return; 
-    }
+  
+  addNote(surah, ayah, text) {
+    if (!text || !text.trim()) return;
     
-    const d = { 
-      type: 'sync', 
-      name: this.myName, 
-      surah: State.currentSurah.englishName, 
-      ayah: AudioPlayer.currentIdx + 1 
-    };
-    
-    this.connections.forEach(c => { 
-      try { 
-        c.send(d); 
-      } catch(e) {} 
+    State.notes.push({
+      surah,
+      ayah,
+      text: text.trim(),
+      timestamp: Date.now()
     });
     
-    UI.toast('🔗 Position synced!');
+    saveState();
+    UI.toast('Note added!');
+    this.renderNotes();
   },
-
-  sendChat() {
-    const inp = document.getElementById('chat-inp'); 
-    if (!inp || !inp.value.trim()) return;
+  
+  renderNotes() {
+    const list = document.getElementById('notes-list');
+    if (!list) return;
     
-    const msg = inp.value.trim(); 
-    inp.value = '';
-    
-    this._addChat(this.myName, msg);
-    
-    this.connections.forEach(c => { 
-      try { 
-        c.send({ type: 'chat', name: this.myName, msg }); 
-      } catch(e) {} 
-    });
-  },
-
-  _addChat(name, msg) {
-    const box = document.getElementById('room-chat'); 
-    if (!box) return;
-    
-    const d = document.createElement('div'); 
-    d.className = 'chat-msg';
-    d.innerHTML = `<span class="chat-author">${name}</span><span class="chat-text">${msg}</span>`;
-    box.appendChild(d); 
-    box.scrollTop = box.scrollHeight;
-  },
-
-  _addChatSystem(msg) {
-    const box = document.getElementById('room-chat'); 
-    if (!box) return;
-    
-    const d = document.createElement('div'); 
-    d.className = 'chat-msg system';
-    d.textContent = msg; 
-    box.appendChild(d); 
-    box.scrollTop = box.scrollHeight;
-  },
-
-  copyRoomId() {
-    const id = this.roomId.replace('zenith-', '');
-    navigator.clipboard?.writeText(id).then(() => UI.toast('📋 Room ID copied!'));
-  },
-
-  leave() {
-    this.connections.forEach(c => { 
-      try { 
-        c.send({ type: 'bye' });
-        c.close(); 
-      } catch(e) {} 
-    });
-    
-    this.connections = [];
-    
-    if (this.localStream) { 
-      this.localStream.getTracks().forEach(t => t.stop()); 
-      this.localStream = null; 
+    if (State.notes.length === 0) {
+      list.innerHTML = '<div class="empty-state">No notes yet</div>';
+      return;
     }
     
-    Object.values(this.audioEls).forEach(a => a.remove()); 
-    this.audioEls = {};
-    this.remoteStreams = {}; 
-    this.participants = [];
-    
-    if (this.peer) { 
-      this.peer.destroy(); 
-      this.peer = null; 
-    }
-    
-    const statusArea = document.getElementById('room-status-area');
-    const activeArea = document.getElementById('room-active-area');
-    
-    if (statusArea) statusArea.style.display = 'block';
-    if (activeArea) activeArea.style.display = 'none';
-    
-    UI.toast('👋 Left the room');
-  },
-
-  renderPanel() { 
-    this._refreshParticipants(); 
-    lucide.createIcons(); 
-  },
+    list.innerHTML = State.notes.map(n => `
+      <div class="note-card">
+        <div class="note-ref">Surah ${n.surah}, Ayah ${n.ayah}</div>
+        <div class="note-text">${n.text}</div>
+        <div class="note-time">${new Date(n.timestamp).toLocaleString()}</div>
+      </div>
+    `).join('');
+  }
 };
 
-// ═══════════════════════════════════════════════
-// ADHAN NOTIFIER (COMPLETE FIXED VERSION)
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// PRAYER TIMES (ADHAN)
+// ══════════════════════════════════════════════
 const Adhan = {
-  times: null, 
-  location: '', 
-  notifEnabled: false, 
-  checkInterval: null, 
-  adhanAudio: null,
+  times: {},
+  location: '',
+  notifEnabled: false,
   _clockTimer: null,
-  _notified: {},
   
   PRAYER_NAMES: ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],
-  PRAYER_ICONS: { Fajr: '🌙', Sunrise: '🌅', Dhuhr: '☀️', Asr: '🌤', Maghrib: '🌇', Isha: '🌃' },
-
-  load() {
-    try {
-      const s = JSON.parse(localStorage.getItem('zpu_adhan') || '{}');
-      if (s.times) this.times = s.times;
-      if (s.location) this.location = s.location;
-      if (s.notifEnabled !== undefined) this.notifEnabled = s.notifEnabled;
-    } catch(e) {
-      console.warn('Adhan load error', e);
-    }
+  PRAYER_ICONS: {
+    Fajr: '🌅',
+    Sunrise: '☀️',
+    Dhuhr: '🌞',
+    Asr: '🌤️',
+    Maghrib: '🌇',
+    Isha: '🌙'
   },
-
-  save() {
-    localStorage.setItem('zpu_adhan', JSON.stringify({
-      times: this.times,
-      location: this.location,
-      notifEnabled: this.notifEnabled
-    }));
-  },
-
-  renderPanel() {
-    this._startClock();
-    if (this.times) this._renderTimes();
-    
-    const p = document.getElementById('pill-adhan-notif'); 
-    if (p) p.classList.toggle('on', this.notifEnabled);
-    
-    lucide.createIcons();
-  },
-
-  _startClock() {
-    this._clockTick();
-    if (this._clockTimer) clearInterval(this._clockTimer);
-    this._clockTimer = setInterval(() => this._clockTick(), 1000);
-  },
-
-  _clockTick() {
-    const now = new Date();
-    const h = now.getHours().toString().padStart(2, '0');
-    const m = now.getMinutes().toString().padStart(2, '0');
-    const s = now.getSeconds().toString().padStart(2, '0');
-    
-    const cl = document.getElementById('adhan-clock'); 
-    if (cl) cl.textContent = `${h}:${m}:${s}`;
-    
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    
-    const dt = document.getElementById('adhan-date');
-    if (dt) dt.textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
-    
-    this._updateNextPrayer();
-  },
-
-  _updateNextPrayer() {
-    if (!this.times) return;
-    
-    const now = new Date();
-    const todayStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-    
-    let next = null, nextName = '', nextTime = null;
-    
-    // Find next prayer
-    for (const name of this.PRAYER_NAMES) {
-      const t = this.times[name]; 
-      if (!t) continue;
-      
-      const pt = new Date(`${todayStr}T${this._to24(t)}`);
-      
-      if (pt > now) { 
-        next = pt; 
-        nextName = name; 
-        nextTime = t; 
-        break; 
-      }
-    }
-    
-    // If no next prayer found, first prayer is tomorrow
-    if (!next && this.times[this.PRAYER_NAMES[0]]) { 
-      nextName = this.PRAYER_NAMES[0]; 
-      nextTime = this.times[nextName]; 
-      
-      // Calculate for tomorrow
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStr = `${tomorrow.getFullYear()}-${(tomorrow.getMonth() + 1).toString().padStart(2, '0')}-${tomorrow.getDate().toString().padStart(2, '0')}`;
-      next = new Date(`${tomorrowStr}T${this._to24(nextTime)}`);
-    }
-    
-    const nn = document.getElementById('np-name'); 
-    if (nn) nn.textContent = `${this.PRAYER_ICONS[nextName] || '🕐'} ${nextName}`;
-    
-    const nt = document.getElementById('np-time'); 
-    if (nt) nt.textContent = nextTime || '';
-    
-    if (next) {
-      const diff = next - now;
-      const hh = Math.floor(diff / 3600000).toString().padStart(2, '0');
-      const mm = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-      const ss = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-      
-      const cd = document.getElementById('np-countdown'); 
-      if (cd) cd.textContent = `${hh}:${mm}:${ss}`;
-      
-      // Check if within 60s of prayer time
-      if (diff < 60000 && diff > 0 && this.notifEnabled && !this._notified[nextName]) {
-        this._notified[nextName] = true;
-        setTimeout(() => { delete this._notified[nextName]; }, 120000);
-        this._triggerAdhan(nextName);
-      }
-    }
-  },
-
-  _to24(t) {
-    if (!t) return '00:00'; 
-    
-    // Handle 12-hour format with AM/PM
-    if (t.includes('AM') || t.includes('PM')) {
-      const [time, period] = t.split(' ');
-      let [h, m] = time.split(':'); 
-      h = parseInt(h);
-      
-      if (period === 'PM' && h !== 12) h += 12;
-      if (period === 'AM' && h === 12) h = 0;
-      
-      return `${h.toString().padStart(2, '0')}:${m}:00`;
-    }
-    
-    // Handle 24-hour format
-    return t.length === 5 ? t + ':00' : t;
-  },
-
+  
   async fetchTimes() {
-    const cityInput = document.getElementById('adhan-city');
-    if (!cityInput) return;
-    
-    const city = cityInput.value.trim();
-    if (!city) { 
-      UI.toast('⚠️ Enter a city'); 
-      return; 
+    if (!navigator.geolocation) {
+      UI.toast('⚠️ Geolocation not supported');
+      return;
     }
     
-    UI.toast('🕐 Fetching prayer times…');
-    
-    try {
-      const now = new Date();
-      const d = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}`;
-      const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${d}?city=${encodeURIComponent(city)}&method=2&school=0`);
-      const data = await res.json();
-      
-      if (data.code === 200) {
-        const t = data.data.timings;
-        this.times = {
-          Fajr: t.Fajr,
-          Sunrise: t.Sunrise,
-          Dhuhr: t.Dhuhr,
-          Asr: t.Asr,
-          Maghrib: t.Maghrib,
-          Isha: t.Isha
-        };
-        
-        this.location = city; 
-        this.save(); 
-        this._renderTimes(); 
-        UI.toast('✅ Prayer times loaded!');
-        
-        const ll = document.getElementById('adhan-location-label'); 
-        if (ll) ll.textContent = `📍 ${city}`;
-      } else { 
-        UI.toast('⚠️ City not found'); 
-      }
-    } catch(e) { 
-      console.warn('Fetch error:', e);
-      UI.toast('⚠️ Network error — check connection'); 
-    }
-  },
-
-  useGPS() {
-    if (!navigator.geolocation) { 
-      UI.toast('⚠️ Geolocation not supported'); 
-      return; 
-    }
-    
-    UI.toast('📍 Getting location…');
+    UI.toast('📍 Getting location...');
     
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude: lat, longitude: lng } = pos.coords;
         
         try {
-          const now = new Date();
-          const d = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}`;
-          const res = await fetch(`https://api.aladhan.com/v1/timings/${d}?latitude=${lat}&longitude=${lng}&method=2`);
+          const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=2`);
           const data = await res.json();
           
           if (data.code === 200) {
@@ -2954,34 +2059,31 @@ const Adhan = {
               Isha: t.Isha
             };
             
-            // Get city name from coordinates (reverse geocoding)
+            // Get city name
             try {
               const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
               const geoData = await geoRes.json();
-              this.location = geoData.address?.city || geoData.address?.town || geoData.address?.village || `${lat.toFixed(2)},${lng.toFixed(2)}`;
+              this.location = geoData.address?.city || geoData.address?.town || `${lat.toFixed(2)},${lng.toFixed(2)}`;
             } catch {
               this.location = `${lat.toFixed(2)},${lng.toFixed(2)}`;
             }
             
-            this.save(); 
-            this._renderTimes();
+            this.save();
+            this.renderTimes();
             UI.toast('✅ Prayer times loaded!');
-            
-            const ll = document.getElementById('adhan-location-label'); 
-            if (ll) ll.textContent = `📍 ${this.location}`;
           }
-        } catch(e) { 
-          console.warn('GPS fetch error:', e);
-          UI.toast('⚠️ Failed to get times'); 
+        } catch (e) {
+          console.warn('Failed to fetch prayer times:', e);
+          UI.toast('⚠️ Failed to get times');
         }
       },
       () => UI.toast('⚠️ Location access denied'),
       { timeout: 10000, enableHighAccuracy: false }
     );
   },
-
-  _renderTimes() {
-    const panel = document.getElementById('adhan-times-panel'); 
+  
+  renderTimes() {
+    const panel = document.getElementById('adhan-times-panel');
     if (!panel) return;
     
     panel.style.display = 'block';
@@ -2994,18 +2096,16 @@ const Adhan = {
     // Determine current prayer
     const prayerTimes = [];
     for (const name of this.PRAYER_NAMES) {
-      const t = this.times[name]; 
+      const t = this.times[name];
       if (!t) continue;
       
-      const parts = this._to24(t).split(':');
-      const mins = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+      const [h, m] = t.split(':').map(Number);
+      const mins = h * 60 + m;
       prayerTimes.push({ name, mins });
     }
     
-    // Sort by time
     prayerTimes.sort((a, b) => a.mins - b.mins);
     
-    // Find current prayer (last prayer that has passed)
     for (let i = prayerTimes.length - 1; i >= 0; i--) {
       if (prayerTimes[i].mins <= nowMins) {
         currentPrayer = prayerTimes[i].name;
@@ -3027,72 +2127,39 @@ const Adhan = {
       }).join('');
     }
     
-    const ll = document.getElementById('adhan-location-label'); 
+    const ll = document.getElementById('adhan-location-label');
     if (ll) ll.textContent = `📍 ${this.location || 'Not set'}`;
-    
-    this._updateNextPrayer();
   },
-
+  
   toggleNotifications() {
     if (!this.notifEnabled && Notification.permission !== 'granted') {
       Notification.requestPermission().then(p => {
-        if (p === 'granted') { 
-          this.notifEnabled = true; 
-          this.save(); 
-          const pp = document.getElementById('pill-adhan-notif'); 
-          if (pp) pp.classList.add('on'); 
-          UI.toast('🔔 Adhan notifications ON'); 
+        if (p === 'granted') {
+          this.notifEnabled = true;
+          this.save();
+          document.getElementById('pill-adhan-notif')?.classList.add('on');
+          UI.toast('🔔 Adhan notifications ON');
         } else {
           UI.toast('⚠️ Notification permission denied');
         }
       });
     } else {
-      this.notifEnabled = !this.notifEnabled; 
+      this.notifEnabled = !this.notifEnabled;
       this.save();
-      const p = document.getElementById('pill-adhan-notif'); 
-      if (p) p.classList.toggle('on', this.notifEnabled);
-      UI.toast(this.notifEnabled ? '🔔 Adhan notifications ON' : '🔕 Notifications OFF');
+      document.getElementById('pill-adhan-notif')?.classList.toggle('on', this.notifEnabled);
+      UI.toast(this.notifEnabled ? '🔔 Notifications ON' : '🔕 Notifications OFF');
     }
   },
-
-  _triggerAdhan(name) {
-    // In-app banner
-    const banner = document.getElementById('adhan-banner');
-    if (banner) {
-      document.getElementById('adhan-banner-title').textContent = `${this.PRAYER_ICONS[name] || '🕌'} Azan — ${name}`;
-      document.getElementById('adhan-banner-sub').textContent = 'It is time for prayer';
-      banner.classList.add('show');
-      
-      // Auto-hide after 15 seconds
-      setTimeout(() => banner.classList.remove('show'), 15000);
-    }
-    
-    // Browser notification
-    if (Notification.permission === 'granted') {
-      new Notification(`🕌 Azan — ${name}`, {
-        body: 'It is time for prayer',
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="%23080c14"/><circle cx="14" cy="16" r="8" fill="%2338bdf8"/><circle cx="17.5" cy="13" r="6" fill="%23080c14"/></svg>',
-        silent: false
-      });
-    }
-    
-    this.previewAdhan();
-  },
-
-  dismissBanner() { 
-    document.getElementById('adhan-banner')?.classList.remove('show'); 
-  },
-
+  
   previewAdhan() {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       const ctx = new AudioContext();
       
-      // Simple adhan-like melody
       const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 392.00, 349.23, 329.63, 293.66, 261.63];
       let time = ctx.currentTime;
       
-      notes.forEach((freq, i) => {
+      notes.forEach(freq => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         
@@ -3113,104 +2180,224 @@ const Adhan = {
       });
       
       UI.toast('🔔 Adhan preview playing…');
-    } catch(e) { 
+    } catch (e) {
       console.warn('Audio preview error:', e);
-      UI.toast('⚠️ Audio not available'); 
+      UI.toast('⚠️ Audio not available');
     }
   },
   
-  // Clean up on page unload
-  cleanup() {
-    if (this._clockTimer) {
-      clearInterval(this._clockTimer);
-      this._clockTimer = null;
+  dismissBanner() {
+    document.getElementById('adhan-banner')?.classList.remove('show');
+  },
+  
+  save() {
+    try {
+      localStorage.setItem('adhan-data', JSON.stringify({
+        times: this.times,
+        location: this.location,
+        notifEnabled: this.notifEnabled
+      }));
+    } catch (e) {
+      console.warn('Failed to save adhan data:', e);
+    }
+  },
+  
+  load() {
+    try {
+      const saved = localStorage.getItem('adhan-data');
+      if (saved) {
+        const data = JSON.parse(saved);
+        this.times = data.times || {};
+        this.location = data.location || '';
+        this.notifEnabled = data.notifEnabled || false;
+        
+        if (Object.keys(this.times).length > 0) {
+          this.renderTimes();
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load adhan data:', e);
     }
   }
 };
 
-// Initialize the app
+// ══════════════════════════════════════════════
+// APP CONTROLLER
+// ══════════════════════════════════════════════
+const App = {
+  async init() {
+    console.log('🕌 Initializing Quran App...');
+    
+    // Load state
+    loadState();
+    
+    // Initialize components
+    AudioPlayer.init();
+    Adhan.load();
+    
+    // Apply saved settings
+    document.documentElement.setAttribute('data-theme', State.settings.theme);
+    document.documentElement.style.setProperty('--ar-size', State.settings.arabicSize);
+    
+    // Render initial UI
+    await UI.renderSurahs();
+    Features.renderBookmarks();
+    Features.renderNotes();
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Check if we have a last read surah
+    if (State.lastRead) {
+      document.getElementById('stat-read').textContent = State.readToday;
+    }
+    
+    console.log('✅ App initialized');
+  },
+  
+  async loadSurah(number, scrollToAyah = null) {
+    UI.showView('surah');
+    
+    const view = document.getElementById('view-surah');
+    view.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><div>Loading surah...</div></div>';
+    
+    const data = await API.getSurah(number);
+    if (!data) {
+      view.innerHTML = '<div class="empty-state">Failed to load surah</div>';
+      return;
+    }
+    
+    State.currentSurah = number;
+    State.currentAyahs = data.arabic.ayahs;
+    State.lastRead = { surah: number, ayah: scrollToAyah || 1 };
+    saveState();
+    
+    const surah = data.arabic;
+    const trans = data.translation;
+    
+    // Render surah
+    view.innerHTML = `
+      <div class="surah-header">
+        <div class="sh-num">Surah ${surah.number}</div>
+        <div class="sh-ar">${surah.name}</div>
+        <div class="sh-en">${surah.englishName}</div>
+        <div class="sh-meta">${surah.englishNameTranslation} • ${surah.revelationType} • ${surah.numberOfAyahs} ayahs</div>
+      </div>
+      
+      ${surah.number !== 1 && surah.number !== 9 ? `
+        <div class="bismillah">
+          <div class="bismillah-text">بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ</div>
+        </div>
+      ` : ''}
+      
+      <div class="surah-wrap">
+        ${surah.ayahs.map((ayah, i) => {
+          const translation = trans.ayahs[i];
+          const isBookmarked = State.bookmarks.some(b => b.key === `${number}:${ayah.numberInSurah}`);
+          
+          return `
+            <div class="ayah-card" id="ac-${i}">
+              <div class="ayah-num-badge">${ayah.numberInSurah}</div>
+              <div class="ar">${ayah.text}</div>
+              
+              <div class="wbw-container ${State.settings.showWBW ? 'show' : ''}">
+                ${ayah.text.split(' ').map(word => `
+                  <div class="wbw-word">
+                    <div class="wbw-ar">${word}</div>
+                    <div class="wbw-en">word</div>
+                  </div>
+                `).join('')}
+              </div>
+              
+              <div class="translation-container ${State.settings.showTranslation ? 'show' : ''}">
+                <div class="translation-row">
+                  <div class="trans-name">Translation</div>
+                  <div class="trans-text">${translation.text}</div>
+                </div>
+              </div>
+              
+              <div class="ayah-actions">
+                <button class="ayah-btn" onclick="AudioPlayer.play(${number}, ${ayah.numberInSurah})">
+                  <i data-lucide="play"></i>
+                  Play
+                </button>
+                <button class="ayah-btn ${isBookmarked ? 'active' : ''}" onclick="Features.toggleBookmark(${number}, ${ayah.numberInSurah})">
+                  <i data-lucide="${isBookmarked ? 'bookmark' : 'bookmark'}"></i>
+                  ${isBookmarked ? 'Saved' : 'Save'}
+                </button>
+                <button class="ayah-btn" onclick="UI.toast('Copy feature coming soon!')">
+                  <i data-lucide="copy"></i>
+                  Copy
+                </button>
+                <button class="ayah-btn" onclick="UI.toast('Share feature coming soon!')">
+                  <i data-lucide="share-2"></i>
+                  Share
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+    
+    lucide.createIcons();
+    
+    // Scroll to specific ayah if requested
+    if (scrollToAyah) {
+      setTimeout(() => {
+        const el = document.getElementById(`ac-${scrollToAyah - 1}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  },
+  
+  continueLast() {
+    if (State.lastRead) {
+      this.loadSurah(State.lastRead.surah, State.lastRead.ayah);
+    } else {
+      UI.toast('No previous reading session');
+    }
+  },
+  
+  randomSurah() {
+    const num = Math.floor(Math.random() * 114) + 1;
+    this.loadSurah(num);
+  },
+  
+  resetProgress() {
+    if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+      localStorage.clear();
+      location.reload();
+    }
+  }
+};
+
+// ══════════════════════════════════════════════
+// INITIALIZE APP
+// ══════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
-});
-
-// Clean up on page unload
-window.addEventListener('beforeunload', () => {
-  Adhan.cleanup();
-  if (LiveRoom.peer) LiveRoom.leave();
 });
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   
-  if (e.code === 'Space') { 
-    e.preventDefault(); 
-    AudioPlayer.togglePlay(); 
+  if (e.code === 'Space') {
+    e.preventDefault();
+    AudioPlayer.togglePlay();
   }
   
   if (e.code === 'ArrowRight') AudioPlayer.next();
   if (e.code === 'ArrowLeft') AudioPlayer.prev();
-  
-  // Number keys 1-9 for quick navigation
-  const num = parseInt(e.key);
-  if (num >= 1 && num <= 9 && State.currentSurah) {
-    const ayahIndex = Math.min(num - 1, State.currentAyahs.length - 1);
-    if (ayahIndex >= 0) {
-      const element = document.getElementById(`ac-${ayahIndex}`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
-  }
 });
 
-// Handle visibility change to pause audio when tab is hidden
+// Handle visibility change
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && AudioPlayer.el && !AudioPlayer.el.paused) {
     AudioPlayer.el.pause();
   }
 });
-
-// Add missing UI.renderGroups method
-UI.renderGroups = function() {
-  const groupsList = document.getElementById('groups-list');
-  if (!groupsList) return;
-  
-  groupsList.innerHTML = State.groups.map(g => `
-    <div class="study-group-card" onclick="Features.openGroup('${g.id}')">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-        <div style="font-size:0.8rem;font-weight:700;">${g.name}</div>
-        <div style="font-size:0.63rem;color:var(--text3);">${g.members} members</div>
-      </div>
-      <div style="font-size:0.7rem;color:var(--text3);margin-bottom:6px;">${g.goalText}</div>
-      <div style="height:3px;background:var(--surf3);border-radius:99px;overflow:hidden;">
-        <div style="height:100%;background:var(--accent);width:${(g.progress / g.goal * 100)}%;transition:width 0.4s;"></div>
-      </div>
-    </div>
-  `).join('') || '<div class="empty-state">No groups yet</div>';
-  
-  lucide.createIcons();
-};
-
-// Initialize groups list if needed
-if (!UI.renderGroups) {
-  UI.renderGroups = function() {
-    const groupsList = document.getElementById('groups-list');
-    if (!groupsList) return;
-    
-    groupsList.innerHTML = State.groups.map(g => `
-      <div class="study-group-card" onclick="Features.openGroup('${g.id}')">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <div style="font-size:0.8rem;font-weight:700;">${g.name}</div>
-          <div style="font-size:0.63rem;color:var(--text3);">${g.members} members</div>
-        </div>
-        <div style="font-size:0.7rem;color:var(--text3);margin-bottom:6px;">${g.goalText}</div>
-        <div style="height:3px;background:var(--surf3);border-radius:99px;overflow:hidden;">
-          <div style="height:100%;background:var(--accent);width:${(g.progress / g.goal * 100)}%;transition:width 0.4s;"></div>
-        </div>
-      </div>
-    `).join('') || '<div class="empty-state">No groups yet</div>';
-    
-    lucide.createIcons();
-  };
-}
+</script>
+</body>
+</html>
