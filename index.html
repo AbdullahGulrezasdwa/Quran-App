@@ -1,114 +1,100 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="midnight">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zenith Pro — القرآن الكريم</title>
-<meta name="description" content="A modern, feature-rich Quran reader with audio recitation, translations, word-by-word analysis, prayer times, and study features.">
-
-<!-- FAVICON: Clean crescent + star on solid background -->
-<link rel="icon" id="favicon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080c14'/%3E%3Ccircle cx='14' cy='16' r='8' fill='%2338bdf8'/%3E%3Ccircle cx='17.5' cy='13' r='6' fill='%23080c14'/%3E%3Cpolygon points='24,6 24.9,8.7 27.6,8.7 25.4,10.4 26.3,13 24,11.3 21.7,13 22.6,10.4 20.4,8.7 23.1,8.7' fill='%2338bdf8'/%3E%3C/svg%3E">
-
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080c14'/%3E%3Ccircle cx='14' cy='16' r='8' fill='%2338bdf8'/%3E%3Ccircle cx='17.5' cy='13' r='6' fill='%23080c14'/%3E%3Cpolygon points='24,6 24.9,8.7 27.6,8.7 25.4,10.4 26.3,13 24,11.3 21.7,13 22.6,10.4 20.4,8.7 23.1,8.7' fill='%2338bdf8'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Amiri+Quran&family=Amiri:ital,wght@0,400;0,700;1,400&family=Scheherazade+New:wght@400;500;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Crimson+Pro:wght@400;600;700&family=Rakkas&family=Amiri+Quran&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════════════
-   ROOT VARIABLES & THEME SYSTEM
-══════════════════════════════════════════════ */
 :root {
-  /* Layout */
-  --rail-w: 68px;
-  --panel-w: 300px;
+  --rail-w: 72px;
+  --panel-w: 320px;
   --hud-h: 76px;
-  
-  /* Transitions */
   --t: 0.2s cubic-bezier(0.4,0,0.2,1);
   --t-spring: 0.35s cubic-bezier(0.34,1.56,0.64,1);
-  
-  /* Effects */
-  --blur: 20px;
-  
-  /* Typography */
   --ar-size: 2rem;
   --en-size: 0.95rem;
 }
 
-/* Dark theme */
-[data-theme="dark"] {
-  --bg: #080c14;
-  --surf: #0f1419;
-  --surf2: #141b24;
-  --surf3: #1a212c;
+[data-theme="midnight"] {
+  --bg: #0a0e1a;
+  --surf: #0f1420;
+  --surf2: #141b2e;
+  --surf3: #1a2240;
   --text: #e8ecf1;
   --text2: #b8c1cd;
   --text3: #7b8794;
   --border: rgba(255,255,255,0.06);
-  --border2: rgba(255,255,255,0.1);
+  --accent: #3b82f6;
+  --accent-rgb: 59,130,246;
+  --gradient-1: #3b82f6;
+  --gradient-2: #1e40af;
+}
+
+[data-theme="dark"] {
+  --bg: #050608;
+  --surf: #0a0c12;
+  --surf2: #0f1419;
+  --surf3: #141b24;
+  --text: #e8ecf1;
+  --text2: #b8c1cd;
+  --text3: #7b8794;
+  --border: rgba(255,255,255,0.06);
   --accent: #38bdf8;
   --accent-rgb: 56,189,248;
-  --glow: rgba(56,189,248,0.03);
-  --shadow: rgba(0,0,0,0.6);
+  --gradient-1: #38bdf8;
+  --gradient-2: #0284c7;
 }
 
-/* Light theme */
-[data-theme="light"] {
-  --bg: #f8fafc;
-  --surf: #ffffff;
-  --surf2: #f1f5f9;
-  --surf3: #e2e8f0;
-  --text: #0f172a;
-  --text2: #475569;
-  --text3: #94a3b8;
-  --border: rgba(0,0,0,0.08);
-  --border2: rgba(0,0,0,0.12);
-  --accent: #0ea5e9;
-  --accent-rgb: 14,165,233;
-  --glow: rgba(14,165,233,0.05);
-  --shadow: rgba(0,0,0,0.1);
+[data-theme="emerald"] {
+  --bg: #051f15;
+  --surf: #0d2818;
+  --surf2: #14361f;
+  --surf3: #1a4628;
+  --text: #e0f2f1;
+  --text2: #b2dfdb;
+  --border: rgba(255,255,255,0.06);
+  --accent: #10b981;
+  --accent-rgb: 16,185,129;
+  --gradient-1: #10b981;
+  --gradient-2: #059669;
 }
 
-/* ══════════════════════════════════════════════
-   BASE STYLES
-══════════════════════════════════════════════ */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+[data-theme="royal"] {
+  --bg: #1a0a2e;
+  --surf: #16213e;
+  --surf2: #1d2844;
+  --surf3: #24335a;
+  --text: #f0e6ff;
+  --text2: #d8c5ff;
+  --border: rgba(255,255,255,0.06);
+  --accent: #a855f7;
+  --accent-rgb: 168,85,247;
+  --gradient-1: #a855f7;
+  --gradient-2: #7c3aed;
 }
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+[data-theme="sunset"] {
+  --bg: #2a1810;
+  --surf: #351e18;
+  --surf2: #472620;
+  --surf3: #572c28;
+  --text: #ffe8d6;
+  --text2: #ffd4b5;
+  --border: rgba(255,255,255,0.06);
+  --accent: #f97316;
+  --accent-rgb: 249,115,22;
+  --gradient-1: #f97316;
+  --gradient-2: #ea580c;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: var(--surf3); border-radius: 4px; }
 
-::-webkit-scrollbar-track {
-  background: var(--surf);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--surf3);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--border2);
-}
-
-/* ══════════════════════════════════════════════
-   LAYOUT STRUCTURE
-══════════════════════════════════════════════ */
 #rail {
   position: fixed;
   left: 0;
@@ -121,29 +107,31 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 16px 0;
-  gap: 4px;
   z-index: 100;
 }
 
 .rail-logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent), #0284c7);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-family: 'Rakkas', serif;
+  font-size: 1.3rem;
   color: white;
   margin-bottom: 12px;
-  box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.3);
+  box-shadow: 0 4px 16px rgba(var(--accent-rgb),0.4);
+  cursor: pointer;
+  transition: all var(--t-spring);
 }
 
+.rail-logo:hover { transform: scale(1.1); }
+
 .rail-btn {
-  position: relative;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -153,57 +141,12 @@ body {
   border: 1px solid transparent;
   background: transparent;
   color: var(--text3);
+  margin-bottom: 4px;
 }
 
-.rail-btn:hover {
-  background: var(--surf2);
-  color: var(--text);
-  border-color: var(--border);
-}
+.rail-btn:hover { background: var(--surf2); color: var(--text); }
+.rail-btn.active { color: var(--accent); background: rgba(var(--accent-rgb),0.1); }
 
-.rail-btn.active {
-  color: var(--accent);
-  background: rgba(var(--accent-rgb),0.1);
-  border-color: rgba(var(--accent-rgb),0.2);
-  box-shadow: 0 2px 12px rgba(var(--accent-rgb),0.15);
-}
-
-.rail-btn svg {
-  width: 20px;
-  height: 20px;
-}
-
-/* Tooltips */
-.tooltip {
-  position: absolute;
-  left: calc(var(--rail-w) + 4px);
-  top: 50%;
-  transform: translateY(-50%) translateX(-4px);
-  background: var(--surf3);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 5px 11px;
-  border-radius: 8px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s, transform 0.15s;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  z-index: 999;
-}
-
-.rail-btn:hover .tooltip {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
-
-.rail-spacer {
-  flex: 1;
-}
-
-/* Panel */
 .panel {
   position: fixed;
   left: var(--rail-w);
@@ -217,26 +160,18 @@ body {
   z-index: 90;
 }
 
-.panel.hidden {
-  transform: translateX(-100%);
-}
+.panel.hidden { transform: translateX(-100%); }
 
 .panel-header {
-  padding: 24px 20px 16px;
+  padding: 24px 20px;
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   background: var(--surf);
-  backdrop-filter: blur(var(--blur));
   z-index: 10;
 }
 
-.panel-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 8px;
-}
+.panel-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
 
 .search-box {
   width: 100%;
@@ -250,33 +185,19 @@ body {
   transition: all var(--t);
 }
 
-.search-box:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.1);
-}
+.search-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.1); }
 
-.panel-content {
-  padding: 12px;
-}
-
-/* Main content area */
 #main {
   margin-left: var(--rail-w);
   min-height: 100vh;
   padding-bottom: calc(var(--hud-h) + 12px);
-  transition: margin-left var(--t);
 }
 
-#main.panel-open {
-  margin-left: calc(var(--rail-w) + var(--panel-w));
-}
+#main.panel-open { margin-left: calc(var(--rail-w) + var(--panel-w)); }
 
-/* ══════════════════════════════════════════════
-   HERO SECTION
-══════════════════════════════════════════════ */
 .hero {
   padding: 48px 32px;
-  background: linear-gradient(135deg, var(--surf), var(--surf2));
+  background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent-rgb),0.05));
   border-bottom: 1px solid var(--border);
   text-align: center;
 }
@@ -285,2119 +206,782 @@ body {
   font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 700;
   margin-bottom: 12px;
-  background: linear-gradient(135deg, var(--accent), #0284c7);
+  background: linear-gradient(135deg, var(--accent), var(--gradient-2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-}
-
-.hero-subtitle {
-  font-size: 1.1rem;
-  color: var(--text2);
-  margin-bottom: 32px;
-}
-
-.hero-stats {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
-}
-
-.stat-card {
-  background: var(--surf2);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px 28px;
-  min-width: 140px;
-  transition: all var(--t);
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(var(--accent-rgb),0.1);
-  border-color: rgba(var(--accent-rgb),0.3);
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-family: 'Crimson Pro', serif;
 }
 
 .hero-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
-  flex-wrap: wrap;
+  margin: 24px 0;
 }
 
-.btn {
+.btn-primary {
   padding: 12px 24px;
+  background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
+  color: white;
+  border: none;
   border-radius: 12px;
-  font-weight: 600;
-  font-size: 0.9rem;
   cursor: pointer;
+  font-weight: 600;
   transition: all var(--t);
-  border: 1px solid transparent;
-  display: inline-flex;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(var(--accent-rgb),0.4);
+}
+
+.btn-primary:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(var(--accent-rgb),0.5); }
+
+.btn-secondary {
+  padding: 10px 20px;
+  background: linear-gradient(180deg, var(--surf2), var(--surf3));
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--t);
+  font-size: 0.9rem;
+  display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.btn-primary {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
+.btn-secondary:hover { transform: translateY(-2px); border-color: var(--accent); }
 
-.btn-primary:hover {
-  background: #0284c7;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(var(--accent-rgb),0.3);
-}
-
-.btn-secondary {
-  background: var(--surf2);
-  color: var(--text);
-  border-color: var(--border2);
-}
-
-.btn-secondary:hover {
-  background: var(--surf3);
-  border-color: var(--accent);
-}
-
-/* ══════════════════════════════════════════════
-   SURAH LIST
-══════════════════════════════════════════════ */
-.surah-card {
+.surah-item {
+  padding: 12px;
   background: var(--surf);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all var(--t);
+  margin-bottom: 8px;
   display: flex;
-  align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
-.surah-card:hover {
-  background: var(--surf2);
-  border-color: rgba(var(--accent-rgb),0.3);
-  transform: translateX(4px);
-}
+.surah-item:hover { background: var(--surf2); border-color: var(--accent); transform: translateX(4px); }
 
 .surah-num {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--surf2);
-  border: 1px solid var(--border);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--accent);
   flex-shrink: 0;
 }
 
-.surah-info {
-  flex: 1;
-}
+.surah-ar { font-family: 'Noto Naskh Arabic', serif; font-weight: 600; margin-bottom: 4px; }
+.surah-meta { font-size: 0.8rem; color: var(--text3); }
 
-.surah-name {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 2px;
-}
-
-.surah-meta {
-  font-size: 0.75rem;
-  color: var(--text3);
-}
-
-.surah-ar {
-  font-family: 'Amiri Quran', 'Scheherazade New', serif;
-  font-size: 1.3rem;
-  color: var(--accent);
-  font-weight: 500;
-}
-
-/* ══════════════════════════════════════════════
-   SURAH VIEW
-══════════════════════════════════════════════ */
 .surah-header {
-  background: linear-gradient(135deg, var(--surf), var(--surf2));
-  border-bottom: 1px solid var(--border);
-  padding: 32px 24px;
+  padding: 32px;
   text-align: center;
-}
-
-.sh-num {
-  display: inline-block;
-  background: var(--surf2);
-  border: 1px solid var(--border2);
-  border-radius: 12px;
-  padding: 8px 16px;
-  font-size: 0.8rem;
-  color: var(--text3);
-  margin-bottom: 12px;
-  font-weight: 600;
-}
-
-.sh-ar {
-  font-family: 'Amiri Quran', 'Scheherazade New', serif;
-  font-size: clamp(2rem, 8vw, 3.5rem);
-  color: var(--text);
-  margin-bottom: 8px;
-  font-weight: 500;
-}
-
-.sh-en {
-  font-size: 1.3rem;
-  color: var(--text2);
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.sh-meta {
-  font-size: 0.85rem;
-  color: var(--text3);
-}
-
-.surah-wrap {
-  padding: 24px 16px 100px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-/* Bismillah */
-.bismillah {
-  text-align: center;
-  padding: 32px 0;
-  margin-bottom: 24px;
   border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent-rgb),0.05));
 }
 
-.bismillah-text {
-  font-family: 'Amiri Quran', 'Scheherazade New', serif;
-  font-size: 2rem;
-  color: var(--accent);
-  direction: rtl;
-}
+.sh-ar { font-size: 2.5rem; font-family: 'Noto Naskh Arabic', serif; font-weight: 600; margin: 16px 0; }
+.sh-en { font-size: 1.8rem; color: var(--accent); font-family: 'Crimson Pro', serif; margin-bottom: 12px; }
 
-/* Ayah cards */
+.surah-wrap { padding: 32px; max-width: 900px; margin: 0 auto; }
+
 .ayah-card {
+  margin-bottom: 32px;
+  padding: 24px;
   background: var(--surf);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px 18px 16px;
-  margin-bottom: 12px;
-  transition: all var(--t);
-  position: relative;
+  border-radius: 12px;
 }
 
-.ayah-card:hover {
-  border-color: rgba(var(--accent-rgb),0.3);
-  box-shadow: 0 4px 16px rgba(var(--accent-rgb),0.08);
-}
+.ayah-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.1); }
 
-.ayah-card.playing {
-  border-color: var(--accent);
-  background: linear-gradient(to right, rgba(var(--accent-rgb),0.05), transparent);
-  box-shadow: 0 4px 20px rgba(var(--accent-rgb),0.15);
-}
+.ayah-num { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2)); color: white; border-radius: 8px; font-weight: 700; margin-bottom: 12px; }
 
-.ayah-num-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--surf2);
-  border: 1px solid var(--border);
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 12px;
-}
+.ar { font-size: var(--ar-size); font-family: 'Amiri Quran', serif; line-height: 2.2; text-align: right; margin-bottom: 16px; direction: rtl; }
 
-.ar {
-  font-family: 'Amiri Quran', 'Scheherazade New', serif;
-  font-size: var(--ar-size);
-  direction: rtl;
-  line-height: 2.9;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  color: var(--text);
-  display: block;
-  padding: 8px 0 4px;
-  word-break: break-word;
-}
-
-/* Word-by-word translation */
-.wbw-container {
-  display: none;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-  margin: 12px 0;
-  direction: rtl;
-  justify-content: center;
-}
-
-.wbw-container.show {
-  display: flex;
-}
-
-.wbw-word {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 7px 9px;
-  background: var(--glow);
-  border-radius: 9px;
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: all var(--t);
-  min-width: 80px;
-}
-
-.wbw-word:hover {
-  background: var(--surf2);
-  border-color: rgba(var(--accent-rgb),0.4);
-  transform: translateY(-2px);
-}
-
-.wbw-ar {
-  font-family: 'Amiri Quran', serif;
-  font-size: 1.2rem;
-  color: var(--text);
-}
-
-.wbw-en {
-  font-size: 0.7rem;
-  color: var(--text3);
-  text-align: center;
-}
-
-/* Translation */
-.translation-container {
-  display: none;
-  margin-top: 10px;
-}
-
-.translation-container.show {
-  display: block;
-}
-
-.translation-row {
-  padding: 10px 14px;
-  border-radius: 10px;
-  margin-bottom: 6px;
-  background: rgba(var(--accent-rgb),0.04);
-  border-left: 2px solid rgba(var(--accent-rgb),0.4);
-}
-
-.trans-name {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.trans-text {
-  font-size: var(--en-size);
-  color: var(--text2);
-  line-height: 1.7;
-}
-
-/* Ayah actions */
-.ayah-actions {
-  display: flex;
-  gap: 6px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
+.ayah-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
 
 .ayah-btn {
   flex: 1;
-  padding: 8px;
-  border-radius: 8px;
+  min-width: 80px;
+  padding: 10px 12px;
   background: var(--surf2);
+  color: var(--text);
   border: 1px solid var(--border);
-  color: var(--text3);
-  font-size: 0.75rem;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
   transition: all var(--t);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
 }
 
-.ayah-btn:hover {
-  background: var(--surf3);
-  color: var(--text);
-  border-color: rgba(var(--accent-rgb),0.3);
-}
+.ayah-btn:hover { transform: translateY(-2px); background: var(--surf3); border-color: var(--accent); color: var(--accent); }
 
-.ayah-btn.active {
-  background: rgba(var(--accent-rgb),0.1);
-  color: var(--accent);
-  border-color: rgba(var(--accent-rgb),0.3);
-}
-
-.ayah-btn svg {
-  width: 14px;
-  height: 14px;
-}
-
-/* ══════════════════════════════════════════════
-   AUDIO HUD (Bottom Player)
-══════════════════════════════════════════════ */
-.hud {
+#hud {
   position: fixed;
   bottom: 0;
   left: var(--rail-w);
   right: 0;
   height: var(--hud-h);
   background: var(--surf);
-  backdrop-filter: blur(var(--blur));
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  gap: 12px;
+  gap: 16px;
+  padding: 0 24px;
   z-index: 80;
-  transition: left var(--t);
 }
 
-.hud.panel-open {
-  left: calc(var(--rail-w) + var(--panel-w));
-}
+#hud.panel-open { left: calc(var(--rail-w) + var(--panel-w)); }
 
-.hud-art {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent), #0284c7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 0.95rem;
-  box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.25);
-  flex-shrink: 0;
-}
+.audio-meta { flex: 1; min-width: 0; }
+.audio-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.audio-progress { font-size: 0.75rem; color: var(--text3); }
 
-.hud-info {
-  flex: 1;
-  min-width: 0;
-}
+.audio-controls { display: flex; gap: 8px; align-items: center; }
 
-.hud-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.hud-meta {
-  font-size: 0.75rem;
-  color: var(--text3);
-}
-
-.play-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: none;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--t);
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(var(--accent-rgb),0.3);
-}
-
-.play-btn:hover {
-  background: #0284c7;
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(var(--accent-rgb),0.4);
-}
-
-.play-btn svg {
-  width: 20px;
-  height: 20px;
-}
-
-.hud-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.hud-btn {
-  width: 36px;
-  height: 36px;
+.audio-btn {
+  width: 40px;
+  height: 40px;
   border-radius: 8px;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text3);
+  background: linear-gradient(180deg, rgba(var(--accent-rgb),0.2), rgba(var(--accent-rgb),0.05));
+  border: 1px solid rgba(var(--accent-rgb),0.3);
+  color: var(--accent);
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   transition: all var(--t);
 }
 
-.hud-btn:hover {
-  background: var(--surf2);
-  color: var(--text);
-  border-color: rgba(var(--accent-rgb),0.3);
-}
+.audio-btn:hover { transform: translateY(-3px); }
 
-.hud-btn svg {
-  width: 18px;
-  height: 18px;
-}
-
-.hud-time {
-  font-size: 0.75rem;
-  color: var(--text3);
-  min-width: 90px;
-  text-align: center;
-}
-
-.hud-extras {
-  display: flex;
-  gap: 6px;
-}
-
-/* ══════════════════════════════════════════════
-   MODALS & OVERLAYS
-══════════════════════════════════════════════ */
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(8px);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 20px;
+  z-index: 200;
+  backdrop-filter: blur(4px);
 }
 
-.modal-overlay.show {
-  display: flex;
-}
+.modal-overlay.show { display: flex; }
 
 .modal {
-  background: linear-gradient(160deg, var(--surf), var(--surf2));
-  border: 1px solid var(--border2);
-  border-radius: 22px;
-  padding: 28px;
-  max-width: 90vw;
-  max-height: 88vh;
-  overflow-y: auto;
-  width: 100%;
-  position: relative;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.07) inset, 0 32px 80px rgba(0,0,0,0.65), 0 8px 32px rgba(0,0,0,0.5);
-  animation: modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
-}
-
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.modal-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.modal-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--surf2);
+  background: var(--surf);
   border: 1px solid var(--border);
-  color: var(--text3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--t);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: slideUp var(--t-spring);
 }
 
-.modal-close:hover {
-  background: var(--surf3);
-  color: var(--text);
-  border-color: rgba(var(--accent-rgb),0.3);
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-.modal-close svg {
-  width: 18px;
-  height: 18px;
-}
+.modal-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
 
-.modal-body {
-  color: var(--text2);
-  line-height: 1.7;
-}
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
 
-/* Settings modal */
-.setting-group {
-  margin-bottom: 20px;
-}
-
-.setting-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 8px;
-  display: block;
-}
-
-.setting-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.form-input {
+  width: 100%;
   padding: 12px;
   background: var(--surf2);
   border: 1px solid var(--border);
   border-radius: 10px;
-  margin-bottom: 8px;
-}
-
-.setting-info {
-  flex: 1;
-}
-
-.setting-name {
-  font-size: 0.85rem;
-  font-weight: 600;
   color: var(--text);
-  margin-bottom: 2px;
-}
-
-.setting-desc {
-  font-size: 0.75rem;
-  color: var(--text3);
-}
-
-/* Toggle switch (pill) */
-.pill {
-  width: 36px;
-  height: 20px;
-  border-radius: 99px;
-  background: var(--surf3);
-  border: 1px solid var(--border2);
-  position: relative;
+  font-size: 0.95rem;
+  outline: none;
   transition: all var(--t);
-  flex-shrink: 0;
-  cursor: pointer;
+  font-family: inherit;
 }
 
-.pill::after {
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.1); }
+
+.form-actions { display: flex; gap: 12px; margin-top: 24px; }
+.form-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
+
+.btn-submit { background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2)); color: white; }
+.btn-submit:hover { transform: translateY(-2px); }
+
+.theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+
+.theme-option {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all var(--t);
+  position: relative;
+}
+
+.theme-option:hover { border-color: var(--accent); transform: scale(1.05); }
+.theme-option.active { border-color: var(--accent); box-shadow: 0 0 12px rgba(var(--accent-rgb),0.4); }
+
+.theme-option::before {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--text3);
-  transition: all var(--t);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-}
-
-.pill.on {
-  background: rgba(var(--accent-rgb),0.25);
-  border-color: rgba(var(--accent-rgb),0.5);
-}
-
-.pill.on::after {
-  left: 18px;
-  background: var(--accent);
-  box-shadow: 0 0 8px rgba(var(--accent-rgb),0.5);
-}
-
-/* ══════════════════════════════════════════════
-   ADHAN / PRAYER TIMES
-══════════════════════════════════════════════ */
-.adhan-banner {
-  position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--surf);
-  border: 1px solid rgba(var(--accent-rgb),0.4);
-  border-radius: 18px;
-  padding: 16px 24px;
-  z-index: 9999;
-  text-align: center;
-  min-width: 280px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 40px rgba(var(--accent-rgb),0.15);
-  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
-  display: none;
-  opacity: 0;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.adhan-banner.show {
-  display: flex;
-  opacity: 1;
-}
-
-.adhan-prayer-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px;
-  background: var(--surf2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  margin-bottom: 6px;
-  transition: all var(--t);
-}
-
-.adhan-prayer-row.current {
-  background: rgba(var(--accent-rgb),0.1);
-  border-color: rgba(var(--accent-rgb),0.3);
-  box-shadow: 0 2px 8px rgba(var(--accent-rgb),0.15);
-}
-
-.apr-icon {
-  font-size: 1.2rem;
-}
-
-.apr-name {
-  flex: 1;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--text);
-}
-
-.apr-time {
-  font-size: 0.85rem;
-  color: var(--text3);
-  font-weight: 600;
-}
-
-/* ══════════════════════════════════════════════
-   STUDY FEATURES
-══════════════════════════════════════════════ */
-.heatmap-container {
-  display: grid;
-  grid-template-columns: repeat(14, 1fr);
-  gap: 3px;
-  margin: 8px 0;
-}
-
-.heatmap-day {
-  aspect-ratio: 1;
-  border-radius: 3px;
-  background: var(--surf2);
-  transition: background 0.2s;
-  cursor: pointer;
-}
-
-.heatmap-day:hover {
-  transform: scale(1.1);
-}
-
-.heatmap-day[data-level="1"] { background: rgba(var(--accent-rgb),0.25); }
-.heatmap-day[data-level="2"] { background: rgba(var(--accent-rgb),0.45); }
-.heatmap-day[data-level="3"] { background: rgba(var(--accent-rgb),0.7); }
-.heatmap-day[data-level="4"] { background: var(--accent); }
-
-.note-card {
-  background: var(--surf2);
-  border: 1px solid var(--border);
+  inset: 0;
+  background: linear-gradient(135deg, var(--th-primary), var(--th-secondary));
   border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 8px;
 }
 
-.note-ref {
-  font-size: 0.75rem;
-  color: var(--accent);
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.note-text {
-  font-size: 0.85rem;
-  color: var(--text2);
-  line-height: 1.6;
-}
-
-.note-time {
-  font-size: 0.7rem;
-  color: var(--text3);
-  margin-top: 6px;
-}
-
-/* ══════════════════════════════════════════════
-   LOADING & EMPTY STATES
-══════════════════════════════════════════════ */
-.loading-spinner {
+.theme-option.active::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 280px;
-  gap: 14px;
-  color: var(--text3);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
 }
 
-.spinner {
-  width: 32px;
-  height: 32px;
-  border: 2.5px solid var(--border2);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--text3);
-  font-size: 0.9rem;
-}
-
-/* Toast notifications */
 .toast {
   position: fixed;
-  bottom: calc(var(--hud-h) + 16px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--surf);
-  border: 1px solid var(--border2);
-  border-radius: 12px;
+  bottom: 100px;
+  right: 24px;
   padding: 12px 20px;
-  font-size: 0.85rem;
+  background: var(--surf3);
   color: var(--text);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  z-index: 9999;
-  animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  z-index: 300;
+  animation: slideIn var(--t) ease-out;
 }
 
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+@keyframes slideIn {
+  from { transform: translateX(400px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
-/* ══════════════════════════════════════════════
-   RESPONSIVE DESIGN
-══════════════════════════════════════════════ */
-@media (max-width: 600px) {
-  :root {
-    --rail-w: 54px;
-    --panel-w: 280px;
-    --hud-h: 68px;
-  }
-  
-  .hud {
-    margin: 0 6px 6px;
-    padding: 0 10px;
-    gap: 7px;
-  }
-  
-  .hud-art {
-    width: 36px;
-    height: 36px;
-    font-size: 0.85rem;
-  }
-  
-  .play-btn {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .hud-extras {
-    display: none;
-  }
-  
-  .surah-wrap {
-    padding: 16px 12px 90px;
-  }
-  
-  .ayah-card {
-    padding: 16px 14px 12px;
-  }
-  
-  .sh-ar {
-    font-size: clamp(1.8rem, 8vw, 3rem) !important;
-  }
-  
-  .hero {
-    padding: 32px 16px;
-  }
-  
-  .hero-stats {
-    gap: 16px;
-  }
-  
-  .hero-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .stat-card {
-    min-width: 120px;
-    padding: 16px 20px;
-  }
-  
-  .modal {
-    padding: 20px;
-    border-radius: 16px;
-  }
-  
-  .ar {
-    font-size: 1.6rem;
-  }
+.group-card {
+  padding: 16px;
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  transition: all var(--t);
 }
 
-/* ══════════════════════════════════════════════
-   UTILITIES
-══════════════════════════════════════════════ */
-.hidden {
-  display: none !important;
+.group-card:hover { border-color: var(--accent); background: rgba(var(--accent-rgb),0.05); }
+
+.group-name { font-weight: 600; margin-bottom: 4px; }
+.group-meta { font-size: 0.8rem; color: var(--text3); margin-bottom: 8px; }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
+
+.loading-spinner { display: flex; flex-direction: column; align-items: center; padding: 60px 20px; color: var(--text3); }
+.spinner { width: 40px; height: 40px; border: 3px solid rgba(var(--accent-rgb),0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  :root { --rail-w: 60px; --panel-w: 280px; }
+  .hero { padding: 32px 20px; }
+  .surah-wrap { padding: 16px; }
 }
-
-.text-center {
-  text-align: center;
-}
-
-.mb-2 { margin-bottom: 8px; }
-.mb-3 { margin-bottom: 12px; }
-.mb-4 { margin-bottom: 16px; }
-
-.mt-2 { margin-top: 8px; }
-.mt-3 { margin-top: 12px; }
-.mt-4 { margin-top: 16px; }
 </style>
 </head>
 <body>
 
-<!-- Left Navigation Rail -->
 <div id="rail">
-  <div class="rail-logo">ق</div>
-  
-  <div class="rail-btn active" onclick="UI.showView('home')">
-    <i data-lucide="home"></i>
-    <span class="tooltip">Home</span>
-  </div>
-  
-  <div class="rail-btn" onclick="UI.togglePanel('surahs')">
-    <i data-lucide="book-open"></i>
-    <span class="tooltip">Surahs</span>
-  </div>
-  
-  <div class="rail-btn" onclick="UI.togglePanel('search')">
-    <i data-lucide="search"></i>
-    <span class="tooltip">Search</span>
-  </div>
-  
-  <div class="rail-btn" onclick="UI.togglePanel('bookmarks')">
-    <i data-lucide="bookmark"></i>
-    <span class="tooltip">Bookmarks</span>
-  </div>
-  
-  <div class="rail-btn" onclick="UI.togglePanel('adhan')">
-    <i data-lucide="clock"></i>
-    <span class="tooltip">Prayer Times</span>
-  </div>
-  
-  <div class="rail-btn" onclick="UI.togglePanel('notes')">
-    <i data-lucide="file-text"></i>
-    <span class="tooltip">Notes</span>
-  </div>
-  
-  <div class="rail-spacer"></div>
-  
-  <div class="rail-btn" onclick="UI.openSettings()">
-    <i data-lucide="settings"></i>
-    <span class="tooltip">Settings</span>
-  </div>
-  
-  <div class="rail-btn" onclick="Theme.toggle()">
-    <i data-lucide="moon"></i>
-    <span class="tooltip">Toggle Theme</span>
-  </div>
+  <div class="rail-logo" onclick="UI.showView('home')">ز</div>
+  <button class="rail-btn active" onclick="UI.showView('home')"><i data-lucide="home"></i></button>
+  <button class="rail-btn" onclick="UI.showView('bookmarks')"><i data-lucide="bookmark"></i></button>
+  <button class="rail-btn" onclick="UI.showView('groups')"><i data-lucide="users"></i></button>
+  <button class="rail-btn" onclick="UI.showView('adhan')"><i data-lucide="clock"></i></button>
+  <div style="flex: 1;"></div>
+  <button class="rail-btn" onclick="UI.togglePanel()"><i data-lucide="menu"></i></button>
+  <button class="rail-btn" onclick="Settings.openSettings()"><i data-lucide="settings"></i></button>
 </div>
 
-<!-- Panels -->
-<!-- Surahs Panel -->
-<div id="panel-surahs" class="panel hidden">
+<div id="panel" class="panel hidden">
   <div class="panel-header">
-    <div class="panel-title">Surahs (114)</div>
-    <input type="text" class="search-box" placeholder="Search surahs..." onkeyup="UI.filterSurahs(this.value)">
+    <h2 class="panel-title">Surahs</h2>
+    <input type="text" class="search-box" placeholder="Search...">
   </div>
-  <div class="panel-content" id="surahs-list"></div>
+  <div id="panel-list"></div>
 </div>
 
-<!-- Search Panel -->
-<div id="panel-search" class="panel hidden">
-  <div class="panel-header">
-    <div class="panel-title">Search Quran</div>
-    <input type="text" class="search-box" placeholder="Search..." onkeyup="Features.search(this.value)" id="search-input">
-  </div>
-  <div class="panel-content" id="search-results">
-    <div class="empty-state">Enter search query...</div>
-  </div>
-</div>
-
-<!-- Bookmarks Panel -->
-<div id="panel-bookmarks" class="panel hidden">
-  <div class="panel-header">
-    <div class="panel-title">Bookmarks</div>
-  </div>
-  <div class="panel-content" id="bookmarks-list">
-    <div class="empty-state">No bookmarks yet</div>
-  </div>
-</div>
-
-<!-- Prayer Times Panel -->
-<div id="panel-adhan" class="panel hidden">
-  <div class="panel-header">
-    <div class="panel-title">Prayer Times</div>
-  </div>
-  <div class="panel-content">
-    <button class="btn btn-primary" style="width:100%;margin-bottom:16px;" onclick="Adhan.fetchTimes()">
-      <i data-lucide="map-pin"></i>
-      Get Prayer Times
-    </button>
-    
-    <div id="adhan-times-panel" style="display:none;">
-      <div id="adhan-location-label" class="mb-3" style="font-size:0.8rem;color:var(--text3);text-align:center;">📍 Not set</div>
-      <div id="adhan-prayer-rows"></div>
-      
-      <div class="setting-row mt-4">
-        <div class="setting-info">
-          <div class="setting-name">Notifications</div>
-          <div class="setting-desc">Get alerts at prayer times</div>
-        </div>
-        <div class="pill" id="pill-adhan-notif" onclick="Adhan.toggleNotifications()"></div>
-      </div>
-      
-      <button class="btn btn-secondary" style="width:100%;margin-top:12px;" onclick="Adhan.previewAdhan()">
-        <i data-lucide="volume-2"></i>
-        Preview Adhan
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Notes Panel -->
-<div id="panel-notes" class="panel hidden">
-  <div class="panel-header">
-    <div class="panel-title">My Notes</div>
-  </div>
-  <div class="panel-content" id="notes-list">
-    <div class="empty-state">No notes yet</div>
-  </div>
-</div>
-
-<!-- Main Content Area -->
 <div id="main">
-  <!-- Home View -->
-  <div id="view-home">
+  <div id="view-home" class="view-content">
     <div class="hero">
-      <h1 class="hero-title">القرآن الكريم</h1>
-      <p class="hero-subtitle">Read, listen, and study the Holy Quran</p>
-      
-      <div class="hero-stats">
-        <div class="stat-card">
-          <div class="stat-value">114</div>
-          <div class="stat-label">Surahs</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">6,236</div>
-          <div class="stat-label">Ayahs</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="stat-read">0</div>
-          <div class="stat-label">Read Today</div>
+      <h1 class="hero-title">Zenith Pro</h1>
+      <p style="color: var(--text2); margin-bottom: 24px;">Modern Quran Reader</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="App.continueLast()"><i data-lucide="play"></i> Continue</button>
+        <button class="btn-secondary" onclick="App.randomSurah()"><i data-lucide="shuffle"></i> Random</button>
+        <button class="btn-secondary" onclick="Adhan.getLocationAuto()"><i data-lucide="map-pin"></i> Prayer Times</button>
+      </div>
+    </div>
+    <div style="padding: 32px; max-width: 1200px; margin: 0 auto;">
+      <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 16px;">Browse</h2>
+      <div id="home-surahs"></div>
+    </div>
+  </div>
+
+  <div id="view-bookmarks" class="view-content" style="display: none;">
+    <div style="padding: 32px; max-width: 900px; margin: 0 auto;">
+      <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 16px;">Bookmarks</h2>
+      <div id="bookmarks-list"></div>
+    </div>
+  </div>
+
+  <div id="view-groups" class="view-content" style="display: none;">
+    <div style="padding: 32px; max-width: 900px; margin: 0 auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <h2 style="font-size: 1.3rem; font-weight: 700;">Study Groups</h2>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-primary" style="padding: 10px 16px; font-size: 0.9rem;" onclick="Groups.openCreateModal()"><i data-lucide="plus"></i> Create</button>
+          <button class="btn-secondary" style="padding: 10px 16px; font-size: 0.9rem;" onclick="Groups.openJoinModal()"><i data-lucide="log-in"></i> Join</button>
         </div>
       </div>
-      
-      <div class="hero-actions">
-        <button class="btn btn-primary" onclick="UI.togglePanel('surahs')">
-          <i data-lucide="book-open"></i>
-          Browse Surahs
-        </button>
-        <button class="btn btn-secondary" onclick="App.continueLast()">
-          <i data-lucide="play"></i>
-          Continue Reading
-        </button>
-        <button class="btn btn-secondary" onclick="App.randomSurah()">
-          <i data-lucide="shuffle"></i>
-          Random Surah
-        </button>
+      <div id="groups-list"></div>
+    </div>
+  </div>
+
+  <div id="view-adhan" class="view-content" style="display: none;">
+    <div style="padding: 32px; max-width: 900px; margin: 0 auto;">
+      <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 24px;">Prayer Times</h2>
+      <div class="group-card" style="margin-bottom: 24px;">
+        <div class="form-group">
+          <label class="form-label">📍 Location</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="adhan-location" class="form-input" placeholder="City name..." style="flex: 1;">
+            <button class="btn-primary" onclick="Adhan.fetchTimes()" style="padding: 12px 20px;">Get</button>
+          </div>
+        </div>
+        <div id="adhan-prayer-rows"></div>
       </div>
     </div>
   </div>
-  
-  <!-- Surah View -->
-  <div id="view-surah" class="hidden"></div>
+
+  <div id="view-surah" class="view-content" style="display: none;"></div>
 </div>
 
-<!-- Audio HUD (Bottom Player) -->
-<div class="hud">
-  <div class="hud-art" id="hud-art">—</div>
-  <div class="hud-info">
-    <div class="hud-title" id="hud-title">No audio playing</div>
-    <div class="hud-meta" id="hud-meta">Select an ayah to begin</div>
+<div id="hud">
+  <div class="audio-meta">
+    <div class="audio-title" id="audio-title">No surah</div>
+    <div class="audio-progress"><span id="audio-current">0:00</span> / <span id="audio-duration">0:00</span></div>
   </div>
-  
-  <div class="hud-controls">
-    <button class="hud-btn" onclick="AudioPlayer.prev()">
-      <i data-lucide="skip-back"></i>
-    </button>
-    <button class="play-btn" id="play-btn" onclick="AudioPlayer.togglePlay()">
-      <i data-lucide="play"></i>
-    </button>
-    <button class="hud-btn" onclick="AudioPlayer.next()">
-      <i data-lucide="skip-forward"></i>
-    </button>
-  </div>
-  
-  <div class="hud-time" id="hud-time">0:00 / 0:00</div>
-  
-  <div class="hud-extras">
-    <button class="hud-btn" onclick="AudioPlayer.toggleRepeat()" id="repeat-btn">
-      <i data-lucide="repeat"></i>
-    </button>
-    <button class="hud-btn" onclick="UI.openSettings()">
-      <i data-lucide="settings"></i>
-    </button>
+  <div class="audio-controls">
+    <button class="audio-btn" onclick="AudioPlayer.prev()"><i data-lucide="skip-back"></i></button>
+    <button class="audio-btn" onclick="AudioPlayer.togglePlay()" id="audio-play-btn"><i data-lucide="play"></i></button>
+    <button class="audio-btn" onclick="AudioPlayer.next()"><i data-lucide="skip-forward"></i></button>
   </div>
 </div>
 
 <!-- Settings Modal -->
-<div class="modal-overlay" id="modal-settings">
-  <div class="modal" style="max-width:600px;">
-    <div class="modal-header">
-      <h2 class="modal-title">Settings</h2>
-      <button class="modal-close" onclick="UI.closeModal('settings')">
-        <i data-lucide="x"></i>
-      </button>
+<div id="modal-settings" class="modal-overlay">
+  <div class="modal">
+    <h2 class="modal-title">Settings</h2>
+    <div class="form-group">
+      <label class="form-label">Theme</label>
+      <div class="theme-grid" id="theme-grid"></div>
     </div>
-    <div class="modal-body">
-      <div class="setting-group">
-        <label class="setting-label">Appearance</label>
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-name">Dark Mode</div>
-            <div class="setting-desc">Use dark theme</div>
-          </div>
-          <div class="pill on" id="pill-theme" onclick="Theme.toggle()"></div>
-        </div>
-      </div>
-      
-      <div class="setting-group">
-        <label class="setting-label">Reading</label>
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-name">Arabic Font Size</div>
-            <div class="setting-desc">Adjust Arabic text size</div>
-          </div>
-          <select onchange="Settings.setArabicSize(this.value)" style="padding:8px;border-radius:8px;background:var(--surf2);border:1px solid var(--border);color:var(--text);">
-            <option value="1.6rem">Small</option>
-            <option value="2rem" selected>Medium</option>
-            <option value="2.4rem">Large</option>
-            <option value="3rem">Extra Large</option>
-          </select>
-        </div>
-        
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-name">Show Translation</div>
-            <div class="setting-desc">Display English translation</div>
-          </div>
-          <div class="pill on" id="pill-translation" onclick="Settings.toggleTranslation()"></div>
-        </div>
-        
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-name">Word-by-Word</div>
-            <div class="setting-desc">Show word translations</div>
-          </div>
-          <div class="pill" id="pill-wbw" onclick="Settings.toggleWBW()"></div>
-        </div>
-      </div>
-      
-      <div class="setting-group">
-        <label class="setting-label">Audio</label>
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-name">Auto-play Next</div>
-            <div class="setting-desc">Continue to next ayah automatically</div>
-          </div>
-          <div class="pill on" id="pill-autoplay" onclick="Settings.toggleAutoplay()"></div>
-        </div>
-        
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-name">Reciter</div>
-            <div class="setting-desc">Select your preferred reciter</div>
-          </div>
-          <select onchange="Settings.setReciter(this.value)" id="reciter-select" style="padding:8px;border-radius:8px;background:var(--surf2);border:1px solid var(--border);color:var(--text);">
-            <option value="ar.alafasy">Mishary Alafasy</option>
-            <option value="ar.abdulbasitmurattal">Abdul Basit</option>
-            <option value="ar.minshawi">Al-Minshawi</option>
-            <option value="ar.husary">Al-Husary</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="setting-group">
-        <label class="setting-label">Data</label>
-        <button class="btn btn-secondary" style="width:100%;" onclick="App.resetProgress()">
-          <i data-lucide="trash-2"></i>
-          Clear All Data
-        </button>
-      </div>
+    <div class="form-group">
+      <label class="form-label">Arabic Size</label>
+      <input type="range" class="form-input" id="arabic-size" min="1.5" max="3" step="0.1" value="2" oninput="Settings.updateArabicSize(this.value)" style="padding: 0;">
+      <div style="text-align: center; margin-top: 8px; color: var(--text3);"><span id="arabic-size-display">2rem</span></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-submit" onclick="Settings.closeSettings()">Done</button>
+      <button class="btn-submit" style="background: rgba(220,38,38,0.2); color: #dc2626;" onclick="Settings.resetData()">Reset</button>
     </div>
   </div>
 </div>
 
-<!-- Adhan Banner -->
-<div class="adhan-banner" id="adhan-banner">
-  <div id="adhan-banner-title" style="font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:4px;">🕌 Azan</div>
-  <div id="adhan-banner-sub" style="font-size:0.85rem;color:var(--text3);">It is time for prayer</div>
-  <button class="btn btn-secondary" style="margin-top:8px;" onclick="Adhan.dismissBanner()">Dismiss</button>
+<!-- Create Group Modal -->
+<div id="modal-create-group" class="modal-overlay">
+  <div class="modal">
+    <h2 class="modal-title">Create Group</h2>
+    <div class="form-group">
+      <label class="form-label">Group Name</label>
+      <input type="text" class="form-input" id="group-name" placeholder="e.g., Juz 1">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Target Surah</label>
+      <input type="text" class="form-input" id="group-surah" placeholder="e.g., Al-Fatiha">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input type="text" class="form-input" id="group-desc" placeholder="About group..." style="height: 60px;">
+    </div>
+    <div class="form-actions">
+      <button class="btn-submit" onclick="Groups.createGroup()">Create</button>
+      <button style="flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: transparent; cursor: pointer; font-weight: 600;" onclick="Groups.closeCreateModal()">Cancel</button>
+    </div>
+  </div>
 </div>
 
-<!-- Toast Container -->
-<div id="toast-container"></div>
+<!-- Join Group Modal -->
+<div id="modal-join-group" class="modal-overlay">
+  <div class="modal">
+    <h2 class="modal-title">Join Group</h2>
+    <p style="color: var(--text2); margin-bottom: 20px;">Enter group code</p>
+    <div class="form-group">
+      <label class="form-label">Code</label>
+      <input type="text" class="form-input" id="join-code" placeholder="e.g., GRP123ABC" style="text-transform: uppercase;">
+    </div>
+    <div class="form-actions">
+      <button class="btn-submit" onclick="Groups.joinGroup()">Join</button>
+      <button style="flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: transparent; cursor: pointer; font-weight: 600;" onclick="Groups.closeJoinModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
-// ══════════════════════════════════════════════
-// GLOBAL STATE & CONFIGURATION
-// ══════════════════════════════════════════════
 const State = {
   currentSurah: null,
-  currentAyahs: [],
-  bookmarks: [],
-  notes: [],
-  readToday: 0,
   lastRead: null,
-  settings: {
-    theme: 'dark',
-    arabicSize: '2rem',
-    showTranslation: true,
-    showWBW: false,
-    autoplay: true,
-    reciter: 'ar.alafasy'
-  },
-  groups: []
+  bookmarks: [],
+  groups: [],
+  settings: { theme: 'midnight', arabicSize: '2rem' }
 };
 
-// Load state from localStorage
-function loadState() {
-  try {
-    const saved = localStorage.getItem('quran-app-state');
-    if (saved) {
-      const data = JSON.parse(saved);
-      Object.assign(State, data);
-    }
-  } catch (e) {
-    console.warn('Failed to load state:', e);
-  }
-}
+const THEMES = [
+  { id: 'midnight', name: 'Midnight', primary: '#3b82f6', secondary: '#1e40af' },
+  { id: 'dark', name: 'Dark', primary: '#38bdf8', secondary: '#0284c7' },
+  { id: 'emerald', name: 'Emerald', primary: '#10b981', secondary: '#059669' },
+  { id: 'royal', name: 'Royal', primary: '#a855f7', secondary: '#7c3aed' },
+  { id: 'sunset', name: 'Sunset', primary: '#f97316', secondary: '#ea580c' }
+];
 
-// Save state to localStorage
-function saveState() {
-  try {
-    localStorage.setItem('quran-app-state', JSON.stringify(State));
-  } catch (e) {
-    console.warn('Failed to save state:', e);
-  }
-}
+const SURAHS = [
+  { number: 1, name: 'الفاتحة', en: 'Al-Fatiha', ayahs: 7 },
+  { number: 2, name: 'البقرة', en: 'Al-Baqarah', ayahs: 286 },
+  { number: 3, name: 'آل عمران', en: 'Ali Imran', ayahs: 200 },
+  { number: 4, name: 'النساء', en: 'An-Nisa', ayahs: 176 },
+  { number: 5, name: 'المائدة', en: 'Al-Maidah', ayahs: 120 }
+];
 
-// ══════════════════════════════════════════════
-// API CLIENT
-// ══════════════════════════════════════════════
-const API = {
-  BASE: 'https://api.alquran.cloud/v1',
-  
-  async getSurahList() {
-    try {
-      const res = await fetch(`${this.BASE}/surah`);
-      const data = await res.json();
-      return data.data;
-    } catch (e) {
-      console.error('Failed to fetch surahs:', e);
-      return [];
-    }
-  },
-  
-  async getSurah(number) {
-    try {
-      const [arabic, translation] = await Promise.all([
-        fetch(`${this.BASE}/surah/${number}`).then(r => r.json()),
-        fetch(`${this.BASE}/surah/${number}/en.asad`).then(r => r.json())
-      ]);
-      
-      return {
-        arabic: arabic.data,
-        translation: translation.data
-      };
-    } catch (e) {
-      console.error('Failed to fetch surah:', e);
-      return null;
-    }
-  },
-  
-  async searchQuran(query) {
-    try {
-      const res = await fetch(`${this.BASE}/search/${encodeURIComponent(query)}/all/en`);
-      const data = await res.json();
-      return data.data?.matches || [];
-    } catch (e) {
-      console.error('Search failed:', e);
-      return [];
-    }
-  }
-};
+function save() { localStorage.setItem('quran-state', JSON.stringify(State)); }
+function load() { const s = localStorage.getItem('quran-state'); if (s) Object.assign(State, JSON.parse(s)); }
 
-// ══════════════════════════════════════════════
-// THEME MANAGER
-// ══════════════════════════════════════════════
-const Theme = {
-  toggle() {
-    const html = document.documentElement;
-    const current = html.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    State.settings.theme = next;
-    saveState();
-    
-    // Update pill
-    const pill = document.getElementById('pill-theme');
-    if (pill) pill.classList.toggle('on', next === 'dark');
-    
-    // Update icon
-    const icon = document.querySelector('#rail .rail-btn:last-child i');
-    if (icon) {
-      icon.setAttribute('data-lucide', next === 'dark' ? 'moon' : 'sun');
-      lucide.createIcons();
-    }
-  }
-};
-
-// ══════════════════════════════════════════════
-// SETTINGS MANAGER
-// ══════════════════════════════════════════════
-const Settings = {
-  setArabicSize(size) {
-    document.documentElement.style.setProperty('--ar-size', size);
-    State.settings.arabicSize = size;
-    saveState();
-  },
-  
-  toggleTranslation() {
-    State.settings.showTranslation = !State.settings.showTranslation;
-    const pill = document.getElementById('pill-translation');
-    if (pill) pill.classList.toggle('on', State.settings.showTranslation);
-    
-    // Update all translation containers
-    document.querySelectorAll('.translation-container').forEach(el => {
-      el.classList.toggle('show', State.settings.showTranslation);
-    });
-    
-    saveState();
-  },
-  
-  toggleWBW() {
-    State.settings.showWBW = !State.settings.showWBW;
-    const pill = document.getElementById('pill-wbw');
-    if (pill) pill.classList.toggle('on', State.settings.showWBW);
-    
-    // Update all WBW containers
-    document.querySelectorAll('.wbw-container').forEach(el => {
-      el.classList.toggle('show', State.settings.showWBW);
-    });
-    
-    saveState();
-  },
-  
-  toggleAutoplay() {
-    State.settings.autoplay = !State.settings.autoplay;
-    const pill = document.getElementById('pill-autoplay');
-    if (pill) pill.classList.toggle('on', State.settings.autoplay);
-    saveState();
-  },
-  
-  setReciter(reciter) {
-    State.settings.reciter = reciter;
-    saveState();
-  }
-};
-
-// ══════════════════════════════════════════════
-// AUDIO PLAYER
-// ══════════════════════════════════════════════
 const AudioPlayer = {
   el: null,
-  currentIndex: -1,
-  
+  currentSurah: null,
+  currentAyah: null,
   init() {
     this.el = new Audio();
-    this.el.addEventListener('ended', () => {
-      if (State.settings.autoplay) {
-        this.next();
-      }
-    });
-    
-    this.el.addEventListener('timeupdate', () => {
-      this.updateTime();
-    });
+    this.el.addEventListener('timeupdate', () => this.updateProgress());
+    this.el.addEventListener('ended', () => this.next());
   },
-  
-  play(surah, ayahNum) {
-    const paddedSurah = String(surah).padStart(3, '0');
-    const paddedAyah = String(ayahNum).padStart(3, '0');
-    const url = `https://cdn.islamic.network/quran/audio-surah/128/${State.settings.reciter}/${paddedSurah}${paddedAyah}.mp3`;
-    
-    this.el.src = url;
+  play(s, a) {
+    this.currentSurah = s;
+    this.currentAyah = a;
+    this.el.src = `https://everyayah.com/data/Alafasy_64kbps/${String(s).padStart(3, '0')}${String(a).padStart(3, '0')}.mp3`;
     this.el.play();
-    
-    this.currentIndex = ayahNum - 1;
-    
-    // Update HUD
-    document.getElementById('hud-art').textContent = surah;
-    document.getElementById('hud-title').textContent = `Surah ${surah}, Ayah ${ayahNum}`;
-    document.getElementById('hud-meta').textContent = State.currentAyahs[this.currentIndex]?.text?.substring(0, 50) + '...' || '';
-    
-    // Update play button
-    const playBtn = document.getElementById('play-btn');
-    if (playBtn) {
-      playBtn.querySelector('i').setAttribute('data-lucide', 'pause');
-      lucide.createIcons();
-    }
-    
-    // Highlight current ayah
-    document.querySelectorAll('.ayah-card').forEach(el => el.classList.remove('playing'));
-    document.getElementById(`ac-${this.currentIndex}`)?.classList.add('playing');
-    
-    // Increment read count
-    State.readToday++;
-    document.getElementById('stat-read').textContent = State.readToday;
-    saveState();
+    document.getElementById('audio-title').textContent = `${SURAHS.find(x => x.number === s)?.en} - ${a}`;
+    this.updateBtn();
   },
-  
   togglePlay() {
-    if (!this.el || !this.el.src) {
-      UI.toast('No audio selected');
-      return;
-    }
-    
-    if (this.el.paused) {
-      this.el.play();
-      document.getElementById('play-btn').querySelector('i').setAttribute('data-lucide', 'pause');
-    } else {
-      this.el.pause();
-      document.getElementById('play-btn').querySelector('i').setAttribute('data-lucide', 'play');
-    }
-    lucide.createIcons();
+    if (!this.el.src) return;
+    this.el.paused ? this.el.play() : this.el.pause();
+    this.updateBtn();
   },
-  
   next() {
-    if (this.currentIndex < State.currentAyahs.length - 1) {
-      this.play(State.currentSurah, this.currentIndex + 2);
+    if (!this.currentSurah) return;
+    const s = SURAHS.find(x => x.number === this.currentSurah);
+    if (this.currentAyah < s.ayahs) {
+      this.play(this.currentSurah, this.currentAyah + 1);
+    } else if (this.currentSurah < SURAHS.length) {
+      this.play(this.currentSurah + 1, 1);
     }
   },
-  
   prev() {
-    if (this.currentIndex > 0) {
-      this.play(State.currentSurah, this.currentIndex);
+    if (!this.currentSurah) return;
+    if (this.currentAyah > 1) {
+      this.play(this.currentSurah, this.currentAyah - 1);
+    } else if (this.currentSurah > 1) {
+      const p = SURAHS.find(x => x.number === this.currentSurah - 1);
+      this.play(this.currentSurah - 1, p.ayahs);
     }
   },
-  
-  updateTime() {
-    if (!this.el) return;
-    
-    const current = this.formatTime(this.el.currentTime);
-    const total = this.formatTime(this.el.duration);
-    document.getElementById('hud-time').textContent = `${current} / ${total}`;
+  updateProgress() {
+    const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    document.getElementById('audio-current').textContent = fmt(this.el.currentTime);
+    document.getElementById('audio-duration').textContent = fmt(this.el.duration || 0);
   },
-  
-  formatTime(seconds) {
-    if (!seconds || !isFinite(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  },
-  
-  toggleRepeat() {
-    this.el.loop = !this.el.loop;
-    const btn = document.getElementById('repeat-btn');
-    if (btn) btn.classList.toggle('active', this.el.loop);
+  updateBtn() {
+    const i = document.querySelector('#audio-play-btn i');
+    if (i) i.setAttribute('data-lucide', this.el.paused ? 'play' : 'pause');
+    lucide.createIcons();
   }
 };
 
-// ══════════════════════════════════════════════
-// UI MANAGER
-// ══════════════════════════════════════════════
 const UI = {
-  currentPanel: null,
-  
-  showView(view) {
-    // Hide all views
-    document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
-    
-    // Show selected view
-    const viewEl = document.getElementById(`view-${view}`);
-    if (viewEl) viewEl.classList.remove('hidden');
-    
-    // Update rail buttons
-    document.querySelectorAll('.rail-btn').forEach(el => el.classList.remove('active'));
-  },
-  
-  togglePanel(panel) {
-    const panelEl = document.getElementById(`panel-${panel}`);
-    if (!panelEl) return;
-    
-    // Close current panel if different
-    if (this.currentPanel && this.currentPanel !== panel) {
-      document.getElementById(`panel-${this.currentPanel}`)?.classList.add('hidden');
-    }
-    
-    // Toggle selected panel
-    const isOpen = !panelEl.classList.contains('hidden');
-    panelEl.classList.toggle('hidden');
-    
-    // Update main margin
-    const main = document.getElementById('main');
-    const hud = document.querySelector('.hud');
-    if (isOpen) {
-      main.classList.remove('panel-open');
-      hud.classList.remove('panel-open');
-      this.currentPanel = null;
-    } else {
-      main.classList.add('panel-open');
-      hud.classList.add('panel-open');
-      this.currentPanel = panel;
-    }
-  },
-  
-  openSettings() {
-    this.openModal('settings');
-    
-    // Update pill states
-    document.getElementById('pill-theme')?.classList.toggle('on', State.settings.theme === 'dark');
-    document.getElementById('pill-translation')?.classList.toggle('on', State.settings.showTranslation);
-    document.getElementById('pill-wbw')?.classList.toggle('on', State.settings.showWBW);
-    document.getElementById('pill-autoplay')?.classList.toggle('on', State.settings.autoplay);
-    
-    // Update reciter select
-    const reciterSelect = document.getElementById('reciter-select');
-    if (reciterSelect) reciterSelect.value = State.settings.reciter;
-  },
-  
-  openModal(id) {
-    const modal = document.getElementById(`modal-${id}`);
-    if (modal) {
-      modal.classList.add('show');
-      lucide.createIcons();
-    }
-  },
-  
-  closeModal(id) {
-    const modal = document.getElementById(`modal-${id}`);
-    if (modal) modal.classList.remove('show');
-  },
-  
-  toast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => toast.remove(), 3000);
-  },
-  
   async renderSurahs() {
-    const list = document.getElementById('surahs-list');
-    if (!list) return;
-    
-    list.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><div>Loading surahs...</div></div>';
-    
-    const surahs = await API.getSurahList();
-    
-    list.innerHTML = surahs.map(s => `
-      <div class="surah-card" onclick="App.loadSurah(${s.number})">
+    const p = document.getElementById('panel-list');
+    p.innerHTML = SURAHS.map(s => `
+      <div class="surah-item" onclick="App.loadSurah(${s.number})">
         <div class="surah-num">${s.number}</div>
-        <div class="surah-info">
-          <div class="surah-name">${s.englishName}</div>
-          <div class="surah-meta">${s.englishNameTranslation} • ${s.numberOfAyahs} ayahs</div>
+        <div style="flex:1;">
+          <div class="surah-ar">${s.name}</div>
+          <div class="surah-meta">${s.en}</div>
         </div>
-        <div class="surah-ar">${s.name}</div>
+      </div>
+    `).join('');
+
+    const h = document.getElementById('home-surahs');
+    h.innerHTML = SURAHS.map(s => `
+      <div class="surah-item" onclick="App.loadSurah(${s.number})">
+        <div class="surah-num">${s.number}</div>
+        <div style="flex:1;">
+          <div class="surah-ar">${s.name}</div>
+          <div class="surah-meta">${s.en}</div>
+        </div>
       </div>
     `).join('');
   },
-  
-  filterSurahs(query) {
-    const cards = document.querySelectorAll('.surah-card');
-    const q = query.toLowerCase();
-    
-    cards.forEach(card => {
-      const text = card.textContent.toLowerCase();
-      card.style.display = text.includes(q) ? '' : 'none';
-    });
+
+  showView(name) {
+    document.querySelectorAll('.view-content').forEach(v => v.style.display = 'none');
+    document.getElementById(`view-${name}`).style.display = 'block';
+  },
+
+  togglePanel() {
+    document.getElementById('panel').classList.toggle('hidden');
+    document.getElementById('main').classList.toggle('panel-open');
+    document.getElementById('hud').classList.toggle('panel-open');
+  },
+
+  toast(m) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = m;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
   }
 };
 
-// ══════════════════════════════════════════════
-// FEATURES
-// ══════════════════════════════════════════════
-const Features = {
-  async search(query) {
-    if (!query || query.length < 3) {
-      document.getElementById('search-results').innerHTML = '<div class="empty-state">Enter at least 3 characters</div>';
+const Groups = {
+  openCreateModal() { document.getElementById('modal-create-group').classList.add('show'); },
+  closeCreateModal() { document.getElementById('modal-create-group').classList.remove('show'); },
+  openJoinModal() { document.getElementById('modal-join-group').classList.add('show'); },
+  closeJoinModal() { document.getElementById('modal-join-group').classList.remove('show'); },
+
+  createGroup() {
+    const n = document.getElementById('group-name').value.trim();
+    const s = document.getElementById('group-surah').value.trim();
+    if (!n || !s) { UI.toast('Fill fields'); return; }
+    const c = 'GRP' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    State.groups.push({ id: Date.now(), name: n, surah: s, code: c, members: 1, progress: 0 });
+    save();
+    this.closeCreateModal();
+    this.renderGroups();
+    UI.toast(`Created! Code: ${c}`);
+  },
+
+  joinGroup() {
+    const c = document.getElementById('join-code').value.trim().toUpperCase();
+    const g = State.groups.find(x => x.code === c);
+    if (!g) { UI.toast('Invalid code'); return; }
+    g.members++;
+    save();
+    this.closeJoinModal();
+    this.renderGroups();
+    UI.toast(`Joined: ${g.name}`);
+  },
+
+  renderGroups() {
+    const c = document.getElementById('groups-list');
+    if (!State.groups.length) {
+      c.innerHTML = '<div class="empty-state">Create or join a group!</div>';
       return;
     }
-    
-    document.getElementById('search-results').innerHTML = '<div class="loading-spinner"><div class="spinner"></div><div>Searching...</div></div>';
-    
-    const results = await API.searchQuran(query);
-    
-    if (results.length === 0) {
-      document.getElementById('search-results').innerHTML = '<div class="empty-state">No results found</div>';
-      return;
-    }
-    
-    document.getElementById('search-results').innerHTML = results.slice(0, 20).map(r => `
-      <div class="surah-card" onclick="App.loadSurah(${r.surah.number}, ${r.numberInSurah})">
-        <div class="surah-num">${r.surah.number}:${r.numberInSurah}</div>
-        <div class="surah-info">
-          <div class="surah-name">${r.surah.englishName}</div>
-          <div class="surah-meta">${r.text.substring(0, 100)}...</div>
+    c.innerHTML = State.groups.map((g, i) => `
+      <div class="group-card">
+        <div class="group-name">${g.name}</div>
+        <div class="group-meta">📖 ${g.surah} • 👥 ${g.members}</div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <button class="btn-secondary" style="flex:1; padding:8px; font-size:0.8rem;" onclick="navigator.clipboard.writeText('${g.code}'); UI.toast('Copied!')">Copy: ${g.code}</button>
+          <button class="btn-secondary" style="flex:1; padding:8px; font-size:0.8rem; color:#dc2626;" onclick="State.groups.splice(${i},1); save(); Groups.renderGroups();">Delete</button>
         </div>
-      </div>
-    `).join('');
-  },
-  
-  toggleBookmark(surah, ayah) {
-    const key = `${surah}:${ayah}`;
-    const index = State.bookmarks.findIndex(b => b.key === key);
-    
-    if (index >= 0) {
-      State.bookmarks.splice(index, 1);
-      UI.toast('Bookmark removed');
-    } else {
-      State.bookmarks.push({
-        key,
-        surah,
-        ayah,
-        timestamp: Date.now()
-      });
-      UI.toast('Bookmarked!');
-    }
-    
-    saveState();
-    this.renderBookmarks();
-  },
-  
-  renderBookmarks() {
-    const list = document.getElementById('bookmarks-list');
-    if (!list) return;
-    
-    if (State.bookmarks.length === 0) {
-      list.innerHTML = '<div class="empty-state">No bookmarks yet</div>';
-      return;
-    }
-    
-    list.innerHTML = State.bookmarks.map(b => `
-      <div class="surah-card" onclick="App.loadSurah(${b.surah}, ${b.ayah})">
-        <div class="surah-num">${b.surah}:${b.ayah}</div>
-        <div class="surah-info">
-          <div class="surah-name">Surah ${b.surah}, Ayah ${b.ayah}</div>
-          <div class="surah-meta">${new Date(b.timestamp).toLocaleDateString()}</div>
-        </div>
-      </div>
-    `).join('');
-  },
-  
-  addNote(surah, ayah, text) {
-    if (!text || !text.trim()) return;
-    
-    State.notes.push({
-      surah,
-      ayah,
-      text: text.trim(),
-      timestamp: Date.now()
-    });
-    
-    saveState();
-    UI.toast('Note added!');
-    this.renderNotes();
-  },
-  
-  renderNotes() {
-    const list = document.getElementById('notes-list');
-    if (!list) return;
-    
-    if (State.notes.length === 0) {
-      list.innerHTML = '<div class="empty-state">No notes yet</div>';
-      return;
-    }
-    
-    list.innerHTML = State.notes.map(n => `
-      <div class="note-card">
-        <div class="note-ref">Surah ${n.surah}, Ayah ${n.ayah}</div>
-        <div class="note-text">${n.text}</div>
-        <div class="note-time">${new Date(n.timestamp).toLocaleString()}</div>
       </div>
     `).join('');
   }
 };
 
-// ══════════════════════════════════════════════
-// PRAYER TIMES (ADHAN)
-// ══════════════════════════════════════════════
-const Adhan = {
-  times: {},
-  location: '',
-  notifEnabled: false,
-  _clockTimer: null,
-  
-  PRAYER_NAMES: ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],
-  PRAYER_ICONS: {
-    Fajr: '🌅',
-    Sunrise: '☀️',
-    Dhuhr: '🌞',
-    Asr: '🌤️',
-    Maghrib: '🌇',
-    Isha: '🌙'
-  },
-  
-  async fetchTimes() {
-    if (!navigator.geolocation) {
-      UI.toast('⚠️ Geolocation not supported');
-      return;
-    }
-    
-    UI.toast('📍 Getting location...');
-    
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude: lat, longitude: lng } = pos.coords;
-        
-        try {
-          const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=2`);
-          const data = await res.json();
-          
-          if (data.code === 200) {
-            const t = data.data.timings;
-            this.times = {
-              Fajr: t.Fajr,
-              Sunrise: t.Sunrise,
-              Dhuhr: t.Dhuhr,
-              Asr: t.Asr,
-              Maghrib: t.Maghrib,
-              Isha: t.Isha
-            };
-            
-            // Get city name
-            try {
-              const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-              const geoData = await geoRes.json();
-              this.location = geoData.address?.city || geoData.address?.town || `${lat.toFixed(2)},${lng.toFixed(2)}`;
-            } catch {
-              this.location = `${lat.toFixed(2)},${lng.toFixed(2)}`;
-            }
-            
-            this.save();
-            this.renderTimes();
-            UI.toast('✅ Prayer times loaded!');
-          }
-        } catch (e) {
-          console.warn('Failed to fetch prayer times:', e);
-          UI.toast('⚠️ Failed to get times');
-        }
-      },
-      () => UI.toast('⚠️ Location access denied'),
-      { timeout: 10000, enableHighAccuracy: false }
-    );
-  },
-  
-  renderTimes() {
-    const panel = document.getElementById('adhan-times-panel');
-    if (!panel) return;
-    
-    panel.style.display = 'block';
-    
-    const now = new Date();
-    const nowMins = now.getHours() * 60 + now.getMinutes();
-    
-    let currentPrayer = '';
-    
-    // Determine current prayer
-    const prayerTimes = [];
-    for (const name of this.PRAYER_NAMES) {
-      const t = this.times[name];
-      if (!t) continue;
-      
-      const [h, m] = t.split(':').map(Number);
-      const mins = h * 60 + m;
-      prayerTimes.push({ name, mins });
-    }
-    
-    prayerTimes.sort((a, b) => a.mins - b.mins);
-    
-    for (let i = prayerTimes.length - 1; i >= 0; i--) {
-      if (prayerTimes[i].mins <= nowMins) {
-        currentPrayer = prayerTimes[i].name;
-        break;
-      }
-    }
-    
-    const rowsContainer = document.getElementById('adhan-prayer-rows');
-    if (rowsContainer) {
-      rowsContainer.innerHTML = this.PRAYER_NAMES.map(name => {
-        const t = this.times[name] || '—';
-        const isCurrent = name === currentPrayer;
-        
-        return `<div class="adhan-prayer-row ${isCurrent ? 'current' : ''}">
-          <div class="apr-icon">${this.PRAYER_ICONS[name] || '🕐'}</div>
-          <div class="apr-name">${name}</div>
-          <div class="apr-time">${t}</div>
-        </div>`;
-      }).join('');
-    }
-    
-    const ll = document.getElementById('adhan-location-label');
-    if (ll) ll.textContent = `📍 ${this.location || 'Not set'}`;
-  },
-  
-  toggleNotifications() {
-    if (!this.notifEnabled && Notification.permission !== 'granted') {
-      Notification.requestPermission().then(p => {
-        if (p === 'granted') {
-          this.notifEnabled = true;
-          this.save();
-          document.getElementById('pill-adhan-notif')?.classList.add('on');
-          UI.toast('🔔 Adhan notifications ON');
-        } else {
-          UI.toast('⚠️ Notification permission denied');
-        }
-      });
-    } else {
-      this.notifEnabled = !this.notifEnabled;
-      this.save();
-      document.getElementById('pill-adhan-notif')?.classList.toggle('on', this.notifEnabled);
-      UI.toast(this.notifEnabled ? '🔔 Notifications ON' : '🔕 Notifications OFF');
-    }
-  },
-  
-  previewAdhan() {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const ctx = new AudioContext();
-      
-      const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 392.00, 349.23, 329.63, 293.66, 261.63];
-      let time = ctx.currentTime;
-      
-      notes.forEach(freq => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        
-        osc.frequency.value = freq;
-        osc.type = 'sine';
-        
-        gain.gain.setValueAtTime(0, time);
-        gain.gain.linearRampToValueAtTime(0.15, time + 0.1);
-        gain.gain.linearRampToValueAtTime(0, time + 0.4);
-        
-        osc.start(time);
-        osc.stop(time + 0.5);
-        
-        time += 0.35;
-      });
-      
-      UI.toast('🔔 Adhan preview playing…');
-    } catch (e) {
-      console.warn('Audio preview error:', e);
-      UI.toast('⚠️ Audio not available');
-    }
-  },
-  
-  dismissBanner() {
-    document.getElementById('adhan-banner')?.classList.remove('show');
-  },
-  
-  save() {
-    try {
-      localStorage.setItem('adhan-data', JSON.stringify({
-        times: this.times,
-        location: this.location,
-        notifEnabled: this.notifEnabled
-      }));
-    } catch (e) {
-      console.warn('Failed to save adhan data:', e);
-    }
-  },
-  
-  load() {
-    try {
-      const saved = localStorage.getItem('adhan-data');
-      if (saved) {
-        const data = JSON.parse(saved);
-        this.times = data.times || {};
-        this.location = data.location || '';
-        this.notifEnabled = data.notifEnabled || false;
-        
-        if (Object.keys(this.times).length > 0) {
-          this.renderTimes();
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to load adhan data:', e);
-    }
-  }
-};
+const Settings = {
+  openSettings() { this.renderThemes(); document.getElementById('modal-settings').classList.add('show'); },
+  closeSettings() { document.getElementById('modal-settings').classList.remove('show'); },
 
-// ══════════════════════════════════════════════
-// APP CONTROLLER
-// ══════════════════════════════════════════════
-const App = {
-  async init() {
-    console.log('🕌 Initializing Quran App...');
-    
-    // Load state
-    loadState();
-    
-    // Initialize components
-    AudioPlayer.init();
-    Adhan.load();
-    
-    // Apply saved settings
-    document.documentElement.setAttribute('data-theme', State.settings.theme);
-    document.documentElement.style.setProperty('--ar-size', State.settings.arabicSize);
-    
-    // Render initial UI
-    await UI.renderSurahs();
-    Features.renderBookmarks();
-    Features.renderNotes();
-    
-    // Initialize Lucide icons
-    lucide.createIcons();
-    
-    // Check if we have a last read surah
-    if (State.lastRead) {
-      document.getElementById('stat-read').textContent = State.readToday;
-    }
-    
-    console.log('✅ App initialized');
+  renderThemes() {
+    const g = document.getElementById('theme-grid');
+    g.innerHTML = THEMES.map(t => `
+      <div class="theme-option ${State.settings.theme === t.id ? 'active' : ''}" style="--th-primary:${t.primary}; --th-secondary:${t.secondary};" onclick="Settings.changeTheme('${t.id}')"></div>
+    `).join('');
   },
-  
-  async loadSurah(number, scrollToAyah = null) {
-    UI.showView('surah');
-    
-    const view = document.getElementById('view-surah');
-    view.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><div>Loading surah...</div></div>';
-    
-    const data = await API.getSurah(number);
-    if (!data) {
-      view.innerHTML = '<div class="empty-state">Failed to load surah</div>';
-      return;
-    }
-    
-    State.currentSurah = number;
-    State.currentAyahs = data.arabic.ayahs;
-    State.lastRead = { surah: number, ayah: scrollToAyah || 1 };
-    saveState();
-    
-    const surah = data.arabic;
-    const trans = data.translation;
-    
-    // Render surah
-    view.innerHTML = `
-      <div class="surah-header">
-        <div class="sh-num">Surah ${surah.number}</div>
-        <div class="sh-ar">${surah.name}</div>
-        <div class="sh-en">${surah.englishName}</div>
-        <div class="sh-meta">${surah.englishNameTranslation} • ${surah.revelationType} • ${surah.numberOfAyahs} ayahs</div>
-      </div>
-      
-      ${surah.number !== 1 && surah.number !== 9 ? `
-        <div class="bismillah">
-          <div class="bismillah-text">بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ</div>
-        </div>
-      ` : ''}
-      
-      <div class="surah-wrap">
-        ${surah.ayahs.map((ayah, i) => {
-          const translation = trans.ayahs[i];
-          const isBookmarked = State.bookmarks.some(b => b.key === `${number}:${ayah.numberInSurah}`);
-          
-          return `
-            <div class="ayah-card" id="ac-${i}">
-              <div class="ayah-num-badge">${ayah.numberInSurah}</div>
-              <div class="ar">${ayah.text}</div>
-              
-              <div class="wbw-container ${State.settings.showWBW ? 'show' : ''}">
-                ${ayah.text.split(' ').map(word => `
-                  <div class="wbw-word">
-                    <div class="wbw-ar">${word}</div>
-                    <div class="wbw-en">word</div>
-                  </div>
-                `).join('')}
-              </div>
-              
-              <div class="translation-container ${State.settings.showTranslation ? 'show' : ''}">
-                <div class="translation-row">
-                  <div class="trans-name">Translation</div>
-                  <div class="trans-text">${translation.text}</div>
-                </div>
-              </div>
-              
-              <div class="ayah-actions">
-                <button class="ayah-btn" onclick="AudioPlayer.play(${number}, ${ayah.numberInSurah})">
-                  <i data-lucide="play"></i>
-                  Play
-                </button>
-                <button class="ayah-btn ${isBookmarked ? 'active' : ''}" onclick="Features.toggleBookmark(${number}, ${ayah.numberInSurah})">
-                  <i data-lucide="${isBookmarked ? 'bookmark' : 'bookmark'}"></i>
-                  ${isBookmarked ? 'Saved' : 'Save'}
-                </button>
-                <button class="ayah-btn" onclick="UI.toast('Copy feature coming soon!')">
-                  <i data-lucide="copy"></i>
-                  Copy
-                </button>
-                <button class="ayah-btn" onclick="UI.toast('Share feature coming soon!')">
-                  <i data-lucide="share-2"></i>
-                  Share
-                </button>
-              </div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `;
-    
-    lucide.createIcons();
-    
-    // Scroll to specific ayah if requested
-    if (scrollToAyah) {
-      setTimeout(() => {
-        const el = document.getElementById(`ac-${scrollToAyah - 1}`);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-    }
+
+  changeTheme(id) {
+    State.settings.theme = id;
+    document.documentElement.setAttribute('data-theme', id);
+    save();
+    this.renderThemes();
   },
-  
-  continueLast() {
-    if (State.lastRead) {
-      this.loadSurah(State.lastRead.surah, State.lastRead.ayah);
-    } else {
-      UI.toast('No previous reading session');
-    }
+
+  updateArabicSize(v) {
+    const s = parseFloat(v) + 'rem';
+    State.settings.arabicSize = s;
+    document.documentElement.style.setProperty('--ar-size', s);
+    document.getElementById('arabic-size-display').textContent = s;
+    save();
   },
-  
-  randomSurah() {
-    const num = Math.floor(Math.random() * 114) + 1;
-    this.loadSurah(num);
-  },
-  
-  resetProgress() {
-    if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+
+  resetData() {
+    if (confirm('Clear all data?')) {
       localStorage.clear();
       location.reload();
     }
   }
 };
 
-// ══════════════════════════════════════════════
-// INITIALIZE APP
-// ══════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  App.init();
-});
+const Adhan = {
+  times: {},
+  async fetchTimes() {
+    const loc = document.getElementById('adhan-location').value.trim();
+    if (!loc) { UI.toast('Enter city'); return; }
+    try {
+      const r = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(loc)}&method=2`);
+      const d = await r.json();
+      const t = d.data.timings;
+      this.times = {
+        Fajr: t.Fajr.substring(0, 5),
+        Dhuhr: t.Dhuhr.substring(0, 5),
+        Asr: t.Asr.substring(0, 5),
+        Maghrib: t.Maghrib.substring(0, 5),
+        Isha: t.Isha.substring(0, 5)
+      };
+      this.render();
+      UI.toast('Times loaded');
+    } catch (e) { UI.toast('Failed'); }
+  },
 
-// Keyboard shortcuts
+  render() {
+    const r = document.getElementById('adhan-prayer-rows');
+    if (!Object.keys(this.times).length) return;
+    r.innerHTML = Object.entries(this.times).map(([n, t]) => `
+      <div class="group-card" style="margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between;">
+          <div>${n}</div>
+          <div style="font-weight:600; color:var(--accent);">${t}</div>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  getLocationAuto() {
+    if (!navigator.geolocation) { UI.toast('Not supported'); return; }
+    navigator.geolocation.getCurrentPosition((p) => {
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}`)
+        .then(r => r.json())
+        .then(d => {
+          const c = d.address?.city || d.address?.town || 'Unknown';
+          document.getElementById('adhan-location').value = c;
+          this.fetchTimes();
+        });
+    }, () => UI.toast('Location denied'));
+  }
+};
+
+const App = {
+  async init() {
+    load();
+    AudioPlayer.init();
+    document.documentElement.setAttribute('data-theme', State.settings.theme);
+    document.documentElement.style.setProperty('--ar-size', State.settings.arabicSize);
+    await UI.renderSurahs();
+    Groups.renderGroups();
+    lucide.createIcons();
+  },
+
+  async loadSurah(num) {
+    UI.showView('surah');
+    const v = document.getElementById('view-surah');
+    v.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+    try {
+      const [a, t] = await Promise.all([
+        fetch(`https://api.quran.com/api/v4/surah/${num}`).then(r => r.json()),
+        fetch(`https://api.quran.com/api/v4/surah/${num}/ar.asad`).then(r => r.json())
+      ]);
+      State.currentSurah = num;
+      State.lastRead = { surah: num };
+      save();
+      const s = a.data;
+      v.innerHTML = `
+        <div class="surah-header">
+          <div style="font-size:0.9rem; color:var(--text3);">Surah ${s.number}</div>
+          <div class="sh-ar">${s.name}</div>
+          <div class="sh-en">${s.englishName}</div>
+          <div style="color:var(--text2);">${s.revelationType}</div>
+        </div>
+        <div class="surah-wrap">
+          ${s.ayahs.map((ay, i) => `
+            <div class="ayah-card">
+              <div class="ayah-num">${ay.numberInSurah}</div>
+              <div class="ar">${ay.text}</div>
+              <div class="ayah-actions">
+                <button class="ayah-btn" onclick="AudioPlayer.play(${num},${ay.numberInSurah})"><i data-lucide="play"></i> Play</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      lucide.createIcons();
+    } catch (e) { UI.toast('Failed to load'); }
+  },
+
+  continueLast() {
+    if (State.lastRead) {
+      this.loadSurah(State.lastRead.surah);
+    }
+  },
+
+  randomSurah() {
+    this.loadSurah(Math.floor(Math.random() * SURAHS.length) + 1);
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => App.init());
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-  
-  if (e.code === 'Space') {
-    e.preventDefault();
-    AudioPlayer.togglePlay();
-  }
-  
-  if (e.code === 'ArrowRight') AudioPlayer.next();
-  if (e.code === 'ArrowLeft') AudioPlayer.prev();
-});
-
-// Handle visibility change
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden && AudioPlayer.el && !AudioPlayer.el.paused) {
-    AudioPlayer.el.pause();
-  }
+  if (e.code === 'Space') { e.preventDefault(); AudioPlayer.togglePlay(); }
 });
 </script>
+
 </body>
 </html>
